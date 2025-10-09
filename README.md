@@ -2,23 +2,34 @@
 
 API Express con Prisma y PostgreSQL, lista para desarrollo local y Docker.
 
+---
+
 ## Requisitos
 
-- Node.js 18 o superior
 - Docker y Docker Compose
-
-## Uso con Docker 
-
-1. Construye y levanta los servicios:
-   ```sh
-   docker-compose up --build
-   ```
-
-2. La API estará disponible en [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Notas
+## Instalación y Ejecución
 
-- Si cambias el esquema de Prisma, ejecuta `npx prisma generate` de nuevo.
-- Para desarrollo puro en Node.js 18+, puedes usar `node --watch`.
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/emonca19/super-servicios-express.git
+cd super-servicios-express
+```
+
+### 2. Construir y ejecutar los contenedores con Docker Compose
+```bash
+docker-compose up --build
+```
+
+Esto levantará el servicio en el puerto especificado en el archivo `docker-compose.yml`.
+
+### 3. Acceder a la aplicación
+
+Una vez que los contenedores estén en ejecución, puedes acceder a la aplicación en tu navegador en:
+```
+http://localhost:3000
+```
+
+

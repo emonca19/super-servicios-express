@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('Servidor corriendo de forma exitosa');
+  res.send('nuuuuuuuuuuuuu');
 });
 
 
