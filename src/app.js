@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('nuuuuuuuuuuuuu');
+  res.send('Servidor inicializado con éxito');
 });
 
 
