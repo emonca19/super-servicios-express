@@ -1,31 +1,40 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: sse-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: super_servicios_express
+    ports:
+      # Si ya usas MySQL local en 3306, cambia a "3307:3306"
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p12345 --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
 
   api:
     build: .
     container_name: super-servicios-express
-    ports:
-      - "3000:3000"
-      - "5555:5555"
-    volumes:
-    - .:/app
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - PORT=${PORT}
-      - NODE_ENV=development
     depends_on:
-      - db
-  db:
-    image: postgres:18.0
-    container_name: servicios_express_db
-    restart: always
+      mysql:
+        condition: service_healthy
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      # Dentro de Docker, el host es "mysql" (no localhost)
+      DATABASE_URL: mysql://root:12345@mysql:3306/super_servicios_express
+      NODE_ENV: development
+      PORT: 3000
     ports:
-      - "5432:5432"
+      - "3000:3000"   # tu app/Studio si lo usas
+      - "5555:5555"   # libre (por si quieres exponer algo más)
+    command: sh -c "npx prisma migrate deploy && node src/index.js"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - .:/app
+      - /app/node_modules
 
 volumes:
-  postgres-data:
+  mysqldata:
