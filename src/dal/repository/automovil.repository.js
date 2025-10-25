@@ -1,84 +1,83 @@
 ﻿const prisma = require('../prisma-client');
 
-const includeAuto = {
-  cliente: true
+// Default include options
+const defaultInclude = {
+  cliente: true, // Assuming the relation field is 'cliente'
 };
 
 /**
- * Repository to handle CRUD operations for the Automovil entity.
- * Manages automobiles with their client relationships.
+ * Repository to handle CRUD operations for the Automobile entity.
+ * Manages automobiles and their relationship with the client.
  */
-class AutomovilRepository {
+class AutomobileRepository {
 
   /**
-   * Create a new automobile.
-   * @param {Object} data - The automobile data.
-   * @param {Object} include - Relations to include.
-   * @returns {Promise<Automovil>} The created automobile.
+   * Creates a new automobile.
+   * @param {Object} data - Automobile data.
+   * @param {Object} [include=defaultInclude] - Relations to include.
+   * @returns {Promise<Automobile>} The created automobile.
    */
-  async create(data, include = includeAuto) {
+  async create(data, include = defaultInclude) {
     return prisma.automovil.create({
       data: {
-        placas: data.placas,
-        marca: data.marca,
-        modelo: data.modelo,
-        anio: Number(data.anio),
+        marca: data.brand,
+        modelo: data.model,
+        anio: Number(data.year),
         color: data.color,
-        numero_serie: data.numero_serie,
-        cliente: { connect: { id_cliente: Number(data.id_cliente) } },
+        placas: data.license_plate,
+        numero_serie: data.serial_number,
+        cliente: { connect: { id_cliente: Number(data.id_client) } },
       },
       include,
     });
   }
 
   /**
-   * Get an automobile by ID.
-   * @param {number} id_auto - The automobile ID.
-   * @param {Object} include - Relations to include.
-   * @returns {Promise<Automovil|null>} The automobile or null if not found.
+   * Gets an automobile by its ID.
+   * @param {number} id_automobile - The automobile's ID.
+   * @param {Object} [include=defaultInclude] - Relations to include.
+   * @returns {Promise<Automobile|null>} The automobile or null if not found.
    */
-  async findById(id_auto, include = includeAuto) {
+  async findById(id_automobile, include = defaultInclude) {
     return prisma.automovil.findUnique({
-      where: { id_auto: Number(id_auto) },
+      where: { id_auto: Number(id_automobile) },
       include,
     });
   }
 
   /**
-   * Get an automobile by license plates.
-   * @param {string} placas - The license plates.
-   * @param {Object} include - Relations to include.
-   * @returns {Promise<Automovil|null>} The automobile or null if not found.
+   * Gets an automobile by its license plate.
+   * @param {string} license_plate - The automobile's license plate.
+   * @param {Object} [include=defaultInclude] - Relations to include.
+   * @returns {Promise<Automobile|null>} The automobile or null if not found.
    */
-  async findByPlacas(placas, include = includeAuto) {
+  async findByLicensePlate(license_plate, include = defaultInclude) {
     return prisma.automovil.findUnique({
-      where: { placas },
+      where: { placas: license_plate },
       include,
     });
   }
 
   /**
-   * Get automobiles with filters and options.
-   * @param {Object} filtros - Filters to apply.
-   * @param {Object} opciones - Query options (pagination, ordering, includes).
-   * @returns {Promise<Automovil[]>} Array of automobiles matching the criteria.
+   * Gets automobiles with filters and options.
+   * @param {Object} [filters={}] - Filters to apply (id_client, brand, minYear, etc.).
+   * @param {Object} [options={}] - Query options (pagination, ordering, includes).
+   * @returns {Promise<Automobile[]>} An array of automobiles.
    */
-  async findMany(filtros = {}, opciones = {}) {
-    const { id_cliente, marca, modelo, color, placas, numero_serie, anio, anioMin, anioMax } = filtros;
-    const { skip = 0, take = 50, orderBy = { id_auto: 'desc' }, include = includeAuto } = opciones;
+  async findMany(filters = {}, options = {}) {
+    const { id_client, brand, model, color, license_plate, serial_number, year, minYear, maxYear } = filters;
+    const { skip = 0, take = 50, orderBy = { id_auto: 'desc' }, include = defaultInclude } = options;
 
     return prisma.automovil.findMany({
       where: {
-        id_cliente: id_cliente ? Number(id_cliente) : undefined,
-        marca: marca ? { contains: marca } : undefined,
-        modelo: modelo ? { contains: modelo } : undefined,
-        color: color ? { contains: color } : undefined,
-        placas: placas ? { contains: placas } : undefined,
-        numero_serie: numero_serie ? { contains: numero_serie } : undefined,
-        anio: anio ? Number(anio) : (anioMin || anioMax) ? {
-          gte: anioMin ? Number(anioMin) : undefined,
-          lte: anioMax ? Number(anioMax) : undefined,
-        } : undefined,
+        ...(id_client ? { id_cliente: Number(id_client) } : {}),
+        ...(year ? { anio: Number(year) } : {}),
+        ...(minYear || maxYear ? { anio: { ...(minYear ? { gte: Number(minYear) } : {}), ...(maxYear ? { lte: Number(maxYear) } : {}) } } : {}),
+        ...(brand ? { marca: { contains: brand, mode: 'insensitive' } } : {}),
+        ...(model ? { modelo: { contains: model, mode: 'insensitive' } } : {}),
+        ...(color ? { color: { contains: color, mode: 'insensitive' } } : {}),
+        ...(license_plate ? { placas: { contains: license_plate, mode: 'insensitive' } } : {}),
+        ...(serial_number ? { numero_serie: { contains: serial_number, mode: 'insensitive' } } : {}),
       },
       skip,
       take,
@@ -88,38 +87,38 @@ class AutomovilRepository {
   }
 
   /**
-   * Update an automobile.
-   * @param {number} id_auto - The automobile ID.
-   * @param {Object} data - The data to update.
-   * @param {Object} include - Relations to include.
-   * @returns {Promise<Automovil>} The updated automobile.
+   * Updates an automobile (partial update).
+   * @param {number} id_automobile - The automobile's ID.
+   * @param {Object} data - Data to update.
+   * @param {Object} [include=defaultInclude] - Relations to include.
+   * @returns {Promise<Automobile>} The updated automobile.
    */
-  async update(id_auto, data, include = includeAuto) {
+  async update(id_automobile, data, include = defaultInclude) {
     return prisma.automovil.update({
-      where: { id_auto: Number(id_auto) },
+      where: { id_auto: Number(id_automobile) },
       data: {
-        placas: data.placas,
-        marca: data.marca,
-        modelo: data.modelo,
-        anio: data.anio ? Number(data.anio) : undefined,
-        color: data.color,
-        numero_serie: data.numero_serie,
-        id_cliente: data.id_cliente ? Number(data.id_cliente) : undefined,
+        ...(data.brand !== undefined ? { marca: data.brand } : {}),
+        ...(data.model !== undefined ? { modelo: data.model } : {}),
+        ...(data.year !== undefined ? { anio: Number(data.year) } : {}),
+        ...(data.color !== undefined ? { color: data.color } : {}),
+        ...(data.license_plate !== undefined ? { placas: data.license_plate } : {}),
+        ...(data.serial_number !== undefined ? { numero_serie: data.serial_number } : {}),
+        ...(data.id_client ? { cliente: { connect: { id_cliente: Number(data.id_client) } } } : {}),
       },
       include,
     });
   }
 
   /**
-   * Delete an automobile.
-   * @param {number} id_auto - The automobile ID.
-   * @returns {Promise<Automovil>} The deleted automobile.
+   * Deletes an automobile.
+   * @param {number} id_automobile - The automobile's ID.
+   * @returns {Promise<Automobile>} The deleted automobile.
    */
-  async delete(id_auto) {
+  async delete(id_automobile) {
     return prisma.automovil.delete({
-      where: { id_auto: Number(id_auto) }
+      where: { id_auto: Number(id_automobile) }
     });
   }
 }
 
-module.exports = AutomovilRepository;
+module.exports = new AutomobileRepository();

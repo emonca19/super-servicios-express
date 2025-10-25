@@ -23,10 +23,11 @@ async function testAPI() {
     });
     
     const loginData = await loginRes.json();
-    if (loginData.success && loginData.data.token) {
+    if (loginData.status === 'success' && loginData.data.token) {
       authToken = loginData.data.token;
-      console.log('Login exitoso, token obtenido');
+      console.log('✅ Login exitoso, token obtenido');
     } else {
+      console.error('Respuesta del login:', loginData);
       throw new Error('Login falló');
     }
 
@@ -34,9 +35,9 @@ async function testAPI() {
     console.log('\nTest 2: GET /clientes (sin autenticación)');
     const noAuthRes = await fetch(`${BASE_URL}/clientes`);
     if (noAuthRes.status === 401) {
-      console.log('Correctamente rechazado sin token');
+      console.log('✅ Correctamente rechazado sin token');
     } else {
-      console.warn('Debería rechazar sin token');
+      console.warn('⚠️ Debería rechazar sin token');
     }
 
     // Test 3: Get all clientes (con auth)
@@ -45,7 +46,7 @@ async function testAPI() {
       headers: { 'Authorization': `Bearer ${authToken}` }
     });
     const clientesData = await clientesRes.json();
-    console.log(`${clientesData.data.length} clientes obtenidos`);
+    console.log(`✅ ${clientesData.data.length} clientes obtenidos`);
 
     // Test 4: Get cliente by ID
     if (clientesData.data.length > 0) {
@@ -55,7 +56,7 @@ async function testAPI() {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       const clienteData = await clienteRes.json();
-      console.log(`Cliente obtenido: ${clienteData.data.nombre}`);
+      console.log(`✅ Cliente obtenido: ${clienteData.data.nombre}`);
     }
 
     // Test 5: Create cliente
@@ -78,7 +79,7 @@ async function testAPI() {
     });
     const createData = await createRes.json();
     const newClienteId = createData.data.id_cliente;
-    console.log(`Cliente creado con ID: ${newClienteId}`);
+    console.log(`✅ Cliente creado con ID: ${newClienteId}`);
 
     // Test 6: Update cliente
     console.log(`\nTest 6: PUT /clientes/${newClienteId}`);
@@ -91,7 +92,7 @@ async function testAPI() {
       body: JSON.stringify({ nombre: 'Test User Updated' })
     });
     const updateData = await updateRes.json();
-    console.log(`Cliente actualizado: ${updateData.data.nombre}`);
+    console.log(`✅ Cliente actualizado: ${updateData.data.nombre}`);
 
     // Test 7: Delete cliente
     console.log(`\nTest 7: DELETE /clientes/${newClienteId}`);
@@ -100,10 +101,10 @@ async function testAPI() {
       headers: { 'Authorization': `Bearer ${authToken}` }
     });
     if (deleteRes.status === 204 || deleteRes.status === 200) {
-      console.log('Cliente eliminado correctamente');
+      console.log('✅ Cliente eliminado correctamente');
     }
 
-    console.log('\nTodas las pruebas de API pasaron exitosamente');
+    console.log('\n🎉 Todas las pruebas de API pasaron exitosamente');
 
   } catch (err) {
     console.error('\nError en las pruebas:', err.message);

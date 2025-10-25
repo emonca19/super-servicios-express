@@ -9,7 +9,7 @@ const { authConfig } = require('../config/auth.config');
 console.log('Iniciando pruebas de JWT\n');
 
 // Test 1: Generar token
-console.log('📋 Test 1: Generar token');
+console.log('Test 1: Generar token');
 const payload = {
   id: 'test_user_123',
   email: 'test@example.com',
@@ -21,7 +21,7 @@ const token = jwt.sign(payload, authConfig.secret, {
 console.log('Token generado:', token.substring(0, 50) + '...');
 
 // Test 2: Verificar token válido
-console.log('\n📋 Test 2: Verificar token válido');
+console.log('\nTest 2: Verificar token válido');
 try {
   const decoded = jwt.verify(token, authConfig.secret);
   console.log('Token válido decodificado:');

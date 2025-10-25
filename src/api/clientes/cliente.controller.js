@@ -1,11 +1,9 @@
 const { success, error } = require('../../utils/response');
 const asyncHandler = require('../../utils/async-handler');
-const ClienteRepository = require('../../dal/repository/cliente.repository');
-
-const clienteRepository = new ClienteRepository();
+const clienteRepository = require('../../dal/repository/cliente.repository');
 
 const getAllClientes = asyncHandler(async (req, res) => {
-  const clientes = await clienteRepository.findAll();
+  const clientes = await clienteRepository.findMany();
   success(res, clientes);
 });
 

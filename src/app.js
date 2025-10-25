@@ -1,11 +1,14 @@
 const express = require('express');
-require('dotenv').config();
+// Only load .env if DATABASE_URL is not already set (Docker sets it)
+if (!process.env.DATABASE_URL) {
+  require('dotenv').config();
+}
 const cors = require('cors');
 const helmet = require('helmet');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const centralRouter = require('./api/index.routes');
-const errorHandler = require('./middlewares/errorHandler');
+const errorHandler = require('./middlewares/error-handler');
 const { error } = require('./utils/response');
 
 const app = express();

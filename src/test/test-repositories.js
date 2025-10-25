@@ -3,17 +3,11 @@
  * Ejecutar con: node src/test/test-repositories.js
  */
 
-const ClienteRepository = require('../dal/repository/cliente.repository');
-const AutomovilRepository = require('../dal/repository/automovil.repository');
-const ServicioRepository = require('../dal/repository/servicio.repository');
-const CitaRepository = require('../dal/repository/cita.repository');
-const ServicioCitaRepository = require('../dal/repository/servicio-cita.repository');
-
-const clienteRepo = new ClienteRepository();
-const automovilRepo = new AutomovilRepository();
-const servicioRepo = new ServicioRepository();
-const citaRepo = new CitaRepository();
-const servicioCitaRepo = new ServicioCitaRepository();
+const clienteRepo = require('../dal/repository/cliente.repository');
+const automovilRepo = require('../dal/repository/automovil.repository');
+const servicioRepo = require('../dal/repository/servicio.repository');
+const citaRepo = require('../dal/repository/cita.repository');
+const servicioCitaRepo = require('../dal/repository/servicio-cita.repository');
 
 async function testRepositories() {
   console.log('Iniciando pruebas de repositorios\n');
@@ -21,8 +15,8 @@ async function testRepositories() {
   try {
     // Test ClienteRepository
     console.log('Testing ClienteRepository...');
-    const clientes = await clienteRepo.findAll();
-    console.log(`findAll(): ${clientes.length} clientes encontrados`);
+    const clientes = await clienteRepo.findMany();
+    console.log(`findMany(): ${clientes.length} clientes encontrados`);
     
     if (clientes.length > 0) {
       const cliente = await clienteRepo.findById(clientes[0].id_cliente);

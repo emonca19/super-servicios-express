@@ -22,12 +22,10 @@ const createClienteValidations = [
 
 // Reglas para PUT /clientes/:id
 const updateClienteValidations = [
-  // (Asumo CUID de Prisma, que son strings)
   param('id')
     .isString().withMessage('El ID debe ser un string')
     .trim()
     .notEmpty().withMessage('El ID es requerido'),
-  // Validación de Body (opcional)
   body('nombre')
     .optional()
     .isString().withMessage('El nombre debe ser texto')

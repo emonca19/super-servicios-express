@@ -1,115 +1,121 @@
 ﻿const prisma = require('../prisma-client');
 
+const defaultInclude = {
+  cliente: true,
+  automovil: true,
+  detalles: {
+    include: { servicio: true }
+  }
+};
+
 /**
- * Repository to handle CRUD operations for the Cita entity.
+ * Repository to handle CRUD operations for the Appointment entity.
  * Manages appointments with their relationships (client, automobile, services).
  */
 class CitaRepository {
 
-    /**
-     * Get all appointments from the database.
-     * @returns {Promise<Cita[]>} Array of all appointments with client, automobile and service details.
-     */
-    async findAll() {
-        return prisma.cita.findMany({
-            include: {
-                cliente: true,
-                automovil: true,
-                detalles: { include: { servicio: true } }
-            }
-        });
-    }
+  /**
+   * Get all appointments.
+   * @param {Object} [include=defaultInclude] - Prisma include options.
+   * @returns {Promise<Appointment[]>} Array of all appointments.
+   */
+  async findAll(include = defaultInclude) {
+    return prisma.cita.findMany({ include });
+  }
 
-    /**
-     * Get an appointment by its ID.
-     * @param {number} id_cita - The appointment ID.
-     * @returns {Promise<Cita|null>} The appointment with all relations or null if not found.
-     */
-    async findById(id_cita) {
-        return prisma.cita.findUnique({
-            where: { id_cita: parseInt(id_cita) },
-            include: {
-                cliente: true,
-                automovil: true,
-                detalles: { include: { servicio: true } }
-            }
-        });
-    }
+  /**
+   * Get an appointment by its ID.
+   * @param {number} id_cita - The appointment ID.
+   * @param {Object} [include=defaultInclude] - Prisma include options.
+   * @returns {Promise<Appointment|null>} The appointment or null if not found.
+   */
+  async findById(id_cita, include = defaultInclude) {
+    return prisma.cita.findUnique({
+      where: { id_cita: parseInt(id_cita) },
+      include,
+    });
+  }
 
-    /**
-     * Create a new appointment.
-     * @param {Object} appointmentData - The appointment data.
-     * @returns {Promise<Cita>} The created appointment with all relations.
-     */
-    async create(appointmentData) {
-        return prisma.cita.create({
-            data: appointmentData,
-            include: {
-                cliente: true,
-                automovil: true,
-                detalles: { include: { servicio: true } }
-            }
-        });
-    }
+  /**
+   * Create a new appointment.
+   * @param {Object} data - The appointment data.
+   * @param {Object} [include=defaultInclude] - Prisma include options.
+   * @returns {Promise<Appointment>} The created appointment.
+   */
+  async create(data, include = defaultInclude) {
+    return prisma.cita.create({
+      data: {
+        fecha: data.fecha,
+        estado: data.estado,
+        notas: data.notas,
+        id_cliente: parseInt(data.id_cliente),
+        id_auto: parseInt(data.id_auto),
+      },
+      include,
+    });
+  }
 
-    /**
-     * Update an existing appointment.
-     * @param {number} id_cita - The appointment ID to update.
-     * @param {Object} updateData - Fields to update.
-     * @returns {Promise<Cita>} The updated appointment with all relations.
-     */
-    async update(id_cita, updateData) {
-        return prisma.cita.update({
-            where: { id_cita: parseInt(id_cita) },
-            data: updateData,
-            include: {
-                cliente: true,
-                automovil: true,
-                detalles: { include: { servicio: true } }
-            }
-        });
-    }
+  /**
+   * Update an existing appointment (partial update).
+   * @param {number} id_cita - The appointment ID to update.
+   * @param {Object} data - Fields to update.
+   * @param {Object} [include=defaultInclude] - Prisma include options.
+   * @returns {Promise<Appointment>} The updated appointment.
+   */
+  async update(id_cita, data, include = defaultInclude) {
+    return prisma.cita.update({
+      where: { id_cita: parseInt(id_cita) },
+      data: {
+        ...(data.fecha !== undefined ? { fecha: data.fecha } : {}),
+        ...(data.estado !== undefined ? { estado: data.estado } : {}),
+        ...(data.notas !== undefined ? { notas: data.notas } : {}),
+      },
+      include,
+    });
+  }
 
-    /**
-     * Delete an appointment.
-     * @param {number} id_cita - The appointment ID to delete.
-     * @returns {Promise<Cita>} The deleted appointment.
-     */
-    async delete(id_cita) {
-        return prisma.cita.delete({
-            where: { id_cita: parseInt(id_cita) }
-        });
-    }
+  /**
+   * Delete an appointment.
+   * @param {number} id_cita - The appointment ID to delete.
+   * @returns {Promise<Appointment>} The deleted appointment.
+   */
+  async delete(id_cita) {
+    return prisma.cita.delete({
+      where: { id_cita: parseInt(id_cita) }
+    });
+  }
 
-    /**
-     * Get all appointments for a specific client.
-     * @param {number} id_cliente - The client ID.
-     * @returns {Promise<Cita[]>} Array of client appointments with automobile and services.
-     */
-    async findByClient(id_cliente) {
-        return prisma.cita.findMany({
-            where: { id_cliente: parseInt(id_cliente) },
-            include: {
-                automovil: true,
-                detalles: { include: { servicio: true } }
-            }
-        });
-    }
+  /**
+   * Get all appointments for a specific client.
+   * @param {number} id_cliente - The client ID.
+   * @param {Object} [include] - Optional include object.
+   * @returns {Promise<Appointment[]>} Array of client's appointments.
+   */
+  async findByClient(id_cliente, include = defaultInclude) {
+    return prisma.cita.findMany({
+      where: { id_cliente: parseInt(id_cliente) },
+      include: {
+        ...include,
+        cliente: false,
+      },
+    });
+  }
 
-    /**
-     * Get all appointments for a specific automobile.
-     * @param {number} id_auto - The automobile ID.
-     * @returns {Promise<Cita[]>} Array of automobile appointments with client and services.
-     */
-    async findByAutomobile(id_auto) {
-        return prisma.cita.findMany({
-            where: { id_auto: parseInt(id_auto) },
-            include: {
-                cliente: true,
-                detalles: { include: { servicio: true } }
-            }
-        });
-    }
+  /**
+   * Get all appointments for a specific automobile.
+   * @param {number} id_auto - The automobile ID.
+   * @param {Object} [include] - Optional include object.
+   * @returns {Promise<Appointment[]>} Array of automobile's appointments.
+   */
+  async findByAutomobile(id_auto, include = defaultInclude) {
+    return prisma.cita.findMany({
+      where: { id_auto: parseInt(id_auto) },
+      include: {
+        ...include,
+        automovil: false, 
+      },
+    });
+  }
 }
 
-module.exports = CitaRepository;
+module.exports = new CitaRepository();
