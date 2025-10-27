@@ -29,7 +29,7 @@ services:
       NODE_ENV: development
       PORT: 3000
     ports:
-      - "3000:3000"   # Para Prisma Studio o tu API si luego usas Express
+      - "3001:3000"   # Para Prisma Studio o tu API si luego usas Express
       - "5555:5555"   # Puerto libre opcional
     # Espera a MySQL, genera Prisma Client, aplica migraciones y corre tu script
     command: >
