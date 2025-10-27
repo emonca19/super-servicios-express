@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const servicioCitaController = require('./servicioCita.controller');
+const ServicioCitaController = require('./servicioCita.controller');
 const v = require('./servicioCita.validation');
 const validate = require('../../middlewares/validate');
 
-router.post('/', v.createRules, validate, servicioCitaController.crearServicioCita.bind(servicioCitaController));
-router.get('/:id', v.idParamRule, validate, servicioCitaController.obtenerServicioCita.bind(servicioCitaController));
-router.put('/:id', v.updateRules, validate, servicioCitaController.actualizarServicioCita.bind(servicioCitaController));
-router.delete('/:id', v.idParamRule, validate, servicioCitaController.eliminarServicioCita.bind(servicioCitaController));
-router.get('/', servicioCitaController.listarServiciosCita.bind(servicioCitaController));
+router.post('/', v.createRules, validate, ServicioCitaController.crearServicioCita.bind(ServicioCitaController));
+router.get('/:id', v.idParamRule, validate, ServicioCitaController.obtenerServicioCita.bind(ServicioCitaController));
+router.put('/:id', v.updateRules, validate, ServicioCitaController.actualizarServicioCita.bind(ServicioCitaController));
+router.delete('/:id', v.idParamRule, validate, ServicioCitaController.eliminarServicioCita.bind(ServicioCitaController));
+router.get('/', ServicioCitaController.listarServiciosCita.bind(ServicioCitaController));
 
 module.exports = router;

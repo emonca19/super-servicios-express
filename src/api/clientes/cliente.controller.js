@@ -1,4 +1,3 @@
-// src/controllers/clientes.controller.js
 const prisma = require('../../prisma');
 
 class ClientesController {
@@ -23,7 +22,9 @@ class ClientesController {
 
   async listarClientes(req, res, next) {
     try {
-      const clientes = await this.prisma.cliente.findMany();
+      const clientes = await this.prisma.cliente.findMany({
+        where: { activo: true }, // solo activos
+      });
       res.json({ ok: true, data: clientes });
     } catch (e) {
       next(e);
@@ -33,8 +34,11 @@ class ClientesController {
   async obtenerCliente(req, res, next) {
     try {
       const id = parseInt(req.params.id, 10);
-      const cliente = await this.prisma.cliente.findUnique({ where: { id_cliente: id } });
-      if (!cliente) return res.status(404).json({ ok: false, message: 'No encontrado' });
+      const cliente = await this.prisma.cliente.findUnique({
+        where: { id_cliente: id },
+      });
+      if (!cliente || !cliente.activo)
+        return res.status(404).json({ ok: false, message: 'No encontrado' });
       res.json({ ok: true, data: cliente });
     } catch (e) {
       next(e);
@@ -57,13 +61,15 @@ class ClientesController {
   async eliminarCliente(req, res, next) {
     try {
       const id = parseInt(req.params.id, 10);
-      await this.prisma.cliente.delete({ where: { id_cliente: id } });
-      res.json({ ok: true, message: 'Eliminado' });
+      const cliente = await this.prisma.cliente.update({
+        where: { id_cliente: id },
+        data: { activo: false }, // soft delete
+      });
+      res.json({ ok: true, message: 'Cliente desactivado', data: cliente });
     } catch (e) {
       next(e);
     }
   }
 }
-
 
 module.exports = new ClientesController();

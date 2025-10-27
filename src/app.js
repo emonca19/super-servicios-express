@@ -10,7 +10,6 @@ app.use(express.json());
 // Rutas
 app.use('/api', routes);
 
-
 // Health check
 app.get('/health', (req, res) => res.json({ ok: true, status: 'healthy' }));
 
