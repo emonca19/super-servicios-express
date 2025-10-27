@@ -1,12 +1,29 @@
-const router = require('express').Router();
-const ctrl = require('./cliente.controller');
-const v = require('./cliente.validation');
-const validate = require('../../middlewares/validate');
+// src/routes/clientes.routes.js
+const { Router } = require('express');
+const ctrl = require('../controllers/clientes.controller');
 
-router.post('/', v.createRules, validate, ctrl.create);
-router.get('/:id', v.idParamRule, validate, ctrl.getById);
-router.put('/:id', v.updateRules, validate, ctrl.update);
-router.delete('/:id', v.idParamRule, validate, ctrl.remove);
+const router = Router();
+
+/**
+ * @openapi
+ * /api/clientes:
+ *   post:
+ *     summary: Crear cliente
+ *     tags: [Clientes]
+ */
+router.post('/', ctrl.create);
+
+/**
+ * @openapi
+ * /api/clientes/{id}:
+ *   get:
+ *     summary: Obtener cliente por id
+ *     tags: [Clientes]
+ */
+router.get('/:id', ctrl.getById);
+
 router.get('/', ctrl.list);
+router.put('/:id', ctrl.update);
+router.delete('/:id', ctrl.remove);
 
 module.exports = router;
