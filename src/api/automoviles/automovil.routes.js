@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const ctrl = require('./automovil.controller');
+const AutomovilesController = require('./automovil.controller');
 const v = require('./automovil.validation');
 const validate = require('../../middlewares/validate');
 
-router.post('/', v.createRules, validate, ctrl.create);
-router.get('/:id', v.idParamRule, validate, ctrl.getById);
-router.put('/:id', v.updateRules, validate, ctrl.update);
-router.delete('/:id', v.idParamRule, validate, ctrl.remove);
-router.get('/', ctrl.list);
+router.post('/', v.createRules, validate, AutomovilesController.crearAutomovil.bind(AutomovilesController));
+router.get('/:id', v.idParamRule, validate, AutomovilesController.obtenerAutomovil.bind(AutomovilesController));
+router.put('/:id', v.updateRules, validate, AutomovilesController.actualizarAutomovil.bind(AutomovilesController));
+router.delete('/:id', v.idParamRule, validate, AutomovilesController.eliminarAutomovil.bind(AutomovilesController));
+router.get('/', AutomovilesController.listarAutomoviles.bind(AutomovilesController));
 
 module.exports = router;

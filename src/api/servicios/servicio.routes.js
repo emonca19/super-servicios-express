@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const ctrl = require('./servicio.controller');
+const servicioController = require('./servicio.controller');
 const v = require('./servicio.validation');
 const validate = require('../../middlewares/validate');
 
-router.post('/', v.createRules, validate, ctrl.create);
-router.get('/:id', v.idParamRule, validate, ctrl.getById);
-router.put('/:id', v.updateRules, validate, ctrl.update);
-router.delete('/:id', v.idParamRule, validate, ctrl.remove);
-router.get('/', ctrl.list);
+router.post('/', v.createRules, validate, servicioController.crearServicio.bind(servicioController));
+router.get('/:id', v.idParamRule, validate, servicioController.obtenerServicio.bind(servicioController));
+router.put('/:id', v.updateRules, validate, servicioController.actualizarServicio.bind(servicioController));
+router.delete('/:id', v.idParamRule, validate, servicioController.eliminarServicio.bind(servicioController));
+router.get('/', servicioController.listarServicios.bind(servicioController));
 
 module.exports = router;

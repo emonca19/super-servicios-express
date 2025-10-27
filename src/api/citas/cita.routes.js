@@ -1,12 +1,14 @@
-const router = require('express').Router();
-const ctrl = require('./cita.controller');
+const { Router } = require('express');
+const CitasController = require('./cita.controller');
 const v = require('./cita.validation');
 const validate = require('../../middlewares/validate');
 
-router.post('/', v.createRules, validate, ctrl.create);
-router.get('/:id', v.idParamRule, validate, ctrl.getById);
-router.put('/:id', v.updateRules, validate, ctrl.update);
-router.delete('/:id', v.idParamRule, validate, ctrl.remove);
-router.get('/', ctrl.list);
+const router = Router();
+
+router.post('/', v.createRules, validate, CitasController.crearCita.bind(CitasController));
+router.get('/', CitasController.listarCitas.bind(CitasController));
+router.get('/:id', v.idParamRule, validate, CitasController.obtenerCita.bind(CitasController));
+router.put('/:id', v.updateRules, validate, CitasController.actualizarCita.bind(CitasController));
+router.delete('/:id', v.idParamRule, validate, CitasController.eliminarCita.bind(CitasController));
 
 module.exports = router;
