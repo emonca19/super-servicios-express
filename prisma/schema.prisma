@@ -1,31 +1,86 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model cliente {
-  id_cliente Int       @id @default(autoincrement())
-  nombre     String
-  telefono   String?
-  email      String?   @unique
-  direccion  String?
-  automovil  automovil[]
+generator client{
+  provider = "prisma-client-js"
 }
 
-model automovil {
-  id_auto      Int      @id @default(autoincrement())
-  marca        String
-  modelo       String
-  anio         Int
-  color        String?
-  placas       String?  @unique
-  numero_serie String?  @unique
-  id_cliente   Int
-  cliente      cliente  @relation(fields: [id_cliente], references: [id_cliente], onDelete: Cascade)
+model Cliente {
+  id_cliente Int @id @default(autoincrement())
+  nombre     String
+  telefono   String
+  email      String @unique
+  direccion  String?
 
-  @@index([id_cliente])
+  automoviles Automovil[]
+  citas       Cita[]
+
+  @@map("cliente")
+}
+
+model Automovil {
+  id_auto         Int @id @default(autoincrement())
+  marca           String
+  modelo          String
+  anio            Int
+  color           String
+  placas          String @unique
+  numero_serie    String @unique
+
+  id_cliente Int
+  cliente    Cliente @relation(fields: [id_cliente], references: [id_cliente])
+  
+  citas Cita[]
+
+  @@map("automovil")
+}
+
+model Cita {
+  id_cita       Int      @id @default(autoincrement())
+  inicio        DateTime 
+  fin           DateTime 
+  estado        String  
+  motivo        String
+  observaciones String?
+  
+  id_cliente Int
+  cliente    Cliente   @relation(fields: [id_cliente], references: [id_cliente]) 
+  
+  id_auto    Int
+  automovil  Automovil @relation(fields: [id_auto], references: [id_auto]) 
+  
+  detalles DetalleCita[] 
+  
+  @@map("cita")
+}
+
+model Servicio {
+  id_servicio         Int     @id @default(autoincrement())
+  nombre              String  @unique // UNIQUE
+  descripcion         String
+  duracion_estimada   Int     // Asumimos minutos (en Int)
+  precio_con_utilidad Decimal @db.Decimal(10, 2) 
+  
+  detalles DetalleCita[] 
+  
+  @@map("servicio")
+}
+
+
+model DetalleCita {
+  id_detalleCita      Int      @id @default(autoincrement())
+  notas               String?
+  suministros         String? 
+  precio_por_servicio Decimal  @db.Decimal(10, 2)
+  
+  id_cita    Int
+  cita       Cita     @relation(fields: [id_cita], references: [id_cita]) 
+  
+  id_servicio Int
+  servicio   Servicio @relation(fields: [id_servicio], references: [id_servicio]) 
+
+  @@unique([id_cita, id_servicio])
+  @@map("detalle_cita")
 }

@@ -1,6 +1,6 @@
 // src/routes/clientes.routes.js
 const { Router } = require('express');
-const ctrl = require('../controllers/clientes.controller');
+const ctrl = require('./cliente.controller');
 
 const router = Router();
 

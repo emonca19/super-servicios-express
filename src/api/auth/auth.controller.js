@@ -1,47 +1,63 @@
-const jwt = require('jsonwebtoken');
-const { authConfig } = require('../../config/auth.config');
-const asyncHandler = require('../../utils/async-handler');
-const { success, error } = require('../../utils/response');
+// src/controllers/clientes.controller.js
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const simpleAuthDB = {
-  email: 'admin@taller.com',
-  password: 'admin123',
-  id: 'cl_admin_001',
-};
-
-/**
- * @desc    Autenticar un usuario y devolver un token
- * @route   POST /api/v1/auth/login
- * @access  Public
- */
-const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return error(res, 'Email y contraseña son requeridos', 400);
+async function crearCliente(req, res, next) {
+  try {
+    const { nombre, telefono, email, direccion } = req.body;
+    const data = await prisma.cliente.create({
+      data: { nombre, telefono, email, direccion },
+    });
+    res.set('Location', `/api/clientes/${data.id_cliente}`);
+    return res.status(201).json({ ok: true, data });
+  } catch (e) {
+    if (e.code === 'P2002') {
+      return res.status(409).json({ ok: false, message: 'Email ya registrado' });
+    }
+    next(e);
   }
+}
 
-  const user = (email === simpleAuthDB.email);
-  if (!user) {
-    return error(res, 'Credenciales inválidas', 401);
-  }
+async function listarClientes(_req, res, next) {
+  try {
+    const data = await prisma.cliente.findMany();
+    return res.json({ ok: true, data });
+  } catch (e) { next(e); }
+}
 
-  const isMatch = (password === simpleAuthDB.password);
-  if (!isMatch) {
-    return error(res, 'Credenciales inválidas', 401);
-  }
+async function obtenerCliente(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    const data = await prisma.cliente.findUnique({ where: { id_cliente: id } });
+    if (!data) return res.status(404).json({ ok: false, message: 'Cliente no encontrado' });
+    return res.json({ ok: true, data });
+  } catch (e) { next(e); }
+}
 
-  const payload = {
-    id: simpleAuthDB.id,
-  };
+async function actualizarCliente(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    const { nombre, telefono, email, direccion } = req.body;
+    const data = await prisma.cliente.update({
+      where: { id_cliente: id },
+      data: { nombre, telefono, email, direccion },
+    });
+    return res.json({ ok: true, data });
+  } catch (e) { next(e); }
+}
 
-  const token = jwt.sign(payload, authConfig.secret, {
-    expiresIn: authConfig.expiresIn,
-  });
-
-  success(res, { token }, 200);
-});
+async function eliminarCliente(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    await prisma.cliente.delete({ where: { id_cliente: id } });
+    return res.status(204).send();
+  } catch (e) { next(e); }
+}
 
 module.exports = {
-  login,
+  crearCliente,
+  listarClientes,
+  obtenerCliente,
+  actualizarCliente,
+  eliminarCliente,
 };
