@@ -1,12 +1,12 @@
-const { Router } = require('express');
+// src/routes/clientes.routes.js
+const express = require('express');
+const router = express.Router();
 const ctrl = require('../controllers/clientes.controller');
-const validate = require('../middlewares/validate.middleware');
-const { crearClienteSchema, actualizarClienteSchema } = require('../validators/clientes.schemas');
 
-const r = Router();
-r.get('/', ctrl.listar);
-r.get('/:id', ctrl.obtenerPorId);
-r.post('/', validate(crearClienteSchema), ctrl.crear);
-r.patch('/:id', validate(actualizarClienteSchema), ctrl.actualizar);
-r.delete('/:id', ctrl.eliminar);
-module.exports = r;
+router.post('/', ctrl.crearCliente);
+router.get('/', ctrl.listarClientes);
+router.get('/:id', ctrl.obtenerCliente);
+router.put('/:id', ctrl.actualizarCliente);
+router.delete('/:id', ctrl.eliminarCliente);
+
+module.exports = router;

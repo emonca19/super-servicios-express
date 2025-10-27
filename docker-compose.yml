@@ -3,14 +3,12 @@ services:
     image: mysql:8.0
     container_name: sse-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "12345"
-      MYSQL_DATABASE: "super_servicios_express"
-      MYSQL_USER: "appuser"
-      MYSQL_PASSWORD: "apppass"
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: super_servicios_express
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p12345"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p12345"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -29,7 +27,7 @@ services:
     ports:
       - "3001:3000"
       - "5555:5555"
-    command: sh -c "npx prisma db push && node src/server.js"
+    command: sh -lc "npx prisma db push && node src/server.js"
 
 volumes:
   mysqldata:

@@ -1,10 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model cliente {
@@ -13,59 +13,19 @@ model cliente {
   telefono   String?
   email      String?   @unique
   direccion  String?
-  automoviles automovil[]
-  citas       cita[]
+  automovil  automovil[]
 }
 
 model automovil {
-  id_auto     Int      @id @default(autoincrement())
-  marca       String
-  modelo      String
-  anio        Int
-  color       String?
-  placas      String   @unique
-  numero_serie String? @unique
-  id_cliente  Int
-  cliente     cliente  @relation(fields: [id_cliente], references: [id_cliente])
-  citas       cita[]
-}
+  id_auto      Int      @id @default(autoincrement())
+  marca        String
+  modelo       String
+  anio         Int
+  color        String?
+  placas       String?  @unique
+  numero_serie String?  @unique
+  id_cliente   Int
+  cliente      cliente  @relation(fields: [id_cliente], references: [id_cliente], onDelete: Cascade)
 
-enum EstadoCita {
-  PENDIENTE
-  CONFIRMADA
-  CANCELADA
-  COMPLETADA
-}
-
-model cita {
-  id_cita    Int       @id @default(autoincrement())
-  fecha      DateTime
-  estado     EstadoCita @default(PENDIENTE)
-  notas      String?
-  id_cliente Int
-  id_auto    Int
-  cliente    cliente   @relation(fields: [id_cliente], references: [id_cliente])
-  automovil  automovil @relation(fields: [id_auto], references: [id_auto])
-  servicios  servicio_cita[]
-}
-
-model servicio {
-  id_servicio  Int     @id @default(autoincrement())
-  nombre       String   @unique
-  descripcion  String?
-  precio_base  Float?   @default(0)
-  activo       Boolean  @default(true)
-  citas        servicio_cita[]
-}
-
-model servicio_cita {
-  id            Int      @id @default(autoincrement())
-  id_cita       Int
-  id_servicio   Int
-  precio_por_servicio Float @default(0)
-  notas         String?
-  cita          cita     @relation(fields: [id_cita], references: [id_cita])
-  servicio      servicio @relation(fields: [id_servicio], references: [id_servicio])
-
-  @@unique([id_cita, id_servicio])
+  @@index([id_cliente])
 }
