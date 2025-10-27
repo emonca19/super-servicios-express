@@ -12,7 +12,11 @@ const app = express();
 // --- Middlewares base ---
 app.set('trust proxy', 1);
 app.use(helmet());
-app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE'], allowedHeaders: ['Content-Type','Authorization'] }));
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 
 // --- Swagger ---
@@ -22,15 +26,14 @@ const swaggerSpec = swaggerJSDoc({
     info: { title: 'Super Servicios Express API', version: '1.0.0' },
     servers: [{ url: process.env.API_PUBLIC_URL || 'http://localhost:3001' }],
   },
-  // incluye todo src (rutas + controladores con @openapi)
-  apis: ['./src/**/*.js'],
+  apis: ['./src/**/*.js'], // comenta swagger en rutas/controladores con @openapi
 });
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // --- Healthcheck ---
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
-// --- Rutas de negocio ---
+// --- Rutas de negocio (montar SIEMPRE antes del 404) ---
 // Clientes
 const clientesRoutes = require('./routes/clientes.routes');
 app.use('/api/clientes', clientesRoutes);
@@ -39,30 +42,36 @@ app.use('/api/clientes', clientesRoutes);
 const automovilesRoutes = require('./api/automoviles/automovil.routes');
 app.use('/api/automoviles', automovilesRoutes);
 
-// Servicios
+// Auth (si existe)
+try {
+  const authRoutes = require('./api/auth/auth.routes');
+  app.use('/auth', authRoutes);
+} catch { /* opcional */ }
+
+// Servicios (si existe)
 try {
   const serviciosRoutes = require('./api/servicios/servicio.routes');
   app.use('/api/servicios', serviciosRoutes);
-} catch (_) {
-  // si aún no existe, no truena el server; quita este try/catch cuando crees la ruta
-}
+} catch { /* opcional */ }
 
-// Citas
+// Citas (si existe)
 try {
   const citasRoutes = require('./api/citas/cita.routes');
   app.use('/api/citas', citasRoutes);
-} catch (_) {}
+} catch { /* opcional */ }
 
-// DetalleCita
+// DetalleCita (si existe)
 try {
   const detalleCitaRoutes = require('./api/detalle-citas/detalleCita.routes');
   app.use('/api/detalle-citas', detalleCitaRoutes);
-} catch (_) {}
+} catch { /* opcional */ }
 
-// --- 404 ---
-app.use((req, res) => res.status(404).json({ ok: false, message: 'Not Found' }));
+// --- 404 (debe ir después de TODAS las rutas) ---
+app.use((req, res) => {
+  res.status(404).json({ ok: false, message: 'Not Found' });
+});
 
-// --- Manejo de errores ---
+// --- Manejo de errores (último middleware) ---
 /* eslint-disable no-unused-vars */
 app.use((err, req, res, next) => {
   console.error('ERROR:', err);
@@ -73,6 +82,8 @@ app.use((err, req, res, next) => {
 
 // --- Inicio de servidor ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`API escuchando en puerto ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`API escuchando en puerto ${PORT}`);
+});
 
 module.exports = app;
