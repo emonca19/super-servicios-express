@@ -2,26 +2,22 @@
   "name": "super-servicios-express",
   "version": "1.0.0",
   "private": true,
-  "type": "commonjs",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "postinstall": "prisma generate",
-    "db:push": "prisma db push",
-    "lint": "echo \"(lint placeholder)\""
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "6.18.0",
-    "dotenv": "16.6.1",
-    "express": "5.1.0",
-    "express-validator": "7.3.0",
-    "helmet": "8.1.0"
+    "@prisma/client": "^6.18.0",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-validator": "^7.3.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "3.1.10",
-    "prisma": "6.18.0"
-  },
-  "engines": {
-    "node": ">=18.18"
+    "prisma": "^6.18.0"
   }
 }
