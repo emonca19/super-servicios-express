@@ -2,7 +2,7 @@
   "watch": ["src", "prisma"],
   "ext": "js,prisma",
   "ignore": ["node_modules/**/*", "*.test.js"],
-  "exec": "node src/app.js",
+  "exec": "node src/server.js",
   "legacyWatch": true,
   "delay": 1000,
   "env": {

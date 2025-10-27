@@ -1,44 +1,75 @@
-const { success, error } = require('../../utils/response');
-const asyncHandler = require('../../utils/async-handler');
-const clienteRepository = require('../../dal/repository/cliente.repository');
+const prisma = require('../../prisma');
 
-const getAllClientes = asyncHandler(async (req, res) => {
-  const clientes = await clienteRepository.findMany();
-  success(res, clientes);
-});
-
-const getClienteById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const cliente = await clienteRepository.findById(id);
-  if (!cliente) {
-    return error(res, 'Cliente no encontrado', 404);
+class ClientesController {
+  constructor() {
+    this.prisma = prisma; 
   }
-  success(res, cliente);
-});
 
-const createCliente = asyncHandler(async (req, res) => {
-  const data = req.body;
-  const newCliente = await clienteRepository.create(data);
-  success(res, newCliente, 201);
-});
+  async crearCliente(req, res, next) {
+    try {
+      const { nombre, telefono, email, direccion } = req.body;
+      const cliente = await this.prisma.cliente.create({
+        data: { nombre, telefono, email, direccion },
+      });
+      res.status(201).json({ ok: true, data: cliente });
+    } catch (e) {
+      if (e.code === 'P2002') {
+        return res.status(409).json({ ok: false, message: 'Email ya registrado' });
+      }
+      next(e);
+    }
+  }
 
-const updateCliente = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const data = req.body;
-  const updatedCliente = await clienteRepository.update(id, data);
-  success(res, updatedCliente);
-});
+  async listarClientes(req, res, next) {
+    try {
+      const clientes = await this.prisma.cliente.findMany({
+        where: { activo: true }, // solo activos
+      });
+      res.json({ ok: true, data: clientes });
+    } catch (e) {
+      next(e);
+    }
+  }
 
-const deleteCliente = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  await clienteRepository.delete(id);
-  success(res, null, 204);
-});
+  async obtenerCliente(req, res, next) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const cliente = await this.prisma.cliente.findUnique({
+        where: { id_cliente: id },
+      });
+      if (!cliente || !cliente.activo)
+        return res.status(404).json({ ok: false, message: 'No encontrado' });
+      res.json({ ok: true, data: cliente });
+    } catch (e) {
+      next(e);
+    }
+  }
 
-module.exports = {
-  getAllClientes,
-  getClienteById,
-  createCliente,
-  updateCliente,
-  deleteCliente,
-};
+  async actualizarCliente(req, res, next) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const cliente = await this.prisma.cliente.update({
+        where: { id_cliente: id },
+        data: req.body,
+      });
+      res.json({ ok: true, data: cliente });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async eliminarCliente(req, res, next) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const cliente = await this.prisma.cliente.update({
+        where: { id_cliente: id },
+        data: { activo: false }, // soft delete
+      });
+      res.json({ ok: true, message: 'Cliente desactivado', data: cliente });
+    } catch (e) {
+      next(e);
+    }
+  }
+}
+
+module.exports = new ClientesController();

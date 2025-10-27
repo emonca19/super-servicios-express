@@ -1,55 +1,10 @@
 const { body, param } = require('express-validator');
 
-// Reglas para POST /clientes
-const createClienteValidations = [
-  body('nombre')
-    .notEmpty().withMessage('El nombre es requerido')
-    .isString().withMessage('El nombre debe ser texto')
-    .trim(),
-  body('email')
-    .notEmpty().withMessage('El email es requerido')
-    .isEmail().withMessage('El email no es válido')
-    .normalizeEmail(),
-  body('telefono')
-    .optional()
-    .isString().withMessage('El teléfono debe ser texto')
-    .trim(),
-  body('direccion')
-    .optional()
-    .isString().withMessage('La dirección debe ser texto')
-    .trim(),
-];
+const nombre = body('nombre').trim().isString().isLength({min:3, max:80});
+const telefono = body('telefono').optional({values:'falsy'}).isString().isLength({max:30});
+const email = body('email').optional({values:'falsy'}).isEmail().isLength({max:120});
+const direccion = body('direccion').optional({values:'falsy'}).isString().isLength({max:200});
 
-// Reglas para PUT /clientes/:id
-const updateClienteValidations = [
-  param('id')
-    .isString().withMessage('El ID debe ser un string')
-    .trim()
-    .notEmpty().withMessage('El ID es requerido'),
-  body('nombre')
-    .optional()
-    .isString().withMessage('El nombre debe ser texto')
-    .trim(),
-  body('email')
-    .optional()
-    .isEmail().withMessage('El email no es válido')
-    .normalizeEmail(),
-  body('telefono')
-    .optional()
-    .isString().withMessage('El teléfono debe ser texto')
-    .trim(),
-];
-
-// Reglas para GET /clientes/:id y DELETE /clientes/:id
-const clienteIdValidations = [
-  param('id')
-    .isString().withMessage('El ID debe ser un string')
-    .trim()
-    .notEmpty().withMessage('El ID es requerido'),
-];
-
-module.exports = {
-  createClienteValidations,
-  updateClienteValidations,
-  clienteIdValidations,
-};
+exports.createRules = [nombre, telefono, email, direccion];
+exports.updateRules = [param('id').isInt(), nombre.optional({values:'falsy'}), telefono, email, direccion];
+exports.idParamRule = [param('id').isInt()];

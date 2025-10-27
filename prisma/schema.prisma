@@ -1,3 +1,4 @@
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -5,6 +6,7 @@ datasource db {
 
 generator client{
   provider = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 model Cliente {
@@ -13,12 +15,14 @@ model Cliente {
   telefono   String
   email      String @unique
   direccion  String?
+  activo     Boolean @default(true) 
 
   automoviles Automovil[]
   citas       Cita[]
 
   @@map("cliente")
 }
+
 
 model Automovil {
   id_auto         Int @id @default(autoincrement())
