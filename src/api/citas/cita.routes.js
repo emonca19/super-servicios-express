@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const ctrl = require('./cliente.controller');
-const v = require('./cliente.validation');
+const ctrl = require('./cita.controller');
+const v = require('./cita.validation');
 const validate = require('../../middlewares/validate');
 
 router.post('/', v.createRules, validate, ctrl.create);

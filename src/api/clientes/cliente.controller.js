@@ -1,44 +1,53 @@
-const { success, error } = require('../../utils/response');
-const asyncHandler = require('../../utils/async-handler');
-const clienteRepository = require('../../dal/repository/cliente.repository');
+const prisma = require('../../prisma');
 
-const getAllClientes = asyncHandler(async (req, res) => {
-  const clientes = await clienteRepository.findMany();
-  success(res, clientes);
-});
-
-const getClienteById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const cliente = await clienteRepository.findById(id);
-  if (!cliente) {
-    return error(res, 'Cliente no encontrado', 404);
+exports.create = async (req,res,next) => {
+  try {
+    const { nombre, telefono, email, direccion } = req.body;
+    const data = await prisma.cliente.create({ data:{ nombre, telefono, email, direccion }});
+    res.status(201).json({ ok:true, data });
+  } catch (e) {
+    if (e.code === 'P2002') {
+      return res.status(409).json({ ok:false, message:'Email ya registrado' });
+    }
+    next(e);
   }
-  success(res, cliente);
-});
+};
 
-const createCliente = asyncHandler(async (req, res) => {
-  const data = req.body;
-  const newCliente = await clienteRepository.create(data);
-  success(res, newCliente, 201);
-});
+exports.getById = async (req,res,next) => {
+  try {
+    const id = parseInt(req.params.id,10);
+    const data = await prisma.cliente.findUnique({ where:{ id_cliente:id }, include:{ automoviles:true, citas:true } });
+    if (!data) return res.status(404).json({ ok:false, message:'Cliente no encontrado' });
+    res.json({ ok:true, data });
+  } catch (e) { next(e); }
+};
 
-const updateCliente = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const data = req.body;
-  const updatedCliente = await clienteRepository.update(id, data);
-  success(res, updatedCliente);
-});
+exports.update = async (req,res,next) => {
+  try {
+    const id = parseInt(req.params.id,10);
+    const data = await prisma.cliente.update({ where:{ id_cliente:id }, data:req.body });
+    res.json({ ok:true, data });
+  } catch (e) {
+    if (e.code === 'P2025') return res.status(404).json({ ok:false, message:'Cliente no encontrado' });
+    if (e.code === 'P2002') return res.status(409).json({ ok:false, message:'Email ya registrado' });
+    next(e);
+  }
+};
 
-const deleteCliente = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  await clienteRepository.delete(id);
-  success(res, null, 204);
-});
+exports.remove = async (req,res,next) => {
+  try {
+    const id = parseInt(req.params.id,10);
+    await prisma.cliente.delete({ where:{ id_cliente:id } });
+    res.status(204).send();
+  } catch (e) {
+    if (e.code === 'P2025') return res.status(404).json({ ok:false, message:'Cliente no encontrado' });
+    next(e);
+  }
+};
 
-module.exports = {
-  getAllClientes,
-  getClienteById,
-  createCliente,
-  updateCliente,
-  deleteCliente,
+exports.list = async (req,res,next) => {
+  try {
+    const data = await prisma.cliente.findMany({ orderBy:{ id_cliente:'desc' }});
+    res.json({ ok:true, data });
+  } catch (e) { next(e); }
 };

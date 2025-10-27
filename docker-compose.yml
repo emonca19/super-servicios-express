@@ -3,48 +3,33 @@ services:
     image: mysql:8.0
     container_name: sse-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: 12345
-      MYSQL_DATABASE: super_servicios_express
+      MYSQL_ROOT_PASSWORD: "12345"
+      MYSQL_DATABASE: "super_servicios_express"
+      MYSQL_USER: "appuser"
+      MYSQL_PASSWORD: "apppass"
     ports:
-      # Externo 3307 -> interno 3306 (evita conflicto si tienes MySQL local)
       - "3307:3306"
-    command: --default-authentication-plugin=mysql_native_password
-    volumes:
-      - mysqldata:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p12345 --silent"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p12345"]
       interval: 5s
       timeout: 5s
-      retries: 15
+      retries: 20
+    volumes:
+      - mysqldata:/var/lib/mysql
 
   api:
     build: .
+    image: super-servicios-express-api:latest
     container_name: super-servicios-express
+    env_file:
+      - .env
     depends_on:
       mysql:
         condition: service_healthy
-    environment:
-      # Dentro del contenedor el host es "mysql" (no localhost)
-      DATABASE_URL: mysql://root:12345@mysql:3306/super_servicios_express
-      NODE_ENV: development
-      PORT: 3000
     ports:
-      - "3001:3000"   # Para Prisma Studio o tu API si luego usas Express
-      - "5555:5555"   # Puerto libre opcional
-    # Espera a MySQL, genera Prisma Client, aplica migraciones y corre tu script
-    command: >
-      sh -c "
-        until nc -z mysql 3306; do
-          echo '⏳ waiting for mysql...'; sleep 1;
-        done;
-        npx prisma generate &&
-        npx prisma migrate deploy &&
-        node src/index.js &&
-        tail -f /dev/null
-      "
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "3001:3000"
+      - "5555:5555"
+    command: sh -c "npx prisma db push && node src/server.js"
 
 volumes:
   mysqldata:
