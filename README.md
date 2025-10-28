@@ -1,5 +1,8 @@
 # Super Servicios Express (Ready)
 
+- Video del avance:
+- https://drive.google.com/file/d/1WEBJHHwuIqpl72pLBq6wHAE3iaMCaCMA/view?usp=sharing
+
 ## Requisitos
 - Docker Desktop
 - (Opcional) Node 18+ si quieres correr local
