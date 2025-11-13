@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita - Auto Servicios Express</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <header-component></header-component>
+
+    <main class="py-16">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Agendar tu Cita</h1>
+                <p class="text-xl text-gray-600">Completa el formulario para programar tu servicio automotriz</p>
+            </div>
+
+            <appointment-form></appointment-form>
+        </div>
+    </main>
+
+    <footer-component></footer-component>
+
+    <!-- ⚠️ CAMBIA ESTAS LÍNEAS (36-38) -->
+    <script type="module">
+        // ✅ RUTAS CORRECTAS - con assets/js/components/
+        import './assets/js/components/header-component.js';
+        import './assets/js/components/footer-component.js';
+        import './assets/js/components/appointment-form.js';
+        
+        console.log('✅ Componentes cargados');
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+/**
+ * Estilos específicos de la página de agendar cita
+ */
+
+.appointment-page {
+  padding: var(--spacing-12) 0;
+  background: linear-gradient(180deg, 
+    var(--color-neutral-50) 0%, 
+    white 100%
+  );
+  min-height: calc(100vh - 200px);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: var(--spacing-12);
+  padding-bottom: var(--spacing-8);
+  border-bottom: 2px solid var(--color-neutral-200);
+}
+
+.page-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-900);
+  margin-bottom: var(--spacing-3);
+}
+
+.page-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-neutral-600);
+}
+
+@media (max-width: 768px) {
+  .appointment-page {
+    padding: var(--spacing-8) 0;
+  }
+
+  .page-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .page-subtitle {
+    font-size: var(--font-size-base);
+  }
+}
