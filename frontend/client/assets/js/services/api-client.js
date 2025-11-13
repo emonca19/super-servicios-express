@@ -4,7 +4,6 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
-  // Token helpers (simple: prefer localStorage, fallback to sessionStorage)
   getToken() {
     try {
       return localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -20,13 +19,32 @@ class ApiClient {
     return headers;
   }
 
-  async get(endpoint) {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+  buildUrl(endpoint = '', params) {
+    const target = endpoint.startsWith('http')
+      ? endpoint
+      : `${this.baseURL}${endpoint}`;
+    const url = new URL(target);
+
+    if (params && typeof params === 'object') {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') return;
+        if (Array.isArray(value)) {
+          value.forEach((item) => url.searchParams.append(key, item));
+        } else {
+          url.searchParams.set(key, value);
+        }
+      });
+    }
+
+    return url.toString();
+  }
+
+  async get(endpoint, params) {
+    const response = await fetch(this.buildUrl(endpoint, params), {
       method: 'GET',
       headers: this.buildHeaders(),
     });
     if (!response.ok) {
-      // Let caller inspect status if needed
       const err = new Error(`HTTP error! status: ${response.status}`);
       err.status = response.status;
       throw err;
@@ -62,8 +80,8 @@ class ApiClient {
     return response.json();
   }
 
-  async delete(endpoint) {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+  async delete(endpoint, params) {
+    const response = await fetch(this.buildUrl(endpoint, params), {
       method: 'DELETE',
       headers: this.buildHeaders(),
     });
@@ -79,7 +97,6 @@ class ApiClient {
 // Crear una instancia singleton
 const apiClient = new ApiClient();
 
-// Debug
 try {
   console.debug('[api-client] loaded, instance:', apiClient);
   console.debug('[api-client] has get:', typeof apiClient.get === 'function');

@@ -1,5 +1,4 @@
-// services.service.clean.js
-// Clean ServicesService implementation (use this if services.service.js is corrupted)
+
 import apiClient from './api-client.js';
 
 class ServicesService {
@@ -51,7 +50,6 @@ class ServicesService {
     }
   }
 
-  // Cache helpers
   getFromCache(key) {
     const cached = this.cache.get(key);
     if (!cached) return null;

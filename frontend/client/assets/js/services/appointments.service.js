@@ -18,7 +18,6 @@ class AppointmentsService {
     try {
       // Transformar datos del formulario al formato que espera el backend
       const payload = {
-        // Datos del cliente
         clientName: appointmentData.nombre,
         clientPhone: appointmentData.telefono.replace(/\D/g, ''), // Solo números
         clientEmail: appointmentData.email,

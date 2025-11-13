@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -14,27 +14,23 @@
 
     <header-component></header-component>
 
-    <main class="py-16">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Agendar tu Cita</h1>
-                <p class="text-xl text-gray-600">Completa el formulario para programar tu servicio automotriz</p>
-            </div>
-
-            <appointment-form></appointment-form>
-        </div>
+    <main class="min-h-screen py-16">
+        <appointment-shell></appointment-shell>
     </main>
 
     <footer-component></footer-component>
 
-    <!-- ⚠️ CAMBIA ESTAS LÍNEAS (36-38) -->
     <script type="module">
-        // ✅ RUTAS CORRECTAS - con assets/js/components/
-        import './assets/js/components/header-component.js';
-        import './assets/js/components/footer-component.js';
-        import './assets/js/components/appointment-form.js';
-        
-        console.log('✅ Componentes cargados');
+        try {
+            await Promise.all([
+                import('./assets/js/components/header/header-component.js'),
+                import('./assets/js/components/footer-component/footer-component.js'),
+                import('./assets/js/microfrontends/appointments/index.js')
+            ]);
+            console.log('[appointments] Microfrontends cargados');
+        } catch (error) {
+            console.error('[appointments] Error iniciando microfrontends:', error);
+        }
     </script>
 </body>
 </html>
