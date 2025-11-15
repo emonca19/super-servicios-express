@@ -10,16 +10,32 @@ class AppointmentForm extends HTMLElement {
     super();
     this.appointmentsService = new AppointmentsService();
     this.servicesService = new ServicesService();
+    this.root = this.attachShadow({ mode: 'open' });
   }
 
-  connectedCallback() {
-    this.render();
+  async connectedCallback() {
+    await this.render();
     this.populateYearOptions();
     this.loadServiceOptions();
     this.registerEvents();
   }
 
-  render() {
+  async _loadTailwindCss() {
+    if (this.constructor._tailwindCss) return this.constructor._tailwindCss;
+    try {
+      const res = await fetch('/assets/css/tailwind.css');
+      if (!res.ok) throw new Error('tailwind.css not found');
+      const txt = await res.text();
+      this.constructor._tailwindCss = txt;
+      return txt;
+    } catch (e) {
+      console.warn('[appointment-form] Could not load compiled tailwind.css:', e);
+      this.constructor._tailwindCss = '';
+      return '';
+    }
+  }
+
+  async render() {
     if (!templateCache.innerHTML) {
       templateCache.innerHTML = `
         <style>${appointmentFormStyles}</style>
@@ -27,13 +43,20 @@ class AppointmentForm extends HTMLElement {
       `;
     }
 
-    this.innerHTML = '';
+    // Clear shadow
+    this.root.innerHTML = '';
+
+    // Load compiled Tailwind CSS (if available) and inject into shadow
+    const tw = await this._loadTailwindCss();
     const content = templateCache.content.cloneNode(true);
-    this.appendChild(content);
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `${tw}\n${appointmentFormStyles}`;
+    this.root.appendChild(styleEl);
+    this.root.appendChild(content);
   }
 
   populateYearOptions() {
-    const yearSelect = this.querySelector('#ano-select');
+    const yearSelect = this.root.querySelector('#ano-select');
     if (!yearSelect) return;
 
     const currentYear = new Date().getFullYear();
@@ -47,7 +70,7 @@ class AppointmentForm extends HTMLElement {
   }
 
   async loadServiceOptions() {
-    const serviceSelect = this.querySelector('#servicio-select');
+    const serviceSelect = this.root.querySelector('#servicio-select');
     if (!serviceSelect) return;
 
     serviceSelect.innerHTML = '<option value="">Cargando servicios...</option>';
@@ -59,7 +82,7 @@ class AppointmentForm extends HTMLElement {
         return;
       }
 
-      const fragment = document.createDocumentFragment();
+        const fragment = document.createDocumentFragment();
       const defaultOption = document.createElement('option');
       defaultOption.value = '';
       defaultOption.textContent = 'Selecciona servicio';
@@ -83,17 +106,18 @@ class AppointmentForm extends HTMLElement {
       serviceSelect.appendChild(fragment);
     } catch (error) {
       console.error('[appointment-form] Error al cargar servicios:', error);
-      serviceSelect.innerHTML = '<option value=\"\">No se pudieron cargar los servicios</option>';
+      const serviceSelectFallback = this.root.querySelector('#servicio-select');
+      if (serviceSelectFallback) serviceSelectFallback.innerHTML = '<option value="">No se pudieron cargar los servicios</option>';
     }
   }
 
   registerEvents() {
-    const form = this.querySelector('#appointment-form');
+    const form = this.root.querySelector('#appointment-form');
     if (form) {
       form.addEventListener('submit', (event) => this.handleSubmit(event));
     }
 
-    const cancelBtn = this.querySelector('#cancel-btn');
+    const cancelBtn = this.root.querySelector('#cancel-btn');
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => {
         if (confirm('Estas seguro que deseas cancelar el registro de la cita?')) {
@@ -107,8 +131,8 @@ class AppointmentForm extends HTMLElement {
     event.preventDefault();
 
     const form = event.currentTarget;
-    const submitBtn = this.querySelector('#submit-btn');
-    const statusDiv = this.querySelector('#form-status');
+    const submitBtn = this.root.querySelector('#submit-btn');
+    const statusDiv = this.root.querySelector('#form-status');
 
     if (!form || !submitBtn || !statusDiv) return;
 
@@ -128,7 +152,7 @@ class AppointmentForm extends HTMLElement {
         return;
       }
 
-      await this.appointmentsService.create(data);
+      const response = await this.appointmentsService.create(data);
       this.renderSuccessStatus(
         statusDiv,
         'Cita agendada con exito',
@@ -136,10 +160,12 @@ class AppointmentForm extends HTMLElement {
       );
       form.reset();
       statusDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 2000);
+      // Emitir evento para que el host gestione la navegación o el siguiente paso
+      this.dispatchEvent(new CustomEvent('appointment-saved', {
+        detail: { appointment: response },
+        bubbles: true,
+        composed: true
+      }));
     } catch (error) {
       console.error('[appointment-form] Error al agendar cita:', error);
       this.renderErrorStatus(statusDiv, error.message || 'No se pudo agendar la cita. Intenta nuevamente.');

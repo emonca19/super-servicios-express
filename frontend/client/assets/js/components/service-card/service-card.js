@@ -1,4 +1,5 @@
 import { serviceCardStyles } from './service-card.styles.js';
+import { injectStyles } from '../../utils/shadow-style-loader.js';
 
 class ServiceCard extends HTMLElement {
   constructor() {
@@ -25,10 +26,10 @@ class ServiceCard extends HTMLElement {
     const name = this.getAttribute('name') || 'Servicio';
     const description = this.getAttribute('description') || '';
     const price = this.getAttribute('price') || '0';
-    const image = this.getAttribute('image') || './assets/images/default-service.jpg';
+    const image = this.getAttribute('image') || './assets/images/default-service.svg';
 
-    this.shadowRoot.innerHTML = `
-      <style>${serviceCardStyles}</style>
+    // Build content first, then inject styles (including compiled Tailwind)
+    const content = `
       <article class="service-card">
         <div class="service-image">
           <img src="${image}" alt="${name}" loading="lazy">
@@ -46,7 +47,12 @@ class ServiceCard extends HTMLElement {
       </article>
     `;
 
-    this.attachEventListeners();
+    // Inject styles (tailwind + component styles) and content
+    this.shadowRoot.innerHTML = '';
+    injectStyles(this.shadowRoot, serviceCardStyles).then(() => {
+      this.shadowRoot.innerHTML += content;
+      this.attachEventListeners();
+    });
   }
 
   formatPrice(price) {
@@ -71,8 +77,7 @@ class ServiceCard extends HTMLElement {
         bubbles: true,
         composed: true
       }));
-      // Navegar a la página de agendar
-      window.location.href = `agendar-cita.html?service=${serviceId}`;
+      // El componente solo notifica la selección; el host decide la navegación.
     });
   }
 

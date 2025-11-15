@@ -1,24 +1,28 @@
 import '../../../components/appointment-form/index.js';
 import { appointmentShellTemplate } from './appointment-shell.template.js';
 import { appointmentShellStyles } from './appointment-shell.styles.js';
+import { injectStyles } from '../../../utils/shadow-style-loader.js';
 
 const templateCache = document.createElement('template');
 
 class AppointmentShell extends HTMLElement {
-  connectedCallback() {
-    this.render();
+  constructor() {
+    super();
+    this.root = this.attachShadow({ mode: 'open' });
   }
 
-  render() {
+  async connectedCallback() {
+    await this.render();
+  }
+
+  async render() {
     if (!templateCache.innerHTML) {
-      templateCache.innerHTML = `
-        <style>${appointmentShellStyles}</style>
-        ${appointmentShellTemplate()}
-      `;
+      templateCache.innerHTML = `${appointmentShellTemplate()}`;
     }
 
-    this.innerHTML = '';
-    this.appendChild(templateCache.content.cloneNode(true));
+    this.root.innerHTML = '';
+    await injectStyles(this.root, appointmentShellStyles);
+    this.root.appendChild(templateCache.content.cloneNode(true));
   }
 }
 

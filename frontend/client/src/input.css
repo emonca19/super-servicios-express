@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Component wrapper helper classes (optional) */
+.appointment-form-wrapper {
+  @apply max-w-4xl mx-auto bg-white p-6 md:p-12 rounded-2xl shadow-xl;
+}
+
+.appointment-form-row {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+/* Small helper for status messages inside components */
+.form-status-hidden { display: none; }

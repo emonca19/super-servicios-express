@@ -2,24 +2,28 @@ import '../../../components/feature-card/feature-card.js';
 import { HOME_FEATURES } from './features.data.js';
 import { homeFeaturesTemplate } from './features.template.js';
 import { homeFeaturesStyles } from './features.styles.js';
+import { injectStyles } from '../../../utils/shadow-style-loader.js';
 
 const templateCache = document.createElement('template');
 
 class HomeFeaturesGrid extends HTMLElement {
-  connectedCallback() {
-    this.render();
+  constructor() {
+    super();
+    this.root = this.attachShadow({ mode: 'open' });
   }
 
-  render() {
+  async connectedCallback() {
+    await this.render();
+  }
+
+  async render() {
     if (!templateCache.innerHTML) {
-      templateCache.innerHTML = `
-        <style>${homeFeaturesStyles}</style>
-        ${homeFeaturesTemplate(HOME_FEATURES)}
-      `;
+      templateCache.innerHTML = `${homeFeaturesTemplate(HOME_FEATURES)}`;
     }
 
-    this.innerHTML = '';
-    this.appendChild(templateCache.content.cloneNode(true));
+    this.root.innerHTML = '';
+    await injectStyles(this.root, homeFeaturesStyles);
+    this.root.appendChild(templateCache.content.cloneNode(true));
   }
 }
 

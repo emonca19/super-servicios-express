@@ -7,14 +7,20 @@
  */
 import { featureCardTemplate } from './feature-card.template.js';
 import { featureCardStyles } from './feature-card.styles.js';
+import { injectStyles } from '../../utils/shadow-style-loader.js';
 
 class FeatureCard extends HTMLElement {
-    connectedCallback() {
+    constructor() {
+        super();
+        this.root = this.attachShadow({ mode: 'open' });
+    }
+
+    async connectedCallback() {
         const title = this.getAttribute('title') || 'Feature';
         const description = this.getAttribute('description') || 'Description';
         const iconType = this.getAttribute('icon-type') || 'clock';
 
-        // Iconos SVG 
+        // Iconos SVG
         const icons = {
             clock: '<svg class="h-12 w-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
             check: '<svg class="h-12 w-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
@@ -25,7 +31,11 @@ class FeatureCard extends HTMLElement {
 
         const iconHTML = icons[iconType] || icons.clock;
 
-        this.innerHTML = `<style>${featureCardStyles}</style>` + featureCardTemplate({ iconHTML, title, description });
+        const html = featureCardTemplate({ iconHTML, title, description });
+
+        this.root.innerHTML = '';
+        await injectStyles(this.root, featureCardStyles);
+        this.root.innerHTML += html;
     }
 }
 

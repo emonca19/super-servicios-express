@@ -1,5 +1,6 @@
 // Styles for FeatureCard component (scoped via component insertion)
 const featureCardStyles = `
+  :host { display:block; }
   .feature-card-root {
     background: white;
     padding: 2rem;
@@ -18,4 +19,5 @@ const featureCardStyles = `
 
 `;
 
+export default featureCardStyles;
 export { featureCardStyles };

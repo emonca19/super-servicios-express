@@ -1,5 +1,6 @@
 
 const serviceCardStyles = `
+  :host { display:block; }
   * { box-sizing: border-box; }
   .service-card {
     background: white;
@@ -23,4 +24,5 @@ const serviceCardStyles = `
   .btn-book:hover { background:#2c54c7; transform: translateY(-2px); }
 `;
 
+export default serviceCardStyles;
 export { serviceCardStyles };

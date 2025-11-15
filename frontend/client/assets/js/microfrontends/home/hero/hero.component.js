@@ -1,23 +1,28 @@
 import { homeHeroTemplate } from './hero.template.js';
 import { homeHeroStyles } from './hero.styles.js';
 
+import { injectStyles } from '../../../utils/shadow-style-loader.js';
+
 const templateCache = document.createElement('template');
 
 class HomeHeroSection extends HTMLElement {
-  connectedCallback() {
-    this.render();
+  constructor() {
+    super();
+    this.root = this.attachShadow({ mode: 'open' });
   }
 
-  render() {
+  async connectedCallback() {
+    await this.render();
+  }
+
+  async render() {
     if (!templateCache.innerHTML) {
-      templateCache.innerHTML = `
-        <style>${homeHeroStyles}</style>
-        ${homeHeroTemplate()}
-      `;
+      templateCache.innerHTML = `${homeHeroTemplate()}`;
     }
 
-    this.innerHTML = '';
-    this.appendChild(templateCache.content.cloneNode(true));
+    this.root.innerHTML = '';
+    await injectStyles(this.root, homeHeroStyles);
+    this.root.appendChild(templateCache.content.cloneNode(true));
   }
 }
 

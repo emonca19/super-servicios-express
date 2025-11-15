@@ -11,6 +11,7 @@ class HomePopularServices extends HTMLElement {
     super();
     this.servicesService = new ServicesService();
     this.limit = Number(this.getAttribute('limit')) || 3;
+    this.root = this.attachShadow({ mode: 'open' });
   }
 
   static get observedAttributes() {
@@ -36,15 +37,19 @@ class HomePopularServices extends HTMLElement {
 
   render() {
     if (!templateCache.innerHTML) {
-      templateCache.innerHTML = `
-        <style>${popularServicesStyles}</style>
-        ${popularServicesTemplate()}
-      `;
+      templateCache.innerHTML = `${popularServicesTemplate()}`;
     }
 
-    this.innerHTML = '';
-    this.appendChild(templateCache.content.cloneNode(true));
-    this.servicesContainer = this.querySelector('[data-services-container]');
+    // Render inside shadow root with injected styles
+    this.root.innerHTML = '';
+    // inject compiled Tailwind + component styles
+    // lazy import to avoid circular deps if any
+    import('../../../utils/shadow-style-loader.js').then(({ injectStyles }) => {
+      injectStyles(this.root, popularServicesStyles).then(() => {
+        this.root.appendChild(templateCache.content.cloneNode(true));
+        this.servicesContainer = this.root.querySelector('[data-services-container]');
+      });
+    });
   }
 
   async loadServices() {
@@ -99,7 +104,7 @@ class HomePopularServices extends HTMLElement {
   }
 
   attachRetryHandler() {
-    const retryBtn = this.querySelector('[data-retry]');
+    const retryBtn = this.root.querySelector('[data-retry]');
     if (retryBtn) {
       retryBtn.addEventListener('click', () => this.loadServices(), { once: true });
     }
