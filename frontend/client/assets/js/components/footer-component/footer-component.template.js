@@ -9,7 +9,7 @@ const footerTemplate = (year = new Date().getFullYear()) => `
         </div>
         <div>
           <h4 class="text-xl font-bold text-white mb-4">Contacto</h4>
-          <p>📞 644-xxx-xxxx</p>
+          <p>📞 644-111-1111</p>
           <p>📧 autoserviciosexpress@gmail.com</p>
           <p>📍 Ciudad Obregón, Sonora</p>
         </div>

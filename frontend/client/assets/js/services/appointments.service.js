@@ -4,6 +4,8 @@
 
 import { ApiClient } from './api-client.js';
 
+// helper to create client and car before creating cita
+
 class AppointmentsService {
   constructor() {
     this.apiClient = new ApiClient();
@@ -16,38 +18,89 @@ class AppointmentsService {
    */
   async create(appointmentData) {
     try {
-      // Transformar datos del formulario al formato que espera el backend
-      const payload = {
-        clientName: appointmentData.nombre,
-        clientPhone: appointmentData.telefono.replace(/\D/g, ''), // Solo números
-        clientEmail: appointmentData.email,
-        clientAddress: appointmentData.direccion,
-        
-        // Datos del vehículo
-        vehicleBrand: appointmentData.marca,
-        vehicleModel: appointmentData.modelo,
-        vehicleYear: parseInt(appointmentData.ano),
-        vehiclePlates: appointmentData.placas?.toUpperCase(),
-        vehicleColor: appointmentData.color,
-        
-        // Datos de la cita
-        appointmentDate: appointmentData.fecha,
-        appointmentTime: appointmentData.hora,
-        serviceId: appointmentData.servicio,
-        observations: appointmentData.observaciones || '',
-        
-        // Metadata
-        status: 'pending',
-        createdAt: new Date().toISOString()
+      // Flow for backend schema:
+      // 1) Ensure cliente exists (create via POST /clientes)
+      // 2) Create automovil with id_cliente (POST /automoviles)
+      // 3) Create cita with id_cliente, id_auto, inicio, fin, detalles
+
+      // Normalize input
+      const phone = (appointmentData.telefono || '').replace(/\D/g, '');
+
+      // 1) create cliente if not provided
+      let clienteId = appointmentData.id_cliente;
+      if (!clienteId) {
+        const clientePayload = {
+          nombre: appointmentData.nombre,
+          telefono: phone,
+          email: appointmentData.email,
+          direccion: appointmentData.direccion || ''
+        };
+        const clienteResp = await this.apiClient.post('/clientes', clientePayload);
+        clienteId = clienteResp?.data?.id_cliente || clienteResp?.data?.id || clienteResp?.data?.idCliente;
+      }
+
+      // 2) create automovil if not provided
+      let autoId = appointmentData.id_auto;
+      if (!autoId) {
+        const automovilPayload = {
+          id_cliente: Number(clienteId),
+          placas: (appointmentData.placas || '').toUpperCase() || `TEMP-${Date.now()}-${Math.floor(Math.random()*10000)}`,
+          marca: appointmentData.marca || '',
+          modelo: appointmentData.modelo || '',
+          anio: appointmentData.ano ? Number(appointmentData.ano) : undefined,
+          numero_serie: appointmentData.numero_serie || appointmentData.vin || `SN-${Date.now()}-${Math.floor(Math.random()*10000)}`,
+          color: appointmentData.color || undefined
+        };
+
+        const autoResp = await this.apiClient.post('/automoviles', automovilPayload);
+        autoId = autoResp?.data?.id_auto || autoResp?.data?.id || autoResp?.data?.idAuto;
+      }
+
+      // 3) build cita payload
+      const fecha = appointmentData.fecha;
+      const hora = appointmentData.hora || '09:00';
+      const inicioDate = new Date(`${fecha}T${hora}:00`);
+      if (Number.isNaN(inicioDate.getTime())) {
+        throw new Error('Fecha u hora inválida');
+      }
+
+      const durationMin = Number(appointmentData.duracion_minutos) || Number(appointmentData.duration) || 60;
+      const finDate = new Date(inicioDate.getTime() + durationMin * 60000);
+
+      const detalles = [
+        {
+          id_servicio: appointmentData.servicio || appointmentData.servicioId || appointmentData.serviceId,
+          notas: appointmentData.observaciones || appointmentData.notas || '',
+          suministros: appointmentData.suministros || null,
+          precio_por_servicio: appointmentData.precio || appointmentData.price || 0,
+        },
+      ];
+
+      // Coerce id_servicio to integer (backend expects numeric ids). If it's not numeric, throw early.
+      for (let i = 0; i < detalles.length; i += 1) {
+        const d = detalles[i];
+        const sid = Number(d.id_servicio);
+        if (Number.isNaN(sid)) {
+          throw new Error('Servicio inválido seleccionado');
+        }
+        d.id_servicio = sid;
+      }
+
+      const citaPayload = {
+        id_cliente: Number(clienteId),
+        id_auto: Number(autoId),
+        inicio: inicioDate.toISOString(),
+        fin: finDate.toISOString(),
+        estado: (appointmentData.estado || 'PENDIENTE').toString().toUpperCase(),
+        motivo: appointmentData.motivo || appointmentData.servicioNombre || appointmentData.servicio || 'Servicio Solicitado',
+        observaciones: appointmentData.observaciones || appointmentData.notas || '',
+        detalles,
       };
 
-      console.log('[AppointmentsService] Creating appointment:', payload);
-      
-  const response = await this.apiClient.post('/citas', payload);
-      
+      console.log('[AppointmentsService] Creating cita payload:', citaPayload);
+      const response = await this.apiClient.post('/citas', citaPayload);
       console.log('[AppointmentsService] Appointment created successfully:', response);
       return response;
-      
     } catch (error) {
       console.error('[AppointmentsService] Error creating appointment:', error);
       throw new Error(error.message || 'No se pudo agendar la cita');
@@ -112,16 +165,19 @@ class AppointmentsService {
     const errors = [];
 
     // Validar datos del cliente
-    if (!data.nombre || data.nombre.trim().length < 3) {
-      errors.push('El nombre del cliente debe tener al menos 3 caracteres');
+    // nombre: require at least 2 characters (allow short names like 'Al')
+    if (!data.nombre || data.nombre.trim().length < 2) {
+      errors.push('El nombre del cliente debe tener al menos 2 caracteres');
     }
 
-    if (!data.email || !this.isValidEmail(data.email)) {
+    // email: optional, validate only if provided
+    if (data.email && !this.isValidEmail(data.email)) {
       errors.push('El email no es válido');
     }
 
+    // telefono: allow typical local or international lengths (7-15 digits)
     if (!data.telefono || !this.isValidPhone(data.telefono)) {
-      errors.push('El teléfono debe tener 10 dígitos');
+      errors.push('El teléfono debe tener entre 7 y 15 dígitos');
     }
 
     // Validar datos del vehículo
@@ -160,10 +216,10 @@ class AppointmentsService {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-
   isValidPhone(phone) {
-    const digitsOnly = phone.replace(/\D/g, '');
-    return digitsOnly.length === 10;
+    const digitsOnly = (phone || '').replace(/\D/g, '');
+    // Accept between 7 and 15 digits to accommodate local and international formats
+    return digitsOnly.length >= 7 && digitsOnly.length <= 15;
   }
 }
 

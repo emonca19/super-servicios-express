@@ -1,5 +1,5 @@
 import { serviceCardStyles } from './service-card.styles.js';
-import { injectStyles } from '../../utils/shadow-style-loader.js';
+import { getTailwindCss } from '../../utils/shadow-style-loader.js';
 
 class ServiceCard extends HTMLElement {
   constructor() {
@@ -21,7 +21,7 @@ class ServiceCard extends HTMLElement {
     }
   }
 
-  render() {
+  async render() {
     const id = this.getAttribute('id') || '';
     const name = this.getAttribute('name') || 'Servicio';
     const description = this.getAttribute('description') || '';
@@ -47,12 +47,17 @@ class ServiceCard extends HTMLElement {
       </article>
     `;
 
-    // Inject styles (tailwind + component styles) and content
-    this.shadowRoot.innerHTML = '';
-    injectStyles(this.shadowRoot, serviceCardStyles).then(() => {
-      this.shadowRoot.innerHTML += content;
+    // Inject styles (tailwind + component styles) and content in a single replace
+    try {
+      const tw = await getTailwindCss();
+      // Replace shadow root content atomically to avoid duplicate appends
+      this.shadowRoot.innerHTML = `<style>${tw}\n${serviceCardStyles}</style>${content}`;
       this.attachEventListeners();
-    });
+    } catch (e) {
+      // Fallback: inject only component styles
+      this.shadowRoot.innerHTML = `<style>${serviceCardStyles}</style>${content}`;
+      this.attachEventListeners();
+    }
   }
 
   formatPrice(price) {

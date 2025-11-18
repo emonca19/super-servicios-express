@@ -8,14 +8,28 @@ const headerTemplate = () => `
         </a>
         <div class="hidden md:flex items-center space-x-6">
           <a href="index.html" class="text-gray-600 hover:text-blue-600 transition">Inicio</a>
-          <a href="#servicios" class="text-gray-600 hover:text-blue-600 transition">Servicios</a>
-          <a href="#contacto" class="text-gray-600 hover:text-blue-600 transition">Contacto</a>
-          <a href="agendar-cita.html" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-full transition shadow">
+          <a href="servicios.html" class="text-gray-600 hover:text-blue-600 transition">Servicios</a>
+          <a href="contacto.html" class="text-gray-600 hover:text-blue-600 transition">Contacto</a>
+          <a href="ubicacion.html" class="text-gray-600 hover:text-blue-600 transition">Ubicación</a>
+          <a id="btn-agendar" href="agendar-cita.html" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-5 rounded-full transition shadow">
             Agendar Cita
           </a>
+          <div id="header-auth" class="ml-2"></div>
         </div>
+        <!-- Mobile auth area (visible on small screens) -->
+        <div id="header-auth-mobile" class="flex items-center md:hidden ml-2"></div>
       </div>
     </nav>
+
+    <!-- Global Auth Modal (hidden by default) -->
+    <div id="global-auth-modal" class="fixed inset-0 hidden z-50 bg-slate-900/40 backdrop-blur-sm">
+      <div class="absolute top-20 right-6 bg-white rounded-2xl w-full max-w-xs p-4 shadow-2xl border">
+        <div id="global-auth-forms"></div>
+        <div class="mt-3 text-right">
+          <button id="global-auth-close" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-xs rounded transition">Cerrar</button>
+        </div>
+      </div>
+    </div>
   </header>
 `;
 

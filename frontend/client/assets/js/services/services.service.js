@@ -16,7 +16,13 @@ class ServicesService {
       const cached = this.getFromCache(cacheKey);
       if (cached) return cached;
 
-  const services = await this.apiClient.get('/servicios', filters);
+      const res = await this.apiClient.get('/servicios', filters);
+      // Backend can return either an array or an envelope { ok: true, data: [...] }
+      let services = [];
+      if (Array.isArray(res)) services = res;
+      else if (res && Array.isArray(res.data)) services = res.data;
+      else if (res && Array.isArray(res.result)) services = res.result; // fallback
+
       this.setCache(cacheKey, services);
       return services;
     } catch (error) {
@@ -31,7 +37,8 @@ class ServicesService {
       const cached = this.getFromCache(cacheKey);
       if (cached) return cached;
 
-  const service = await this.apiClient.get(`/servicios/${id}`);
+      const res = await this.apiClient.get(`/servicios/${id}`);
+      const service = res && res.data ? res.data : res;
       this.setCache(cacheKey, service);
       return service;
     } catch (error) {

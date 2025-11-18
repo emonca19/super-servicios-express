@@ -39,25 +39,45 @@ const errorState = (message) => `
 `;
 
 const popularServicesTemplate = () => `
-  <section id="servicios-populares" class="py-20 bg-gray-50">
+  <section id="servicios-populares" class="py-12 bg-gray-50">
     <div class="container mx-auto px-6">
-      <div class="text-center mb-16">
-        <p class="text-sm uppercase tracking-[0.3em] text-blue-500 mb-4">Top servicios</p>
-        <h2 class="text-4xl font-bold text-gray-800 mb-4">Servicios M&aacute;s Populares</h2>
+      <style>
+        /* Critical carousel CSS (inline to guarantee layout even if external styles load later) */
+        .carousel { overflow: hidden; position: relative; }
+        .carousel-track { display:flex; gap:1.5rem; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; padding-bottom:4px; }
+        .carousel-item { flex:0 0 100%; scroll-snap-align:start; }
+        @media (min-width:640px){ .carousel-item { flex:0 0 50%; } }
+        @media (min-width:1024px){ .carousel-item { flex:0 0 33.3333%; } }
+        .carousel-prev, .carousel-next { position:absolute; top:50%; transform:translateY(-50%); width:44px;height:44px;border-radius:999px;border:none;background:rgba(255,255,255,0.95);box-shadow:0 6px 18px rgba(2,6,23,0.06); z-index:30 }
+        .carousel-prev{ left:8px } .carousel-next{ right:8px }
+        .carousel-dots{ display:flex; justify-content:center; gap:.5rem }
+        /* Pagination button styles (applies to numeric/page buttons and prev/next container children) */
+        .carousel-dots button { display:inline-flex; align-items:center; justify-content:center; padding:0.5rem 1rem; min-width:72px; height:42px; border-radius:0.5rem; border:1px solid #e5e7eb; background:#ffffff; color:#111827; font-size:0.95rem; cursor:pointer; white-space:nowrap; }
+        .carousel-dots button:hover { background:#f8fafc; }
+        .carousel-dots button.active { background:#2563eb; color:#fff; border-color:transparent; }
+        .carousel-dots .page-number { min-width:44px; }
+        /* Push pagination a bit lower so it doesn't overlap other content (reduced) */
+        .carousel-dots { margin-top: 0.75rem; }
+      </style>
+      <div class="text-center mb-4">
+        <p class="text-sm uppercase tracking-[0.3em] text-blue-500 mb-3">Top servicios</p>
+        <h2 class="text-4xl font-bold text-gray-800 mb-3">Servicios M&aacute;s Populares</h2>
         <p class="text-lg text-gray-600">Conoce los servicios m&aacute;s solicitados por nuestros clientes</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12" data-services-container>
-        
+      <div class="relative mb-12">
+        <div class="carousel">
+          <div class="carousel-track" data-services-container aria-live="polite"></div>
+        </div>
+
+        <button class="carousel-prev" aria-label="Anterior servicio" type="button">‹</button>
+        <button class="carousel-next" aria-label="Siguiente servicio" type="button">›</button>
+
+        <div class="carousel-dots mt-6 w-full flex justify-center items-center gap-3" data-carousel-dots aria-hidden="false"></div>
       </div>
 
       <div class="text-center">
-        <a
-          href="#servicios-populares"
-          class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg hover:scale-105 transform"
-        >
-          Ver Todos los Servicios &rarr;
-        </a>
+        <a data-show-all href="#servicios-populares" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg hover:scale-105 transform">Ver Todos los Servicios &rarr;</a>
       </div>
     </div>
   </section>

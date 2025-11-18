@@ -2,6 +2,7 @@ const { Router } = require('express');
 const ClientesController = require('./cliente.controller'); 
 const v = require('./cliente.validation');
 const validate = require('../../middlewares/validate');
+const { protect } = require('../../middlewares/auth.middleware');
 
 const router = Router();
 
@@ -18,10 +19,10 @@ const router = Router();
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ClienteInput'
-							example:
-								nombre: 'Juan Pérez'
-								email: 'juan.perez@mail.com'
-								telefono: '6441234567'
+ *           example:
+ *             nombre: 'Juan Pérez'
+ *             email: 'juan.perez@mail.com'
+ *             telefono: '6441234567'
  *     responses:
  *       '201':
  *         description: Cliente creado
@@ -35,6 +36,7 @@ const router = Router();
  *                 data:
  *                   $ref: '#/components/schemas/Cliente'
  */
+// Public: crear cliente (registro)
 router.post('/', v.createRules, validate, ClientesController.crearCliente.bind(ClientesController));
 
 /**
@@ -59,7 +61,8 @@ router.post('/', v.createRules, validate, ClientesController.crearCliente.bind(C
  *                   items:
  *                     $ref: '#/components/schemas/Cliente'
  */
-router.get('/', ClientesController.listarClientes.bind(ClientesController));
+// Protegido: listar clientes
+router.get('/', protect, ClientesController.listarClientes.bind(ClientesController));
 
 /**
  * @openapi
@@ -93,8 +96,11 @@ router.get('/', ClientesController.listarClientes.bind(ClientesController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', v.idParamRule, validate, ClientesController.obtenerCliente.bind(ClientesController));
+// Perfil del cliente autenticado
+router.get('/me', protect, ClientesController.obtenerPerfil.bind(ClientesController));
 
+// Obtener datos de un cliente por id
+router.get('/:id', v.idParamRule, validate, protect, ClientesController.obtenerCliente.bind(ClientesController));
 /**
  * @openapi
  * /clientes/{id}:
@@ -127,7 +133,7 @@ router.get('/:id', v.idParamRule, validate, ClientesController.obtenerCliente.bi
  *                 data:
  *                   $ref: '#/components/schemas/Cliente'
  */
-router.put('/:id', v.updateRules, validate, ClientesController.actualizarCliente.bind(ClientesController));
+router.put('/:id', v.updateRules, validate, protect, ClientesController.actualizarCliente.bind(ClientesController));
 
 /**
  * @openapi
@@ -157,6 +163,6 @@ router.put('/:id', v.updateRules, validate, ClientesController.actualizarCliente
  *                 data:
  *                   $ref: '#/components/schemas/Cliente'
  */
-router.delete('/:id', v.idParamRule, validate, ClientesController.eliminarCliente.bind(ClientesController));
+router.delete('/:id', v.idParamRule, validate, protect, ClientesController.eliminarCliente.bind(ClientesController));
 
 module.exports = router;

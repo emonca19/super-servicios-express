@@ -19,12 +19,15 @@ router.use('/servicios', ServicioRoutes);
 router.use('/citas', CitaRoutes);
 router.use('/servicio-cita', ServicioCitaRoutes);
 
+// Exponer la ruta de clientes antes de aplicar el middleware global de
+// protección para permitir registro público (POST /clientes).
+router.use('/clientes', ClienteRoutes);
+
 // ===== RUTAS PROTEGIDAS (requieren autenticación) =====
 // Aplicamos el middleware `protect` a partir de aqui para que todas las
 // rutas montadas después requieran un token válido.
 router.use(protect);
 
-router.use('/clientes', ClienteRoutes);
 router.use('/automoviles', AutomovilRoutes);
 
 module.exports = router;

@@ -1,34 +1,34 @@
 ﻿const appointmentFormTemplate = () => `
   <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-xl">
-    <div id="form-status" class="mb-6 hidden"></div>
+    <div id="form-status" class="mb-4 hidden"></div>
 
-    <form id="appointment-form" class="space-y-10">
-      <fieldset class="space-y-6">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-6">
+    <form id="appointment-form" class="space-y-6">
+      <fieldset class="space-y-6 pt-2">
+        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-4 mt-4 py-2">
           <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">1</span>
           Datos del Cliente
         </legend>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Completo *</label>
             <input type="text" name="nombre" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="Tu nombre completo" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tel&eacute;fono *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Tel&eacute;fono *</label>
             <input type="tel" name="telefono" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="(644) 123-4567" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Email *</label>
             <input type="email" name="email" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="tu@email.com" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Direcci&oacute;n</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Direcci&oacute;n</label>
             <input type="text" name="direccion"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="Tu direcci&oacute;n" />
@@ -36,14 +36,14 @@
         </div>
       </fieldset>
 
-      <fieldset class="space-y-6 pt-6 border-t-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-6">
+      <fieldset class="space-y-8 pt-8 border-t-2">
+        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-4 mt-4 py-2">
           <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">2</span>
           Informaci&oacute;n del Veh&iacute;culo
         </legend>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Marca *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Marca *</label>
             <select name="marca" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
               <option value="">Selecciona marca</option>
@@ -58,26 +58,26 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Modelo *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Modelo *</label>
             <input type="text" name="modelo" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="Ej. Corolla, Civic, etc." />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">A&ntilde;o *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">A&ntilde;o *</label>
             <select name="ano" required id="ano-select"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
               <option value="">Selecciona a&ntilde;o</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Color</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Color</label>
             <input type="text" name="color"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="Color del veh&iacute;culo" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Placas</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Placas</label>
             <input type="text" name="placas"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               placeholder="XXX-123" />
@@ -85,19 +85,19 @@
         </div>
       </fieldset>
 
-      <fieldset class="space-y-6 pt-6 border-t-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-6">
+      <fieldset class="space-y-8 pt-8 border-t-2">
+        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-8 mt-6 py-4">
           <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">3</span>
           Detalles de la Cita
         </legend>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha *</label>
             <input type="date" name="fecha" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Hora *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Hora *</label>
             <select name="hora" required
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
               <option value="">Selecciona hora</option>
@@ -115,7 +115,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Servicio *</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Servicio *</label>
             <select name="servicio" required id="servicio-select"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
               <option value="">Cargando servicios...</option>
@@ -124,13 +124,13 @@
         </div>
       </fieldset>
 
-      <fieldset class="pt-6 border-t-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-6">
+      <fieldset class="space-y-8 pt-8 border-t-2">
+        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-8 mt-6 py-4">
           <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">4</span>
           Observaciones
         </legend>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones adicionales (opcional)</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Observaciones adicionales (opcional)</label>
           <textarea name="observaciones" rows="4"
             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
             placeholder="Describe cualquier problema espec&iacute;fico o informaci&oacute;n adicional..."></textarea>

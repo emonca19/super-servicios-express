@@ -2,6 +2,7 @@ const router = require('express').Router();
 const AutomovilesController = require('./automovil.controller');
 const v = require('./automovil.validation');
 const validate = require('../../middlewares/validate');
+const { protect } = require('../../middlewares/auth.middleware');
 
 /**
  * @openapi
@@ -29,6 +30,9 @@ const validate = require('../../middlewares/validate');
  *         description: Creado
  */
 router.post('/', v.createRules, validate, AutomovilesController.crearAutomovil.bind(AutomovilesController));
+
+// Obtener autos del cliente autenticado
+router.get('/mine', protect, AutomovilesController.listarMisAutomoviles.bind(AutomovilesController));
 
 /**
  * @openapi

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Servicios - Auto Servicios Express</title>
+  <link rel="stylesheet" href="./assets/css/tailwind.css">
+  <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+</head>
+<body class="bg-gray-50">
+  <header-component></header-component>
+  <main class="py-8 min-h-screen">
+    <section class="container mx-auto px-6">
+      <div class="mb-8">
+        <!-- reuse popular services microfrontend in LIST mode (9 per page) and hide CTA -->
+        <home-popular-services mode="list" page-size="9" hide-cta="true" limit="12"></home-popular-services>
+      </div>
+    </section>
+  </main>
+  <footer-component></footer-component>
+
+  <script type="module">
+    try {
+      await Promise.all([
+        import('./assets/js/components/header/header-component.js'),
+        import('./assets/js/components/footer-component/footer-component.js'),
+        import('./assets/js/microfrontends/home/popular-services/index.js')
+      ]);
+    } catch (e) { console.error(e); }
+  </script>
+</body>
+</html>

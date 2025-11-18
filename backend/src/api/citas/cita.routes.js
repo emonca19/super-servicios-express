@@ -9,6 +9,9 @@ const { protect } = require('../../middlewares/auth.middleware');
 // Public: crear cita (clientes pueden agendar sin token)
 router.post('/', v.createRules, validate, CitasController.crearCita.bind(CitasController));
 
+// Obtener citas del cliente autenticado
+router.get('/mine', protect, CitasController.listarMisCitas.bind(CitasController));
+
 // Protected: listado y manipulación de citas (administrativo)
 router.get('/', protect, CitasController.listarCitas.bind(CitasController));
 router.get('/:id', protect, v.idParamRule, validate, CitasController.obtenerCita.bind(CitasController));

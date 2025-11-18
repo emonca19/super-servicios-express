@@ -1,6 +1,5 @@
 ﻿const homeHeroTemplate = () => `
-  <section class="relative h-[60vh] min-h-[500px] bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white flex items-center">
-    <div class="absolute inset-0 bg-black opacity-20"></div>
+  <section class="relative h-[60vh] min-h-[500px] bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white flex items-center" style="background-image: url('/assets/images/photo.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
 
     <div class="container mx-auto px-6 relative z-10">
       <div class="max-w-2xl">

@@ -11,8 +11,20 @@ app.use(helmet());
 app.use(express.json());
 
 // CORS: permitir llamadas desde el servidor de frontend (dev)
+// CORS: during development allow any localhost origin (any port) and keep strict in production
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: (origin, callback) => {
+    // Allow non-browser tools (curl, Postman) where origin is undefined
+    if (!origin) return callback(null, true);
+    try {
+      const u = new URL(origin);
+      if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return callback(null, true);
+    } catch (e) {
+      // fallthrough
+    }
+    // In production you may want to restrict this further
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

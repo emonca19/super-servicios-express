@@ -1,7 +1,24 @@
 // API Client - Cliente HTTP para consumir el backend
 class ApiClient {
-  constructor(baseURL = 'http://localhost:8000/api') {
-    this.baseURL = baseURL;
+  constructor(baseURL) {
+    // Priority: explicit constructor arg > <meta name="api-base"> > default localhost
+    try {
+      const meta = (typeof document !== 'undefined') && document.querySelector('meta[name="api-base"]');
+      const metaValue = meta ? meta.getAttribute('content') : null;
+      let resolved = baseURL || metaValue || 'http://localhost:8000/api';
+
+      // Normalize: remove trailing slash
+      resolved = resolved.replace(/\/$/, '');
+
+      // If resolved is a relative path (starts with '/'), make it absolute against origin
+      if (typeof window !== 'undefined' && resolved.startsWith('/')) {
+        resolved = window.location.origin + resolved;
+      }
+
+      this.baseURL = resolved;
+    } catch (e) {
+      this.baseURL = baseURL || 'http://localhost:8000/api';
+    }
   }
 
   getToken() {
@@ -44,12 +61,16 @@ class ApiClient {
       method: 'GET',
       headers: this.buildHeaders(),
     });
+    let payload = null;
+    try { payload = await response.json(); } catch (e) { /* no json */ }
     if (!response.ok) {
-      const err = new Error(`HTTP error! status: ${response.status}`);
+      const message = (payload && (payload.message || payload.error)) || response.statusText || `HTTP error ${response.status}`;
+      const err = new Error(message);
       err.status = response.status;
+      err.body = payload;
       throw err;
     }
-    return response.json();
+    return payload;
   }
 
   async post(endpoint, data) {
@@ -58,12 +79,29 @@ class ApiClient {
       headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
     });
+    let payload = null;
+    try { payload = await response.json(); } catch (e) { /* no json */ }
     if (!response.ok) {
-      const err = new Error(`HTTP error! status: ${response.status}`);
+      // Prefer structured validation errors when available
+      let message = response.statusText || `HTTP error ${response.status}`;
+      if (payload) {
+        if (payload.message) message = payload.message;
+        else if (payload.error) message = payload.error;
+        else if (Array.isArray(payload.errors) && payload.errors.length) {
+          // Join express-validator messages for quick viewing
+          message = payload.errors.map((it) => it.msg || it.message || JSON.stringify(it)).join('; ');
+        } else {
+          // Fallback to stringified payload
+          try { message = JSON.stringify(payload); } catch (e) { /* ignore */ }
+        }
+      }
+      const err = new Error(message);
       err.status = response.status;
+      err.body = payload;
+      console.error('[api-client] HTTP error', response.status, message, payload);
       throw err;
     }
-    return response.json();
+    return payload;
   }
 
   async put(endpoint, data) {
@@ -72,12 +110,16 @@ class ApiClient {
       headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data),
     });
+    let payload = null;
+    try { payload = await response.json(); } catch (e) { /* no json */ }
     if (!response.ok) {
-      const err = new Error(`HTTP error! status: ${response.status}`);
+      const message = (payload && (payload.message || payload.error)) || response.statusText || `HTTP error ${response.status}`;
+      const err = new Error(message);
       err.status = response.status;
+      err.body = payload;
       throw err;
     }
-    return response.json();
+    return payload;
   }
 
   async delete(endpoint, params) {
@@ -85,12 +127,16 @@ class ApiClient {
       method: 'DELETE',
       headers: this.buildHeaders(),
     });
+    let payload = null;
+    try { payload = await response.json(); } catch (e) { /* no json */ }
     if (!response.ok) {
-      const err = new Error(`HTTP error! status: ${response.status}`);
+      const message = (payload && (payload.message || payload.error)) || response.statusText || `HTTP error ${response.status}`;
+      const err = new Error(message);
       err.status = response.status;
+      err.body = payload;
       throw err;
     }
-    return response.json();
+    return payload;
   }
 }
 

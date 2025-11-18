@@ -1,7 +1,7 @@
 const { body, param } = require('express-validator');
 
-const nombre = body('nombre').trim().isString().isLength({min:3, max:80});
-const telefono = body('telefono').optional({values:'falsy'}).isString().isLength({max:30});
+const nombre = body('nombre').trim().isString().isLength({min:2, max:80});
+const telefono = body('telefono').optional({values:'falsy'}).isString().isLength({min:7, max:15});
 const email = body('email').optional({values:'falsy'}).isEmail().isLength({max:120});
 const direccion = body('direccion').optional({values:'falsy'}).isString().isLength({max:200});
 

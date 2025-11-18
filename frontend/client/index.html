@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto Servicios Express - Inicio</title>
+    <!-- Backend API base (can be changed to remote host) -->
+    <meta name="api-base" content="http://localhost:8000/api">
     
     <!-- Compiled Tailwind CSS (local) -->
     <link rel="stylesheet" href="./assets/css/tailwind.css">
@@ -36,7 +38,7 @@
     <main>
         <home-hero-section></home-hero-section>
         <home-features-grid></home-features-grid>
-        <home-popular-services limit="3"></home-popular-services>
+        <home-popular-services limit="12"></home-popular-services>
     </main>
 
     <!-- Footer Component -->
@@ -54,6 +56,20 @@
         } catch (error) {
             console.error('[home] Error iniciando microfrontends:', error);
         }
+
+        // Host-level event handlers: when a card dispatches `service-selected`, navigate to booking
+        document.addEventListener('service-selected', (ev) => {
+            try {
+                const serviceId = ev?.detail?.serviceId || ev?.detail?.id || ev?.detail?.service;
+                if (serviceId) {
+                    const url = new URL('agendar-cita.html', location.href);
+                    url.searchParams.set('service', serviceId);
+                    location.href = url.toString();
+                }
+            } catch (e) {
+                console.warn('[host] service-selected handler error', e);
+            }
+        });
     </script>
 
 </body>

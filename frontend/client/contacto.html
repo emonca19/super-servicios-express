@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contacto - Auto Servicios Express</title>
+  <link rel="stylesheet" href="./assets/css/tailwind.css">
+  <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+</head>
+<body class="bg-gray-50">
+  <contact-page></contact-page>
+
+  <script type="module">
+    try {
+      await Promise.all([
+        import('./assets/js/components/header/header-component.js'),
+        import('./assets/js/components/footer-component/footer-component.js'),
+        import('./assets/js/components/contact/contact-component.js')
+      ]);
+    } catch (e) { console.error(e); }
+  </script>
+</body>
+</html>
