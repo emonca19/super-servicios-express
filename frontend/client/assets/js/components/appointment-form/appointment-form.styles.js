@@ -2,7 +2,6 @@
   :host { display: block; }
   :host([hidden]) { display: none; }
 
-  /* Wrapper fallback in case Tailwind isn't loaded in the shadow root */
   .appointment-form-wrapper { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(2,6,23,0.05); }
 
   label { display:block; font-weight:600; margin-bottom:0.35rem; color: #0f172a; }
@@ -14,6 +13,27 @@
   .form-actions { display:flex; gap:.75rem; justify-content:flex-end; margin-top:1rem; }
   .btn { background:#0ea5a4; color:white; padding:.6rem 1rem; border-radius:.5rem; border:none; cursor:pointer; font-weight:600; }
   .btn.secondary { background:#e2e8f0; color:#0f172a; }
+
+  .section-heading,
+  :host .section-heading {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.75rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+
+  :host fieldset {
+    padding-top: .1rem !important;
+    padding-bottom: .2rem !important;
+  }
+
+  :host fieldset + fieldset {
+    margin-top: 1rem !important;
+  }
 `;
 
 export default appointmentFormStyles;

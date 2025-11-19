@@ -12,7 +12,7 @@ class AppointmentForm extends HTMLElement {
     this.appointmentsService = new AppointmentsService();
     this.servicesService = new ServicesService();
     this.root = this.attachShadow({ mode: 'open' });
-    this.vehiclesLoaded = false; // Bandera para evitar duplicación
+    this.vehiclesLoaded = false; 
   }
 
   async connectedCallback() {
@@ -22,44 +22,36 @@ class AppointmentForm extends HTMLElement {
     this.registerEvents();
     this.prefillFromPending();
 
-    // If not authenticated, lock form inputs and show small overlay inviting to login
     try {
       const token = apiClient.getToken();
       if (!token) this.lockForUnauth();
       else {
-        // Load saved vehicles for authenticated users so they can pick one
-        try { await this.loadSavedVehicles(); } catch (e) { /* ignore */ }
+        try { await this.loadSavedVehicles(); } catch (e) {}
       }
     } catch (e) {}
 
-    // Listen for login events: remove overlay and fill+lock client fields.
     window.addEventListener('user-logged-in', async (ev) => {
       try {
-        // Remove overlay if present
         this.hideAuthOverlay();
         const profile = ev?.detail;
         if (profile) {
           this.fillAndLockClient(profile);
         } else {
-          // Best-effort: fetch profile from API
           try {
             const p = await apiClient.get('/clientes/me');
             const prof = p?.data || p;
             if (prof) this.fillAndLockClient(prof);
           } catch (e) {
-            // ignore
           }
         }
-        // Solo cargar vehículos si no se han cargado antes
         if (!this.vehiclesLoaded) {
           try { await this.loadSavedVehicles(true); } catch (e) {}
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) { }
     });
 
-    // Refresh saved vehicles when a new auto is created elsewhere in the app
     window.addEventListener('auto-saved', async (ev) => {
-      try { await this.loadSavedVehicles(true); } catch (e) { /* ignore */ }
+      try { await this.loadSavedVehicles(true); } catch (e) { }
     });
   }
 
@@ -86,16 +78,19 @@ class AppointmentForm extends HTMLElement {
       `;
     }
 
-    // Clear shadow
     this.root.innerHTML = '';
 
-    // Load compiled Tailwind CSS (if available) and inject into shadow
     const tw = await this._loadTailwindCss();
     const content = templateCache.content.cloneNode(true);
     const styleEl = document.createElement('style');
     styleEl.textContent = `${tw}\n${appointmentFormStyles}`;
     this.root.appendChild(styleEl);
     this.root.appendChild(content);
+
+    try {
+      this.setAttribute('data-style-version', 'section-heading-v1');
+      console.debug('[appointment-form] injected styles version=section-heading-v1');
+    } catch (e) {}
   }
 
   populateYearOptions() {
@@ -133,7 +128,6 @@ class AppointmentForm extends HTMLElement {
 
       services.forEach((service, index) => {
         const option = document.createElement('option');
-        // Prefer backend numeric id_servicio when available
         option.value = (service.id_servicio !== undefined ? service.id_servicio : undefined) || service.id || service._id || service.codigo || service.slug || service.nombre || service.name || `svc-${index}`;
         option.textContent = service.nombre || service.name || `Servicio ${index + 1}`;
         fragment.appendChild(option);
@@ -141,7 +135,6 @@ class AppointmentForm extends HTMLElement {
 
       serviceSelect.innerHTML = '';
       serviceSelect.appendChild(fragment);
-      // Preselect service if provided in URL query param (?service=...)
       try {
         const params = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
         const pre = params.get('service') || params.get('servicio');
@@ -150,7 +143,6 @@ class AppointmentForm extends HTMLElement {
           if (match) serviceSelect.value = pre;
         }
       } catch (e) {
-        // ignore
       }
     } catch (error) {
       console.error('[appointment-form] Error al cargar servicios:', error);
@@ -180,7 +172,6 @@ class AppointmentForm extends HTMLElement {
       const raw = sessionStorage.getItem('pendingCliente');
       if (!raw) return;
       const cliente = JSON.parse(raw);
-      // Map known fields to inputs if present
       const map = {
         nombre: cliente.nombre || cliente.name,
         telefono: cliente.telefono || cliente.phone,
@@ -195,15 +186,12 @@ class AppointmentForm extends HTMLElement {
         if (el) el.value = v;
       });
 
-      // Clean up to avoid reusing on next load
-      // If user is authenticated, lock client inputs
       try {
         const token = apiClient.getToken();
         if (token) this.fillAndLockClient(cliente);
       } catch (e) {}
       sessionStorage.removeItem('pendingCliente');
     } catch (e) {
-      // ignore
     }
   }
 
@@ -224,29 +212,24 @@ class AppointmentForm extends HTMLElement {
           el.classList.add('bg-gray-100', 'cursor-not-allowed');
         }
       });
-      // Ensure we send the cliente id to the server when user is authenticated
       try {
         const id = cliente.id_cliente || cliente.id || cliente._id || cliente.idCliente;
         if (id) this.setHiddenClienteId(id);
       } catch (e) {}
 
-      // Also add hidden client fields so FormData includes them even when inputs are disabled
       try { this.setHiddenClientFields(cliente); } catch (e) {}
-      // NO cargar vehículos aquí para evitar duplicación - ya se cargan en connectedCallback
     } catch (e) {
-      // ignore
+     
     }
   }
 
   async loadSavedVehicles(force = false) {
     try {
-      // Verificación más estricta para evitar cargar múltiples veces
       if (this.vehiclesLoaded && !force) {
         console.debug('[appointment-form] Vehicles already loaded, skipping...');
         return;
       }
       
-      // LIMPIEZA SUPER AGRESIVA - eliminar TODO lo que pueda ser un contenedor de vehículos
       const allPossibleSelectors = [
         '#saved-vehicles-container',
         '[id*="saved-vehicles"]',
@@ -259,7 +242,6 @@ class AppointmentForm extends HTMLElement {
       allPossibleSelectors.forEach(selector => {
         const elements = this.root.querySelectorAll(selector);
         elements.forEach(el => {
-          // Verificar que realmente sea un contenedor de vehículos
           if (el.textContent && el.textContent.includes('vehículo')) {
             el.remove();
             totalRemoved++;
@@ -269,7 +251,6 @@ class AppointmentForm extends HTMLElement {
       
       console.debug(`[appointment-form] Removed ${totalRemoved} vehicle containers`);
       
-      // Verificación final - buscar cualquier select que tenga "vehículo" en su contenido
       const allSelects = this.root.querySelectorAll('select');
       allSelects.forEach(select => {
         const firstOption = select.querySelector('option');
@@ -295,7 +276,6 @@ class AppointmentForm extends HTMLElement {
         return;
       }
       
-      // Crear contenedor con ID único para evitar duplicados
       const uniqueId = 'saved-vehicles-container';
       const container = document.createElement('div');
       container.id = uniqueId;
@@ -325,13 +305,12 @@ class AppointmentForm extends HTMLElement {
         try {
           const auto = JSON.parse(opt.dataset.auto || null);
           if (auto) this.applyVehicleToForm(auto);
-        } catch (e) { /* ignore */ }
+        } catch (e) {  }
       });
 
       container.appendChild(label);
       container.appendChild(sel);
 
-      // Insertar contenedor al inicio de la sección de vehículos
       const vehicleSection = this.root.querySelector('fieldset:nth-of-type(2)');
       if (vehicleSection) {
         const legend = vehicleSection.querySelector('legend');
@@ -345,7 +324,6 @@ class AppointmentForm extends HTMLElement {
         console.warn('[appointment-form] Vehicle section not found');
       }
       
-      // Marcar como cargado SOLO después de insertar exitosamente
       this.vehiclesLoaded = true;
       console.debug('[appointment-form] Vehicles loading completed');
     } catch (e) {
@@ -369,10 +347,8 @@ class AppointmentForm extends HTMLElement {
           try { el.value = String(v); } catch (e) {}
         }
       });
-      // set hidden id_auto so backend uses existing auto
       if (auto.id_auto || auto.id) this.setHiddenAutoId(auto.id_auto || auto.id);
     } catch (e) {
-      // ignore
     }
   }
 
@@ -458,14 +434,12 @@ class AppointmentForm extends HTMLElement {
     try {
       const form = this.root.querySelector('#appointment-form');
       if (!form) return;
-      // Disable all inputs/selects/textareas
       Array.from(form.elements).forEach((el) => {
         if (!el.name) return;
         el.setAttribute('disabled', 'disabled');
         el.classList.add('bg-gray-100', 'cursor-not-allowed');
       });
 
-      // Show overlay with login button
       let overlay = this.root.querySelector('#auth-overlay');
       if (!overlay) {
         overlay = document.createElement('div');
@@ -488,12 +462,10 @@ class AppointmentForm extends HTMLElement {
         }
       }
     } catch (e) {
-      // ignore
     }
   }
 
   unlockAfterAuth() {
-    // Deprecated: kept for compatibility but not used; prefer hideAuthOverlay() + fillAndLockClient()
   }
 
   hideAuthOverlay() {
@@ -536,11 +508,9 @@ class AppointmentForm extends HTMLElement {
         'Cita agendada con exito',
         'Te contactaremos pronto para confirmar los detalles.',
       );
-      // If user is authenticated, keep client fields filled and locked; otherwise clear whole form
       try {
         const token = apiClient.getToken();
         if (token) {
-          // reset non-client fields: vehicle, cita details and observaciones
           const keep = ['nombre','telefono','email','direccion'];
           Array.from(form.elements).forEach((el) => {
             if (!el.name) return;
@@ -550,7 +520,6 @@ class AppointmentForm extends HTMLElement {
               if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
             }
           });
-          // Reset vehicle state para que se puedan cargar de nuevo si es necesario
           this.resetVehiclesState();
         } else {
           form.reset();
@@ -561,7 +530,6 @@ class AppointmentForm extends HTMLElement {
         this.resetVehiclesState();
       }
       statusDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Emitir evento para que el host gestione la navegación o el siguiente paso
       this.dispatchEvent(new CustomEvent('appointment-saved', {
         detail: { appointment: response },
         bubbles: true,
@@ -576,11 +544,9 @@ class AppointmentForm extends HTMLElement {
     }
   }
 
-  // Reset del estado de vehículos cuando sea necesario
   resetVehiclesState() {
     this.vehiclesLoaded = false;
     
-    // Limpieza super agresiva de TODOS los posibles contenedores
     const selectors = [
       '[data-vehicle-container]',
       '[id*="saved-vehicles"]', 

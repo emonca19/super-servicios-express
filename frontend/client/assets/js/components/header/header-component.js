@@ -12,7 +12,6 @@ class HeaderComponent extends HTMLElement {
         this._profile = null;
     }
 
-    // Prefer a globally exposed apiClient but fall back to the imported one
     getClient() {
         return (typeof window !== 'undefined' && window.apiClient) ? window.apiClient : apiClient;
     }
@@ -21,22 +20,18 @@ class HeaderComponent extends HTMLElement {
         try {
             const detail = ev && ev.detail;
             if (detail) {
-                // Some emitters pass the profile object directly, others wrap it
                 const profile = detail?.cliente || detail || null;
                 if (profile) {
                     this._profile = profile;
                     try { sessionStorage.setItem('pendingCliente', JSON.stringify(profile)); } catch (e) {}
                 }
             } else {
-                // fallback: try sessionStorage
                 try { this._profile = JSON.parse(sessionStorage.getItem('pendingCliente') || 'null'); } catch (e) { this._profile = null; }
             }
         } catch (e) {}
-        // re-render header to show profile
         try { this.render(); } catch (e) {}
     }
 
-    // Try to decode a JWT without verifying to read payload (safe for UI use)
     parseJwt(token) {
         try {
             const parts = token.split('.');
@@ -51,7 +46,6 @@ class HeaderComponent extends HTMLElement {
 
     toggleProfileMenu(container) {
         try {
-        // remove existing menu if present
         const existing = this.root.querySelector('.profile-menu');
         if (existing) { existing.remove(); return; }
 
@@ -65,7 +59,6 @@ class HeaderComponent extends HTMLElement {
               <button id="menu-logout" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Cerrar sesión</button>
             `;
 
-            // Ensure container is positioned relative to place absolute menu
             const parent = container || this.root.querySelector('#header-auth') || this.root;
             if (parent && parent.style) parent.style.position = 'relative';
             parent.appendChild(menu);
@@ -81,8 +74,6 @@ class HeaderComponent extends HTMLElement {
     }
 
     async connectedCallback() {
-        // Remove any plain <header> elements that were accidentally included in the page
-        // and are not part of a header-component; match by brand text to be conservative.
         try {
             Array.from(document.querySelectorAll('header')).forEach(h => {
                 if (!h.closest('header-component')) {
@@ -96,11 +87,9 @@ class HeaderComponent extends HTMLElement {
             });
         } catch (e) {}
 
-        // Prevent duplicate header-component instances: keep only the first one on the page
         try {
             const all = document.querySelectorAll('header-component');
             if (all && all.length > 1) {
-                // If this is not the first instance, remove it and stop
                 if (all[0] !== this) {
                     try { this.remove(); } catch (e) {}
                     return;
@@ -111,25 +100,30 @@ class HeaderComponent extends HTMLElement {
             templateCache.innerHTML = headerTemplate();
         }
 
-        // Listen for global requests to open auth modal
         window.addEventListener('open-auth', () => { try { this.showAuthModal('login'); } catch (e) {} });
 
-        // Listen for user login events so header updates immediately
         window.addEventListener('user-logged-in', (ev) => { try { this.onUserLoggedIn(ev); } catch (e) {} });
+   
+        window.addEventListener('auth-expired', () => { try { this.handleAuthExpired(); } catch (e) {} });
 
-        // Expose apiClient globally as a convenience for older pages
         try { window.apiClient = window.apiClient || apiClient; } catch (e) {}
 
         await this.render();
     }
 
+    handleAuthExpired() {
+        try {
+            try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) {}
+            this._profile = null;
+            this.render();
+        } catch (e) { console.warn('[header] handleAuthExpired error', e); }
+    }
+
     async render() {
         this.root.innerHTML = '';
-        // Inject compiled Tailwind + (no local styles for header currently)
         await injectStyles(this.root, '');
         this.root.appendChild(templateCache.content.cloneNode(true));
 
-        // Defensive dedupe: if the shadowRoot contains more than one <header>, remove extras
         try {
             const hdrs = this.root.querySelectorAll('header');
             if (hdrs && hdrs.length > 1) {
@@ -139,18 +133,14 @@ class HeaderComponent extends HTMLElement {
             }
         } catch (e) {}
 
-        // Wire up auth area and Agendar button behavior
         try {
             const authArea = this.root.querySelector('#header-auth');
             const btnAgendar = this.root.querySelector('#btn-agendar');
             const client = this.getClient();
             const token = client.getToken && client.getToken();
 
-            // Render auth area based on token
             if (authArea) {
                                 if (token) {
-                                        // Try get profile first-name from sessionStorage to show in header
-                                        // compute profile name and initials
                                         let profileName = null;
                                         let initials = null;
                                         try {
@@ -170,7 +160,6 @@ class HeaderComponent extends HTMLElement {
                                             </div>
                                         `;
 
-                    // Profile dropdown toggle (desktop)
                     const profileLink = this.root.querySelector('#profile-link');
                     if (profileLink) profileLink.addEventListener('click', (ev) => {
                         ev.preventDefault();
@@ -189,7 +178,6 @@ class HeaderComponent extends HTMLElement {
                 }
             }
 
-                        // Mobile auth rendering: mirror desktop auth area into mobile placeholder
                         const mobileAuth = this.root.querySelector('#header-auth-mobile');
                         if (mobileAuth) {
                                 if (token) {
@@ -213,11 +201,9 @@ class HeaderComponent extends HTMLElement {
                                 }
                         }
 
-                        // If token exists but we don't have profile cached, try to fetch it once (best-effort)
                         try {
                             const cached = sessionStorage.getItem('pendingCliente');
                             if (token && !cached) {
-                                // First try /clientes/me
                                 apiClient.get('/clientes/me').then((p) => {
                                     const prof = p?.data || p;
                                     if (prof) {
@@ -226,7 +212,6 @@ class HeaderComponent extends HTMLElement {
                                         this.render();
                                     }
                                 }).catch(async () => {
-                                    // If /me fails, try to decode token and fetch by id
                                     try {
                                         const tok = apiClient.getToken();
                                         const payload = this.parseJwt(tok || '');
@@ -241,7 +226,6 @@ class HeaderComponent extends HTMLElement {
                                                     this.render();
                                                 }
                                             } catch (e) {
-                                                // ignore final failure
                                             }
                                         }
                                     } catch (e) {}
@@ -254,21 +238,17 @@ class HeaderComponent extends HTMLElement {
                     const token = apiClient.getToken();
                     if (!token) {
                         ev.preventDefault();
-                        // remember redirect after auth and open modal
                         this.afterAuthRedirect = 'agendar-cita.html';
                         this.showAuthModal('login');
                     } else {
-                        // allow navigation to agendar-cita.html
                     }
                 });
             }
-            // Wire header-login to open modal
             const headerLogin = this.root.querySelector('#header-login');
             if (headerLogin) {
                 headerLogin.addEventListener('click', (ev) => { ev.preventDefault(); this.showAuthModal('login'); });
             }
 
-            // Wire global modal close/backdrop
             const globalModal = this.root.querySelector('#global-auth-modal');
             const globalClose = this.root.querySelector('#global-auth-close');
             if (globalModal) {
@@ -276,7 +256,6 @@ class HeaderComponent extends HTMLElement {
             }
             if (globalClose) globalClose.addEventListener('click', () => this.hideAuthModal());
         } catch (e) {
-            // non-fatal
             console.warn('[header] render error', e);
         }
     }
@@ -286,17 +265,14 @@ class HeaderComponent extends HTMLElement {
     const forms = this.root.querySelector('#global-auth-forms');
     if (!modal || !forms) return;
 
-    // Posicionar el modal según el dispositivo
-    const isMobile = window.innerWidth < 768; // md breakpoint
+    const isMobile = window.innerWidth < 768; 
     const modalCard = modal.querySelector('div:first-child');
     
     if (isMobile) {
-      // En móviles, posicionar en el centro
       modal.classList.remove('bg-slate-900/40');
       modal.classList.add('flex', 'items-center', 'justify-center', 'p-4');
       modalCard.className = 'bg-white rounded-2xl w-full max-w-xs p-4 shadow-2xl border';
     } else {
-      // En escritorio, posicionar cerca del botón
       modal.classList.remove('flex', 'items-center', 'justify-center', 'p-4');
       modal.classList.add('bg-slate-900/40');
       modalCard.className = 'absolute top-20 right-6 bg-white rounded-2xl w-full max-w-xs p-4 shadow-2xl border';
@@ -312,49 +288,49 @@ class HeaderComponent extends HTMLElement {
     };
 
     const renderLogin = () => {
-      forms.innerHTML = `
-        <div class="relative">
-          <div class="flex justify-between items-center mb-3">
-            <h3 class="text-base font-semibold">Iniciar sesión</h3>
-            <button id="auth-close-top" class="text-gray-400 hover:text-gray-600 text-lg font-bold">×</button>
-          </div>
-          <div id="global-auth-status" class="mb-3"></div>
-          <form id="login-form" class="space-y-2">
-            <div><label class="block text-xs text-gray-600">Email</label><input name="email" type="email" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div><label class="block text-xs text-gray-600">Contraseña</label><input name="password" type="password" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div class="pt-2"><button type="submit" class="w-full px-3 py-1.5 bg-blue-600 text-white rounded text-sm">Ingresar</button></div>
-          </form>
-          <div class="mt-2 text-center">
-            <button id="switch-to-register" class="text-xs text-blue-600 hover:underline">¿No tienes cuenta? Regístrate</button>
-          </div>
-        </div>
-      `;
+            forms.innerHTML = `
+                <div class="relative">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base font-semibold">Iniciar sesión</h3>
+                        <button id="auth-close-top" class="text-gray-400 hover:text-gray-600 text-lg font-bold">×</button>
+                    </div>
+                    <div id="global-auth-status" class="mb-3"></div>
+                    <form id="login-form" class="space-y-2">
+                        <div><label for="global-login-email" class="block text-xs text-gray-600">Email</label><input id="global-login-email" name="email" type="email" autocomplete="email" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div><label for="global-login-password" class="block text-xs text-gray-600">Contraseña</label><input id="global-login-password" name="password" type="password" autocomplete="current-password" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div class="pt-2"><button type="submit" class="w-full px-3 py-1.5 bg-blue-600 text-white rounded text-sm">Ingresar</button></div>
+                    </form>
+                    <div class="mt-2 text-center">
+                        <button id="switch-to-register" class="text-xs text-blue-600 hover:underline">¿No tienes cuenta? Regístrate</button>
+                    </div>
+                </div>
+            `;
       attachHandlers();
       const switchBtn = forms.querySelector('#switch-to-register');
       if (switchBtn) switchBtn.addEventListener('click', () => renderRegister());
     };
 
     const renderRegister = () => {
-      forms.innerHTML = `
-        <div class="relative">
-          <div class="flex justify-between items-center mb-3">
-            <h3 class="text-base font-semibold">Registrarse</h3>
-            <button id="auth-close-top" class="text-gray-400 hover:text-gray-600 text-lg font-bold">×</button>
-          </div>
-          <div id="global-auth-status" class="mb-3"></div>
-          <form id="register-form" class="space-y-2">
-            <div><label class="block text-xs text-gray-600">Nombre</label><input name="nombre" type="text" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div><label class="block text-xs text-gray-600">Email</label><input name="email" type="email" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div><label class="block text-xs text-gray-600">Teléfono</label><input name="telefono" type="tel" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div><label class="block text-xs text-gray-600">Dirección</label><input name="direccion" type="text" class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div><label class="block text-xs text-gray-600">Contraseña</label><input name="password" type="password" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
-            <div class="pt-2"><button type="submit" class="w-full px-3 py-1.5 bg-green-600 text-white rounded text-sm">Crear cuenta</button></div>
-          </form>
-          <div class="mt-2 text-center">
-            <button id="switch-to-login" class="text-xs text-blue-600 hover:underline">¿Ya tienes cuenta? Inicia sesión</button>
-          </div>
-        </div>
-      `;
+            forms.innerHTML = `
+                <div class="relative">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-base font-semibold">Registrarse</h3>
+                        <button id="auth-close-top" class="text-gray-400 hover:text-gray-600 text-lg font-bold">×</button>
+                    </div>
+                    <div id="global-auth-status" class="mb-3"></div>
+                    <form id="register-form" class="space-y-2">
+                        <div><label for="global-register-nombre" class="block text-xs text-gray-600">Nombre</label><input id="global-register-nombre" name="nombre" type="text" autocomplete="name" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div><label for="global-register-email" class="block text-xs text-gray-600">Email</label><input id="global-register-email" name="email" type="email" autocomplete="email" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div><label for="global-register-telefono" class="block text-xs text-gray-600">Teléfono</label><input id="global-register-telefono" name="telefono" type="tel" autocomplete="tel" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div><label for="global-register-direccion" class="block text-xs text-gray-600">Dirección</label><input id="global-register-direccion" name="direccion" type="text" autocomplete="street-address" class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div><label for="global-register-password" class="block text-xs text-gray-600">Contraseña</label><input id="global-register-password" name="password" type="password" autocomplete="new-password" required class="w-full px-2 py-1.5 text-sm border rounded" /></div>
+                        <div class="pt-2"><button type="submit" class="w-full px-3 py-1.5 bg-green-600 text-white rounded text-sm">Crear cuenta</button></div>
+                    </form>
+                    <div class="mt-2 text-center">
+                        <button id="switch-to-login" class="text-xs text-blue-600 hover:underline">¿Ya tienes cuenta? Inicia sesión</button>
+                    </div>
+                </div>
+            `;
       attachHandlers();
       const switchBtn = forms.querySelector('#switch-to-login');
       if (switchBtn) switchBtn.addEventListener('click', () => renderLogin());
@@ -384,21 +360,17 @@ class HeaderComponent extends HTMLElement {
             const token = res?.data?.token || res?.token || (res && res.token) || (res && res.data && res.data.token);
             if (!token) throw new Error('Token no recibido');
             localStorage.setItem('token', token);
-                        // fetch profile (best-effort). If it fails (400/404/401), proceed: token is saved and header will render accordingly.
                         let profile = null;
                         try {
                             const p = await apiClient.get('/clientes/me');
                             profile = p?.data || p;
                         } catch (e) {
-                            // Non-fatal: likely using fallback account or profile not yet available. Continue without profile.
                         }
-            // Always notify app that user is authenticated; include profile if available
             try { if (profile) sessionStorage.setItem('pendingCliente', JSON.stringify(profile)); } catch (e) {}
             window.dispatchEvent(new CustomEvent('user-logged-in', { detail: profile || null }));
             if (statusEl) { statusEl.className = 'text-sm text-green-600'; statusEl.textContent = 'Inicio de sesión exitoso'; }
             this.hideAuthModal();
             await this.render();
-            // After render, if there is a pending redirect (e.g. user clicked Agendar), navigate
             try {
                 if (this.afterAuthRedirect) {
                     const target = this.afterAuthRedirect;
@@ -424,7 +396,6 @@ class HeaderComponent extends HTMLElement {
             if (statusEl) { statusEl.className = 'text-sm text-gray-600'; statusEl.textContent = 'Creando cuenta...'; }
             const res = await apiClient.post('/clientes', body);
             const cliente = res?.data || res;
-            // Auto-login if password provided
             if (body.password && body.email) {
                 try {
                     const loginRes = await apiClient.post('/auth/login', { email: body.email, password: body.password });
@@ -438,7 +409,6 @@ class HeaderComponent extends HTMLElement {
                     }
                 } catch (le) { console.warn('Auto-login fallido', le); }
             } else {
-                // store created cliente temporarily to prefill appointment form
                 try { sessionStorage.setItem('pendingCliente', JSON.stringify(cliente)); } catch (e) {}
                 window.dispatchEvent(new CustomEvent('user-registered', { detail: cliente }));
             }

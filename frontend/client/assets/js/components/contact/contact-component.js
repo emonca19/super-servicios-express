@@ -20,20 +20,20 @@ template.innerHTML = `
           <div class="form-card">
             <form id="contact-form" class="space-y-6">
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo *</label>
-                <input required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition" name="nombre" placeholder="Tu nombre completo" />
+                <label for="contact-nombre" class="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo *</label>
+                <input id="contact-nombre" required autocomplete="name" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition" name="nombre" placeholder="Tu nombre completo" />
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico *</label>
-                <input required type="email" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition" name="email" placeholder="tu@email.com" />
+                <label for="contact-email" class="block text-sm font-semibold text-gray-700 mb-2">Correo Electrónico *</label>
+                <input id="contact-email" required type="email" autocomplete="email" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition" name="email" placeholder="tu@email.com" />
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
-                <input type="tel" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition" name="telefono" placeholder="(644) 123-4567" />
+                <label for="contact-telefono" class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
+                <input id="contact-telefono" type="tel" autocomplete="tel" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition" name="telefono" placeholder="(644) 123-4567" />
               </div>
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Mensaje *</label>
-                <textarea required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition resize-none" rows="6" name="mensaje" placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
+                <label for="contact-mensaje" class="block text-sm font-semibold text-gray-700 mb-2">Mensaje *</label>
+                <textarea id="contact-mensaje" required autocomplete="off" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition resize-none" rows="6" name="mensaje" placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
               </div>
               <div class="flex justify-end pt-4">
                 <button type="submit" class="btn-submit">Enviar Mensaje</button>
@@ -80,7 +80,6 @@ class ContactPage extends HTMLElement {
   }
 
   async connectedCallback() {
-    // inject tailwind + scoped component CSS
     const componentCss = `
       /* Scoped component styles */
       :host { display: block; }
@@ -107,7 +106,6 @@ class ContactPage extends HTMLElement {
     await injectStyles(this.root, componentCss);
     this.root.appendChild(template.content.cloneNode(true));
 
-    // attach form handler inside shadow root
     const form = this.root.getElementById('contact-form');
     if (form) {
       form.addEventListener('submit', (ev) => {

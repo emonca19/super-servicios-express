@@ -6,6 +6,7 @@ class SSEInput extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this._inputId = 'sse-input-' + Math.random().toString(36).slice(2, 9);
   }
 
   static get observedAttributes() {
@@ -48,13 +49,14 @@ class SSEInput extends HTMLElement {
       <style>${this.styles()}</style>
       <div class="input-wrapper">
         ${label ? `
-          <label class="input-label">
+          <label for="${this._inputId}" class="input-label">
             ${label}
             ${required ? '<span class="required">*</span>' : ''}
           </label>
         ` : ''}
-        
+
         <input
+          id="${this._inputId}"
           type="${type}"
           class="input-field ${error ? 'error' : ''}"
           placeholder="${placeholder}"

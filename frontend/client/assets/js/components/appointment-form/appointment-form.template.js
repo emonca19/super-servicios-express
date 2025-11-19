@@ -1,51 +1,54 @@
 ﻿const appointmentFormTemplate = () => `
   <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-xl">
-    <div id="form-status" class="mb-4 hidden"></div>
+    <div id="form-status" class="mb-3 hidden"></div>
 
-    <form id="appointment-form" class="space-y-6">
-      <fieldset class="space-y-6 pt-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-4 mt-4 py-2">
-          <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">1</span>
+    <form id="appointment-form">
+      
+      <fieldset class="space-y-6">
+        <legend class="w-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-800 section-heading">
+          <span class="bg-blue-600 text-white text-lg rounded-full w-12 h-12 flex items-center justify-center mr-4 shadow-sm shrink-0">1</span>
           Datos del Cliente
         </legend>
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Completo *</label>
-            <input type="text" name="nombre" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            <label for="appointment-nombre" class="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo *</label>
+            <input id="appointment-nombre" type="text" name="nombre" autocomplete="name" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
               placeholder="Tu nombre completo" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Tel&eacute;fono *</label>
-            <input type="tel" name="telefono" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            <label for="appointment-telefono" class="block text-sm font-semibold text-gray-700 mb-2">Teléfono *</label>
+            <input id="appointment-telefono" type="tel" name="telefono" autocomplete="tel" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
               placeholder="(644) 123-4567" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Email *</label>
-            <input type="email" name="email" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            <label for="appointment-email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+            <input id="appointment-email" type="email" name="email" autocomplete="email" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
               placeholder="tu@email.com" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Direcci&oacute;n</label>
-            <input type="text" name="direccion"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-              placeholder="Tu direcci&oacute;n" />
+            <label for="appointment-direccion" class="block text-sm font-semibold text-gray-700 mb-2">Dirección</label>
+            <input id="appointment-direccion" type="text" name="direccion" autocomplete="street-address"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+              placeholder="Tu dirección" />
           </div>
         </div>
       </fieldset>
 
-      <fieldset class="space-y-8 pt-8 border-t-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-4 mt-4 py-2">
-          <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">2</span>
-          Informaci&oacute;n del Veh&iacute;culo
+      <fieldset class="space-y-6 border-t-2 border-gray-100">
+        <legend class="w-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-800 section-heading">
+          <span class="bg-blue-600 text-white text-lg rounded-full w-12 h-12 flex items-center justify-center mr-4 shadow-sm shrink-0">2</span>
+          Información del Vehículo
         </legend>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Marca *</label>
-            <select name="marca" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+            <label for="appointment-marca" class="block text-sm font-semibold text-gray-700 mb-2">Marca *</label>
+            <select id="appointment-marca" name="marca" required autocomplete="off"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-white transition-colors">
               <option value="">Selecciona marca</option>
               <option value="Toyota">Toyota</option>
               <option value="Honda">Honda</option>
@@ -58,48 +61,49 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Modelo *</label>
-            <input type="text" name="modelo" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-              placeholder="Ej. Corolla, Civic, etc." />
+            <label for="appointment-modelo" class="block text-sm font-semibold text-gray-700 mb-2">Modelo *</label>
+            <input id="appointment-modelo" type="text" name="modelo" autocomplete="off" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+              placeholder="Ej. Corolla" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">A&ntilde;o *</label>
-            <select name="ano" required id="ano-select"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-              <option value="">Selecciona a&ntilde;o</option>
+            <label for="ano-select" class="block text-sm font-semibold text-gray-700 mb-2">Año *</label>
+            <select id="ano-select" name="ano" required autocomplete="off"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-white transition-colors">
+              <option value="">Selecciona año</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Color</label>
-            <input type="text" name="color"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-              placeholder="Color del veh&iacute;culo" />
+            <label for="appointment-color" class="block text-sm font-semibold text-gray-700 mb-2">Color</label>
+            <input id="appointment-color" type="text" name="color" autocomplete="off"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+              placeholder="Color del vehículo" />
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Placas</label>
-            <input type="text" name="placas"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+          <div class="md:col-span-2">
+            <label for="appointment-placas" class="block text-sm font-semibold text-gray-700 mb-2">Placas</label>
+            <input id="appointment-placas" type="text" name="placas" autocomplete="off"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
               placeholder="XXX-123" />
           </div>
         </div>
       </fieldset>
 
-      <fieldset class="space-y-8 pt-8 border-t-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-8 mt-6 py-4">
-          <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">3</span>
+      <fieldset class="space-y-6 border-t-2 border-gray-100">
+        <legend class="w-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-800 section-heading">
+          <span class="bg-blue-600 text-white text-lg rounded-full w-12 h-12 flex items-center justify-center mr-4 shadow-sm shrink-0">3</span>
           Detalles de la Cita
         </legend>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha *</label>
-            <input type="date" name="fecha" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
+            <label for="appointment-fecha" class="block text-sm font-semibold text-gray-700 mb-2">Fecha *</label>
+            <input id="appointment-fecha" type="date" name="fecha" autocomplete="off" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Hora *</label>
-            <select name="hora" required
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+            <label for="appointment-hora" class="block text-sm font-semibold text-gray-700 mb-2">Hora *</label>
+            <select id="appointment-hora" name="hora" autocomplete="off" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-white transition-colors">
               <option value="">Selecciona hora</option>
               <option value="08:00">08:00 AM</option>
               <option value="09:00">09:00 AM</option>
@@ -114,36 +118,37 @@
               <option value="18:00">06:00 PM</option>
             </select>
           </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Servicio *</label>
-            <select name="servicio" required id="servicio-select"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+          <div class="md:col-span-2">
+            <label for="appointment-servicio" class="block text-sm font-semibold text-gray-700 mb-2">Servicio *</label>
+            <select id="appointment-servicio" name="servicio" autocomplete="off" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-white transition-colors">
               <option value="">Cargando servicios...</option>
             </select>
           </div>
         </div>
       </fieldset>
 
-      <fieldset class="space-y-8 pt-8 border-t-2">
-        <legend class="flex items-center text-2xl font-bold text-gray-800 mb-8 mt-6 py-4">
-          <span class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">4</span>
+      <fieldset class="space-y-6 border-t-2 border-gray-100">
+        <legend class="w-full flex items-center justify-center text-2xl sm:text-3xl font-bold text-gray-800 section-heading">
+          <span class="bg-blue-600 text-white text-lg rounded-full w-12 h-12 flex items-center justify-center mr-4 shadow-sm shrink-0">4</span>
           Observaciones
         </legend>
+        
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Observaciones adicionales (opcional)</label>
-          <textarea name="observaciones" rows="4"
-            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-            placeholder="Describe cualquier problema espec&iacute;fico o informaci&oacute;n adicional..."></textarea>
+          <label for="appointment-observaciones" class="block text-sm font-semibold text-gray-700 mb-2">Observaciones adicionales (opcional)</label>
+          <textarea id="appointment-observaciones" name="observaciones" rows="4" autocomplete="off"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+            placeholder="Describe cualquier problema específico o información adicional..."></textarea>
         </div>
       </fieldset>
 
-      <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t-2">
+      <div>
         <button type="button" id="cancel-btn"
-          class="px-8 py-3 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg transition">
+          class="px-8 py-3 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg transition focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
           Cancelar
         </button>
         <button type="submit" id="submit-btn"
-          class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-lg hover:scale-105 transform">
+          class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-lg hover:scale-105 transform focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
           Agendar Cita
         </button>
       </div>

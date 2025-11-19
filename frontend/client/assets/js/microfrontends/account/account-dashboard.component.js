@@ -232,8 +232,8 @@ template.innerHTML = `
       <form id="auto-form" class="space-y-5">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Marca *</label>
-            <select name="marca" required class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none">
+            <label for="auto-marca" class="block text-sm font-semibold text-gray-700 mb-1">Marca *</label>
+            <select id="auto-marca" name="marca" required autocomplete="off" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none">
               <option value="">Selecciona marca</option>
               <option value="Toyota">Toyota</option>
               <option value="Honda">Honda</option>
@@ -252,28 +252,28 @@ template.innerHTML = `
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Modelo *</label>
-            <input name="modelo" placeholder="Ej. Corolla, Civic, etc." class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
+            <label for="auto-modelo" class="block text-sm font-semibold text-gray-700 mb-1">Modelo *</label>
+            <input id="auto-modelo" name="modelo" placeholder="Ej. Corolla, Civic, etc." autocomplete="off" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">A&ntilde;o *</label>
-            <input name="anio" type="number" placeholder="2020" min="1950" max="2025" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
+            <label for="auto-anio" class="block text-sm font-semibold text-gray-700 mb-1">A&ntilde;o *</label>
+            <input id="auto-anio" name="anio" type="number" placeholder="2020" min="1950" max="2025" autocomplete="off" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Color</label>
-            <input name="color" placeholder="Color del veh&iacute;culo" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" />
+            <label for="auto-color" class="block text-sm font-semibold text-gray-700 mb-1">Color</label>
+            <input id="auto-color" name="color" placeholder="Color del veh&iacute;culo" autocomplete="off" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" />
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Placas *</label>
-            <input name="placas" placeholder="XXX-123" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
+            <label for="auto-placas" class="block text-sm font-semibold text-gray-700 mb-1">Placas *</label>
+            <input id="auto-placas" name="placas" placeholder="XXX-123" autocomplete="off" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">N&uacute;mero de serie *</label>
-            <input name="numero_serie" placeholder="VIN del veh&iacute;culo" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
+            <label for="auto-numero_serie" class="block text-sm font-semibold text-gray-700 mb-1">N&uacute;mero de serie *</label>
+            <input id="auto-numero_serie" name="numero_serie" placeholder="VIN del veh&iacute;culo" autocomplete="off" class="w-full px-4 py-3 rounded-lg focus:border-blue-500 focus:outline-none" required />
           </div>
         </div>
         
@@ -318,7 +318,6 @@ class AccountDashboard extends HTMLElement {
     this.statNextValue = this.root.querySelector('#stat-next-value');
     this.statNextSub = this.root.querySelector('#stat-next-sub');
 
-    // IMPORTANTE: Verificar que el modal esté oculto por defecto
     if (this.modal) {
       this.modal.classList.add('hidden');
       this.modal.style.display = 'none';
@@ -328,7 +327,6 @@ class AccountDashboard extends HTMLElement {
     this.registerEvents();
     this.loadData();
     
-    // Manejar hash URL para navegar a secciones específicas
     this.handleUrlHash();
     console.debug('[account-dashboard] connectedCallback completed');
   }
@@ -339,7 +337,6 @@ class AccountDashboard extends HTMLElement {
       console.debug('[account-dashboard] Handling URL hash:', hash);
       
       if (hash === '#autos') {
-        // SOLO scrollear a la sección de autos, NUNCA abrir el modal
         const autosSection = this.root.querySelector('.card:nth-of-type(2)');
         if (autosSection) {
           setTimeout(() => {
@@ -349,8 +346,6 @@ class AccountDashboard extends HTMLElement {
         }
       }
       
-      // IMPORTANTE: No hay código aquí que deba abrir modales automáticamente
-      // Solo navegación por hash URL
       
     } catch (e) {
       console.warn('[account-dashboard] Error handling URL hash:', e);
@@ -382,7 +377,6 @@ class AccountDashboard extends HTMLElement {
   }
 
   registerEvents() {
-    // Solo agregar event listeners a los botones específicos de agregar
     [this.btnAdd, this.btnAddTop].forEach((btn) => {
       if (btn) {
         btn.addEventListener('click', (e) => {
@@ -761,7 +755,6 @@ class AccountDashboard extends HTMLElement {
     console.debug('[account-dashboard] showModal called explicitly by user action');
     this.modal.classList.remove('hidden');
     this.modal.style.display = 'flex';
-    // Prevent body scrolling when modal is open
     document.body.style.overflow = 'hidden';
   }
 
@@ -769,12 +762,10 @@ class AccountDashboard extends HTMLElement {
     this.modal.classList.add('hidden');
     this.modal.style.display = 'none';
     this.form.reset();
-    // Restore body scrolling
     document.body.style.overflow = '';
   }
 
   setupProfileEditListeners() {
-    // Event listeners para botones de edición individual
     ['nombre', 'email', 'telefono', 'direccion'].forEach(field => {
       const btn = this.profileEl.querySelector(`#edit-${field}`);
       if (btn) {
@@ -782,7 +773,6 @@ class AccountDashboard extends HTMLElement {
       }
     });
     
-    // Event listener para edición completa del perfil
     const editBtn = this.profileEl.querySelector('#edit-profile-btn');
     if (editBtn) {
       editBtn.addEventListener('click', () => this.showProfileEditModal());
@@ -811,11 +801,13 @@ class AccountDashboard extends HTMLElement {
       `
         <form id="edit-field-form" class="space-y-4">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">${fieldLabels[field]}</label>
+            <label for="edit-field-${field}" class="block text-sm font-semibold text-gray-700 mb-2">${fieldLabels[field]}</label>
             <input 
+              id="edit-field-${field}"
               type="${fieldTypes[field]}" 
               name="${field}" 
               value="${currentValue}"
+              autocomplete="${field === 'nombre' ? 'name' : field === 'email' ? 'email' : field === 'telefono' ? 'tel' : 'street-address'}"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
               ${field === 'nombre' || field === 'email' ? 'required' : ''}
             />
@@ -827,8 +819,10 @@ class AccountDashboard extends HTMLElement {
         </form>
       `,
       (modal) => {
+        console.debug('[account-dashboard] setupFn for edit-field modal, modal element:', modal);
         const form = modal.querySelector('#edit-field-form');
         const cancelBtn = modal.querySelector('#cancel-field-edit');
+        console.debug('[account-dashboard] edit-field form found:', !!form, 'cancelBtn found:', !!cancelBtn);
         if (cancelBtn) {
           cancelBtn.addEventListener('click', () => this.hideCustomModal());
         }
@@ -838,9 +832,11 @@ class AccountDashboard extends HTMLElement {
             try {
               const formData = new FormData(form);
               const value = formData.get(field);
+              console.debug('[account-dashboard] submitting edit-field form', field, value);
               await this.updateProfileField(field, value);
             } catch (err) {
               console.error('[account-dashboard] Error submitting field edit form', err);
+              this.showErrorMessage('Error al guardar: ' + (err && err.message));
             }
           });
         }
@@ -850,29 +846,37 @@ class AccountDashboard extends HTMLElement {
 
   showProfileEditModal() {
     const profile = this.currentProfile;
+    if (!profile) {
+      console.warn('[account-dashboard] showProfileEditModal called but currentProfile is missing');
+      this.showErrorMessage('No se pudo cargar tu perfil. Intenta recargar la página e intenta de nuevo.');
+      return;
+    }
+
+    console.debug('[account-dashboard] Opening full profile edit modal', profile && profile.id_cliente);
+
     this.showCustomModal(
       'Editar Perfil Completo',
       `
         <form id="edit-profile-form" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo *</label>
-              <input type="text" name="nombre" value="${profile.nombre || ''}" required
+              <label for="edit-profile-nombre" class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo *</label>
+              <input id="edit-profile-nombre" type="text" name="nombre" value="${profile.nombre || ''}" autocomplete="name" required
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
-              <input type="email" name="email" value="${profile.email || ''}" required
+              <label for="edit-profile-email" class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+              <input id="edit-profile-email" type="email" name="email" value="${profile.email || ''}" autocomplete="email" required
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
-              <input type="tel" name="telefono" value="${profile.telefono || ''}"
+              <label for="edit-profile-telefono" class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
+              <input id="edit-profile-telefono" type="tel" name="telefono" value="${profile.telefono || ''}" autocomplete="tel"
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Dirección</label>
-              <input type="text" name="direccion" value="${profile.direccion || ''}"
+              <label for="edit-profile-direccion" class="block text-sm font-semibold text-gray-700 mb-2">Dirección</label>
+              <input id="edit-profile-direccion" type="text" name="direccion" value="${profile.direccion || ''}" autocomplete="street-address"
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
             </div>
           </div>
@@ -883,8 +887,10 @@ class AccountDashboard extends HTMLElement {
         </form>
       `,
       (modal) => {
+        console.debug('[account-dashboard] setupFn for full-profile modal, modal element:', modal);
         const form = modal.querySelector('#edit-profile-form');
         const cancelBtn = modal.querySelector('#cancel-profile-edit');
+        console.debug('[account-dashboard] edit-profile form found:', !!form, 'cancelBtn found:', !!cancelBtn);
         if (cancelBtn) {
           cancelBtn.addEventListener('click', () => this.hideCustomModal());
         }
@@ -894,9 +900,11 @@ class AccountDashboard extends HTMLElement {
             try {
               const formData = new FormData(form);
               const data = Object.fromEntries(formData.entries());
+              console.debug('[account-dashboard] submitting full profile form', data);
               await this.updateProfileComplete(data);
             } catch (err) {
               console.error('[account-dashboard] Error submitting profile edit form', err);
+              this.showErrorMessage('Error al guardar perfil: ' + (err && err.message));
             }
           });
         }
@@ -911,15 +919,12 @@ class AccountDashboard extends HTMLElement {
       
       await client.put(`/clientes/${this.currentProfile.id_cliente}`, updateData);
       
-      // Actualizar perfil local
       this.currentProfile[field] = value;
       
-      // Recargar vista del perfil
       await this.loadProfile();
       
       this.hideCustomModal();
       
-      // Mostrar mensaje de éxito
       this.showSuccessMessage(`${field} actualizado correctamente`);
       
     } catch (error) {
@@ -934,15 +939,12 @@ class AccountDashboard extends HTMLElement {
       
       await client.put(`/clientes/${this.currentProfile.id_cliente}`, data);
       
-      // Actualizar perfil local
       Object.assign(this.currentProfile, data);
       
-      // Recargar vista del perfil
       await this.loadProfile();
       
       this.hideCustomModal();
       
-      // Mostrar mensaje de éxito
       this.showSuccessMessage('Perfil actualizado correctamente');
       
     } catch (error) {
@@ -952,14 +954,26 @@ class AccountDashboard extends HTMLElement {
   }
 
   showCustomModal(title, content, setupFn) {
-    // Crear modal personalizado para edición
-    let customModal = this.root.querySelector('#profile-edit-modal');
+    let customModal = document.getElementById('profile-edit-modal') || this.root.querySelector('#profile-edit-modal');
     if (!customModal) {
       customModal = document.createElement('div');
       customModal.id = 'profile-edit-modal';
       customModal.className = 'fixed inset-0 hidden items-center justify-center z-50';
+      customModal.style.position = 'fixed';
+      customModal.style.top = '0';
+      customModal.style.left = '0';
+      customModal.style.width = '100%';
+      customModal.style.height = '100%';
+      customModal.style.display = 'none';
+      customModal.style.alignItems = 'center';
+      customModal.style.justifyContent = 'center';
+      customModal.style.padding = '1rem';
       customModal.style.background = 'rgba(0,0,0,0.55)';
-      this.root.appendChild(customModal);
+      customModal.style.zIndex = '2147483647';
+      document.body.appendChild(customModal);
+      console.debug('[account-dashboard] profile-edit-modal appended to document.body');
+    } else {
+      console.debug('[account-dashboard] Reusing existing profile-edit-modal element');
     }
     
     customModal.innerHTML = `
@@ -974,19 +988,47 @@ class AccountDashboard extends HTMLElement {
     
     customModal.classList.remove('hidden');
     customModal.style.display = 'flex';
+    customModal.style.alignItems = 'center';
+    customModal.style.justifyContent = 'center';
     document.body.style.overflow = 'hidden';
+
+    customModal.onclick = (e) => { if (e.target === customModal) { this.hideCustomModal(); } };
     
-    // Setup event listeners (guard against missing elements)
     try {
       const closeBtn = customModal.querySelector('#close-custom-modal');
-      if (closeBtn) closeBtn.addEventListener('click', () => this.hideCustomModal());
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => this.hideCustomModal());
+      } else {
+        console.debug('[account-dashboard] close button not found in custom modal');
+      }
 
-      customModal.addEventListener('click', (e) => {
-        if (e.target === customModal) this.hideCustomModal();
-      });
+      try {
+        const modalCard = customModal.querySelector('.modal-card');
+        if (modalCard) {
+          modalCard.style.background = modalCard.style.background || '#fff';
+          modalCard.style.border = modalCard.style.border || '1px solid #e5e7eb';
+          modalCard.style.borderRadius = modalCard.style.borderRadius || '12px';
+          modalCard.style.padding = modalCard.style.padding || '1rem';
+          modalCard.style.boxShadow = modalCard.style.boxShadow || '0 30px 70px rgba(15,23,42,0.25)';
+          modalCard.style.maxHeight = modalCard.style.maxHeight || '90vh';
+          modalCard.style.overflowY = modalCard.style.overflowY || 'auto';
+          modalCard.style.width = modalCard.style.width || '100%';
+          modalCard.style.maxWidth = modalCard.style.maxWidth || '680px';
+        } else {
+          console.debug('[account-dashboard] modal-card element not found to apply inline styles');
+        }
+      } catch (e) {
+        console.warn('[account-dashboard] error applying inline modal-card styles', e);
+      }
 
       if (typeof setupFn === 'function') {
-        try { setupFn(customModal); } catch (err) { console.warn('[account-dashboard] setupFn error', err); }
+        try {
+          setupFn(customModal);
+        } catch (err) {
+          console.warn('[account-dashboard] setupFn error', err);
+        }
+      } else {
+        console.debug('[account-dashboard] No setupFn provided for custom modal');
       }
     } catch (err) {
       console.warn('[account-dashboard] Error setting up custom modal listeners:', err);
@@ -994,10 +1036,9 @@ class AccountDashboard extends HTMLElement {
   }
 
   hideCustomModal() {
-    const customModal = this.root.querySelector('#profile-edit-modal');
+    const customModal = document.getElementById('profile-edit-modal') || (this.root && this.root.querySelector('#profile-edit-modal'));
     if (customModal) {
-      customModal.classList.add('hidden');
-      customModal.style.display = 'none';
+      try { customModal.remove(); } catch (e) { customModal.classList.add('hidden'); customModal.style.display = 'none'; }
     }
     document.body.style.overflow = '';
   }

@@ -17,7 +17,6 @@ class ServicesService {
       if (cached) return cached;
 
       const res = await this.apiClient.get('/servicios', filters);
-      // Backend can return either an array or an envelope { ok: true, data: [...] }
       let services = [];
       if (Array.isArray(res)) services = res;
       else if (res && Array.isArray(res.data)) services = res.data;

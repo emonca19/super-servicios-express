@@ -3,7 +3,6 @@
  */
 
 export const storage = {
-  // LocalStorage
   local: {
     set(key, value) {
       try {

@@ -17,22 +17,18 @@ class AppointmentShell extends HTMLElement {
   }
 
   async render() {
-    // Ensure base template loaded
     if (!templateCache.innerHTML) {
       templateCache.innerHTML = `${appointmentShellTemplate()}`;
     }
 
-    // Decide view depending on authentication
     const token = apiClient.getToken();
 
     this.root.innerHTML = '';
     await injectStyles(this.root, appointmentShellStyles);
 
     if (token) {
-      // Authenticated — show appointment form
       this.root.appendChild(templateCache.content.cloneNode(true));
     } else {
-      // Not authenticated — render an auth gate with login/register
       const wrapper = document.createElement('div');
       wrapper.innerHTML = `
         <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow">
@@ -57,7 +53,6 @@ class AppointmentShell extends HTMLElement {
 
       this.root.appendChild(wrapper);
 
-      // Attach event listeners
       const openLogin = wrapper.querySelector('#open-login');
       const openRegister = wrapper.querySelector('#open-register');
       const modal = wrapper.querySelector('#auth-modal');
@@ -74,7 +69,6 @@ class AppointmentShell extends HTMLElement {
         `;
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
-        // attach internal listeners
         const loginForm = authForms.querySelector('#login-form');
         if (loginForm) loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         const registerForm = authForms.querySelector('#register-form');
@@ -85,55 +79,54 @@ class AppointmentShell extends HTMLElement {
 
       openLogin.addEventListener('click', () => {
         showModal(`
-          <h3 class="text-lg font-semibold mb-4">Iniciar sesión</h3>
-          <form id="login-form" class="space-y-3">
-            <div>
-              <label class="block text-sm">Email</label>
-              <input name="email" type="email" required class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label class="block text-sm">Contraseña</label>
-              <input name="password" type="password" required class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div class="pt-3">
-              <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Ingresar</button>
-            </div>
-          </form>
-        `);
+            <h3 class="text-lg font-semibold mb-4">Iniciar sesión</h3>
+            <form id="login-form" class="space-y-3">
+              <div>
+                <label for="login-email" class="block text-sm">Email</label>
+                <input id="login-email" name="email" type="email" autocomplete="email" required class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div>
+                <label for="login-password" class="block text-sm">Contraseña</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div class="pt-3">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Ingresar</button>
+              </div>
+            </form>
+          `);
       });
 
       openRegister.addEventListener('click', () => {
         showModal(`
-          <h3 class="text-lg font-semibold mb-4">Registrarse</h3>
-          <form id="register-form" class="space-y-3">
-            <div>
-              <label class="block text-sm">Nombre</label>
-              <input name="nombre" type="text" required class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label class="block text-sm">Email</label>
-              <input name="email" type="email" required class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label class="block text-sm">Teléfono</label>
-              <input name="telefono" type="tel" required class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label class="block text-sm">Dirección</label>
-              <input name="direccion" type="text" class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div>
-              <label class="block text-sm">Contraseña</label>
-              <input name="password" type="password" required class="w-full px-3 py-2 border rounded" />
-            </div>
-            <div class="pt-3">
-              <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Crear cuenta</button>
-            </div>
-          </form>
-        `);
+            <h3 class="text-lg font-semibold mb-4">Registrarse</h3>
+            <form id="register-form" class="space-y-3">
+              <div>
+                <label for="register-nombre" class="block text-sm">Nombre</label>
+                <input id="register-nombre" name="nombre" type="text" autocomplete="name" required class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div>
+                <label for="register-email" class="block text-sm">Email</label>
+                <input id="register-email" name="email" type="email" autocomplete="email" required class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div>
+                <label for="register-telefono" class="block text-sm">Teléfono</label>
+                <input id="register-telefono" name="telefono" type="tel" autocomplete="tel" required class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div>
+                <label for="register-direccion" class="block text-sm">Dirección</label>
+                <input id="register-direccion" name="direccion" type="text" autocomplete="street-address" class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div>
+                <label for="register-password" class="block text-sm">Contraseña</label>
+                <input id="register-password" name="password" type="password" autocomplete="new-password" required class="w-full px-3 py-2 border rounded" />
+              </div>
+              <div class="pt-3">
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Crear cuenta</button>
+              </div>
+            </form>
+          `);
       });
 
-      // close when clicking backdrop
       modal.addEventListener('click', (ev) => {
         if (ev.target === modal) {
           modal.classList.add('hidden');
@@ -160,7 +153,6 @@ class AppointmentShell extends HTMLElement {
       if (!token) throw new Error('Token no recibido');
       localStorage.setItem('token', token);
       if (statusEl) { statusEl.className = 'text-sm text-green-600'; statusEl.textContent = 'Inicio de sesión exitoso'; }
-      // re-render to show appointment form
       await this.render();
     } catch (e) {
       const statusEl = this.root.querySelector('#auth-status');
@@ -177,10 +169,8 @@ class AppointmentShell extends HTMLElement {
       const body = Object.fromEntries(fd.entries());
       const statusEl = this.root.querySelector('#auth-status');
       if (statusEl) { statusEl.className = 'text-sm text-gray-600'; statusEl.textContent = 'Creando cuenta...'; }
-      // Create cliente via API
       const res = await apiClient.post('/clientes', body);
       const cliente = res?.data || res;
-      // If the user provided a password, attempt to login automatically
       if (body.password && body.email) {
         try {
           const loginRes = await apiClient.post('/auth/login', { email: body.email, password: body.password });
@@ -189,14 +179,11 @@ class AppointmentShell extends HTMLElement {
             localStorage.setItem('token', token);
           }
         } catch (le) {
-          // ignore login error — user can still continue with prefilled form
           console.warn('Auto-login fallido', le);
         }
       }
-      // store temporarily to prefill appointment form
       try { sessionStorage.setItem('pendingCliente', JSON.stringify(cliente)); } catch (e) {}
       if (statusEl) { statusEl.className = 'text-sm text-green-600'; statusEl.textContent = 'Registro exitoso'; }
-      // re-render to show appointment form
       await this.render();
     } catch (e) {
       const statusEl = this.root.querySelector('#auth-status');

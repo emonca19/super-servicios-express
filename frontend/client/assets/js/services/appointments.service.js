@@ -4,7 +4,6 @@
 
 import { ApiClient } from './api-client.js';
 
-// helper to create client and car before creating cita
 
 class AppointmentsService {
   constructor() {
@@ -18,15 +17,8 @@ class AppointmentsService {
    */
   async create(appointmentData) {
     try {
-      // Flow for backend schema:
-      // 1) Ensure cliente exists (create via POST /clientes)
-      // 2) Create automovil with id_cliente (POST /automoviles)
-      // 3) Create cita with id_cliente, id_auto, inicio, fin, detalles
-
-      // Normalize input
       const phone = (appointmentData.telefono || '').replace(/\D/g, '');
 
-      // 1) create cliente if not provided
       let clienteId = appointmentData.id_cliente;
       if (!clienteId) {
         const clientePayload = {
@@ -39,7 +31,6 @@ class AppointmentsService {
         clienteId = clienteResp?.data?.id_cliente || clienteResp?.data?.id || clienteResp?.data?.idCliente;
       }
 
-      // 2) create automovil if not provided
       let autoId = appointmentData.id_auto;
       if (!autoId) {
         const automovilPayload = {
@@ -56,7 +47,6 @@ class AppointmentsService {
         autoId = autoResp?.data?.id_auto || autoResp?.data?.id || autoResp?.data?.idAuto;
       }
 
-      // 3) build cita payload
       const fecha = appointmentData.fecha;
       const hora = appointmentData.hora || '09:00';
       const inicioDate = new Date(`${fecha}T${hora}:00`);
@@ -76,7 +66,6 @@ class AppointmentsService {
         },
       ];
 
-      // Coerce id_servicio to integer (backend expects numeric ids). If it's not numeric, throw early.
       for (let i = 0; i < detalles.length; i += 1) {
         const d = detalles[i];
         const sid = Number(d.id_servicio);
@@ -126,7 +115,6 @@ class AppointmentsService {
     } catch (error) {
       console.error('[AppointmentsService] Error getting available slots:', error);
       
-      // Si el endpoint no existe, devolver horarios por defecto
       if (error.status === 404) {
         return this.getDefaultSlots();
       }
@@ -164,23 +152,18 @@ class AppointmentsService {
   validateAppointmentData(data) {
     const errors = [];
 
-    // Validar datos del cliente
-    // nombre: require at least 2 characters (allow short names like 'Al')
     if (!data.nombre || data.nombre.trim().length < 2) {
       errors.push('El nombre del cliente debe tener al menos 2 caracteres');
     }
 
-    // email: optional, validate only if provided
     if (data.email && !this.isValidEmail(data.email)) {
       errors.push('El email no es válido');
     }
 
-    // telefono: allow typical local or international lengths (7-15 digits)
     if (!data.telefono || !this.isValidPhone(data.telefono)) {
       errors.push('El teléfono debe tener entre 7 y 15 dígitos');
     }
 
-    // Validar datos del vehículo
     if (!data.marca) {
       errors.push('Debe seleccionar una marca');
     }
@@ -193,7 +176,6 @@ class AppointmentsService {
       errors.push('Debe seleccionar el año');
     }
 
-    // Validar datos de la cita
     if (!data.fecha) {
       errors.push('La fecha de la cita es requerida');
     }
@@ -218,7 +200,6 @@ class AppointmentsService {
   }
   isValidPhone(phone) {
     const digitsOnly = (phone || '').replace(/\D/g, '');
-    // Accept between 7 and 15 digits to accommodate local and international formats
     return digitsOnly.length >= 7 && digitsOnly.length <= 15;
   }
 }
