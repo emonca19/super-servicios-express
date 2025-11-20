@@ -42,10 +42,12 @@ class AppointmentShell extends HTMLElement {
 
         <!-- Modal -->
         <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-          <div class="bg-white rounded-lg w-full max-w-xl p-6">
-            <div id="auth-forms"></div>
-            <div class="mt-4 text-right">
-              <button id="auth-close" class="px-4 py-2 bg-gray-300 rounded">Cerrar</button>
+          <div class="w-full max-w-sm mx-auto p-4">
+            <div class="bg-white rounded-2xl shadow-lg p-6 relative">
+              <div id="auth-forms"></div>
+              <div class="mt-4 text-right">
+                <button id="auth-close" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md border">Cerrar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -62,9 +64,11 @@ class AppointmentShell extends HTMLElement {
       const showModal = (html) => {
         authForms.innerHTML = `
           <div class="relative">
-            <button id="auth-close-top" class="absolute right-0 top-0 text-gray-500 hover:text-gray-800">✕</button>
-            <div id="auth-status" class="mb-4"></div>
-            ${html}
+            <button id="auth-close-top" class="absolute right-4 top-4 text-gray-400 hover:text-gray-700">✕</button>
+            <div id="auth-status" class="mb-4 text-sm text-gray-600"></div>
+            <div class="space-y-4">
+              ${html}
+            </div>
           </div>
         `;
         modal.classList.remove('hidden');
@@ -79,18 +83,24 @@ class AppointmentShell extends HTMLElement {
 
       openLogin.addEventListener('click', () => {
         showModal(`
-            <h3 class="text-lg font-semibold mb-4">Iniciar sesión</h3>
-            <form id="login-form" class="space-y-3">
+            <div class="text-center">
+              <h3 class="text-2xl font-semibold mb-1">Iniciar sesión</h3>
+              <p class="text-sm text-gray-500 mb-4">Accede para continuar</p>
+            </div>
+            <form id="login-form" class="space-y-4">
               <div>
-                <label for="login-email" class="block text-sm">Email</label>
-                <input id="login-email" name="email" type="email" autocomplete="email" required class="w-full px-3 py-2 border rounded" />
+                <label for="login-email" class="block text-sm mb-1 text-gray-600">Email</label>
+                <input id="login-email" name="email" type="email" autocomplete="email" required class="w-full block px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100" />
               </div>
               <div>
-                <label for="login-password" class="block text-sm">Contraseña</label>
-                <input id="login-password" name="password" type="password" autocomplete="current-password" required class="w-full px-3 py-2 border rounded" />
+                <label for="login-password" class="block text-sm mb-1 text-gray-600">Contraseña</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required class="w-full block px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100" />
               </div>
-              <div class="pt-3">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Ingresar</button>
+              <div>
+                <button type="submit" style="display:block;width:100%;padding:12px 16px;box-shadow:0 6px 18px rgba(2,6,23,0.12);" class="w-full block px-4 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-lg">Ingresar</button>
+              </div>
+              <div class="text-center mt-1">
+                <a href="#" class="text-sm text-teal-600 hover:underline">¿Olvidaste tu contraseña?</a>
               </div>
             </form>
           `);
@@ -98,30 +108,33 @@ class AppointmentShell extends HTMLElement {
 
       openRegister.addEventListener('click', () => {
         showModal(`
-            <h3 class="text-lg font-semibold mb-4">Registrarse</h3>
-            <form id="register-form" class="space-y-3">
+            <div class="text-center">
+              <h3 class="text-2xl font-semibold mb-1">Crear cuenta</h3>
+              <p class="text-sm text-gray-500 mb-4">Regístrate en unos segundos</p>
+            </div>
+            <form id="register-form" class="space-y-4">
               <div>
-                <label for="register-nombre" class="block text-sm">Nombre</label>
-                <input id="register-nombre" name="nombre" type="text" autocomplete="name" required class="w-full px-3 py-2 border rounded" />
+                <label for="register-nombre" class="block text-sm mb-1 text-gray-600">Nombre</label>
+                <input id="register-nombre" name="nombre" type="text" autocomplete="name" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100" />
               </div>
               <div>
-                <label for="register-email" class="block text-sm">Email</label>
-                <input id="register-email" name="email" type="email" autocomplete="email" required class="w-full px-3 py-2 border rounded" />
+                <label for="register-email" class="block text-sm mb-1 text-gray-600">Email</label>
+                <input id="register-email" name="email" type="email" autocomplete="email" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100" />
               </div>
               <div>
-                <label for="register-telefono" class="block text-sm">Teléfono</label>
-                <input id="register-telefono" name="telefono" type="tel" autocomplete="tel" required class="w-full px-3 py-2 border rounded" />
+                <label for="register-telefono" class="block text-sm mb-1 text-gray-600">Teléfono</label>
+                <input id="register-telefono" name="telefono" type="tel" autocomplete="tel" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100" />
               </div>
               <div>
-                <label for="register-direccion" class="block text-sm">Dirección</label>
-                <input id="register-direccion" name="direccion" type="text" autocomplete="street-address" class="w-full px-3 py-2 border rounded" />
+                <label for="register-direccion" class="block text-sm mb-1 text-gray-600">Dirección</label>
+                <input id="register-direccion" name="direccion" type="text" autocomplete="street-address" class="w-full px-4 py-3 border border-gray-200 rounded-lg" />
               </div>
               <div>
-                <label for="register-password" class="block text-sm">Contraseña</label>
-                <input id="register-password" name="password" type="password" autocomplete="new-password" required class="w-full px-3 py-2 border rounded" />
+                <label for="register-password" class="block text-sm mb-1 text-gray-600">Contraseña</label>
+                <input id="register-password" name="password" type="password" autocomplete="new-password" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100" />
               </div>
-              <div class="pt-3">
-                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Crear cuenta</button>
+              <div>
+                <button type="submit" class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg">Crear cuenta</button>
               </div>
             </form>
           `);

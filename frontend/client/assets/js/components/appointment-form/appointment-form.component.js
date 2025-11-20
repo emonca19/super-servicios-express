@@ -108,7 +108,7 @@ class AppointmentForm extends HTMLElement {
   }
 
   async loadServiceOptions() {
-    const serviceSelect = this.root.querySelector('#servicio-select');
+    const serviceSelect = this.root.querySelector('#servicio-select') || this.root.querySelector('#appointment-servicio');
     if (!serviceSelect) return;
 
     serviceSelect.innerHTML = '<option value="">Cargando servicios...</option>';
@@ -197,11 +197,12 @@ class AppointmentForm extends HTMLElement {
 
   fillAndLockClient(cliente) {
     try {
+      console.debug('[appointment-form] fillAndLockClient received cliente:', cliente);
       const map = {
         nombre: cliente.nombre || cliente.name,
         telefono: cliente.telefono || cliente.phone,
-        email: cliente.email,
-        direccion: cliente.direccion || cliente.address,
+        email: cliente.email || cliente.email_address || cliente.mail,
+        direccion: cliente.direccion || cliente.address || cliente.domicilio || cliente.direccion_completa || cliente.address_line1 || '',
       };
       Object.entries(map).forEach(([k, v]) => {
         if (v === undefined || v === null) return;
@@ -264,14 +265,15 @@ class AppointmentForm extends HTMLElement {
       });
 
       const list = await apiClient.get('/automoviles/mine');
-      const autos = (list?.data || list || []).slice().sort((a, b) => {
+      const possibleArrays = list && (list.data || list.result || list.rows || list.vehicles || list.autos);
+      const raw = Array.isArray(possibleArrays) ? possibleArrays : (Array.isArray(list) ? list : (Array.isArray(list?.data) ? list.data : []));
+      const autos = (raw || []).slice().sort((a, b) => {
         const aId = Number(a.id_auto || a.id || 0);
         const bId = Number(b.id_auto || b.id || 0);
         return bId - aId;
       });
       
       if (!Array.isArray(autos) || autos.length === 0) {
-        console.debug('[appointment-form] No vehicles found');
         this.vehiclesLoaded = true;
         return;
       }
@@ -490,6 +492,7 @@ class AppointmentForm extends HTMLElement {
     submitBtn.textContent = 'Enviando...';
     statusDiv.classList.add('hidden');
     statusDiv.innerHTML = '';
+    try { statusDiv.style.marginBottom = ''; } catch (e) {}
 
     try {
       const formData = new FormData(form);
@@ -572,6 +575,7 @@ class AppointmentForm extends HTMLElement {
   renderSuccessStatus(target, title, message) {
     if (!target) return;
     target.className = 'p-4 bg-green-100 border-2 border-green-500 text-green-700 rounded-lg';
+    try { target.style.marginBottom = '20px'; } catch (e) {}
     target.innerHTML = `
       <div class="flex items-center font-semibold mb-1">
         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -587,6 +591,7 @@ class AppointmentForm extends HTMLElement {
   renderErrorStatus(target, message, details = []) {
     if (!target) return;
     target.className = 'p-4 bg-red-100 border-2 border-red-500 text-red-700 rounded-lg';
+    try { target.style.marginBottom = '20px'; } catch (e) {}
     target.innerHTML = `
       <p class="font-semibold mb-1">${message}</p>
       ${

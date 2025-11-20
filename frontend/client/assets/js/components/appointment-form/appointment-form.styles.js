@@ -21,7 +21,7 @@
     justify-content: center !important;
     gap: 0.75rem !important;
     margin-top: 0.5rem !important;
-    margin-bottom: 0.75rem !important;
+    margin-bottom: 1px !important;
     padding: 0 !important;
     line-height: 1 !important;
   }

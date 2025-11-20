@@ -22,12 +22,9 @@ const headerTemplate = () => `
     </nav>
 
     <!-- Global Auth Modal (hidden by default) -->
-    <div id="global-auth-modal" class="fixed inset-0 hidden z-50 bg-slate-900/40 backdrop-blur-sm">
-      <div class="absolute top-20 right-6 bg-white rounded-2xl w-full max-w-xs p-4 shadow-2xl border">
+    <div id="global-auth-modal" class="fixed inset-0 hidden z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border">
         <div id="global-auth-forms"></div>
-        <div class="mt-3 text-right">
-          <button id="global-auth-close" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-xs rounded transition">Cerrar</button>
-        </div>
       </div>
     </div>
   </header>

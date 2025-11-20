@@ -4,84 +4,113 @@ const template = document.createElement('template');
 template.innerHTML = `
   <style>
     * { box-sizing: border-box; }
-    :host { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:block; color:#0f172a; }
+    :host { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:block; color:#1e293b; background:transparent; font-size:14px; }
 
-    .page-shell { background:#f5f7fb; padding:clamp(1.25rem,2vw,2rem); border-radius:24px; }
-    .page-head { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.25rem; }
-    @media (min-width:768px) { .page-head { flex-direction:row; justify-content:space-between; align-items:flex-end; } }
-    .headline { font-size:1.1rem; letter-spacing:0.08em; text-transform:uppercase; color:#6b7280; font-weight:700; }
-    .title { font-size:2rem; font-weight:800; color:#0f172a; line-height:1.2; }
-    .sub { color:#6b7280; max-width:760px; }
-    .head-actions { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    /* Page shell: flat, subtle border, no shadow */
+    .page-shell { background:#ffffff; padding:1.5rem; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.02); max-width:1400px; margin:0 auto; }
+    .page-head { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid #e2e8f0; }
+    @media (min-width:768px) { .page-head { flex-direction:row; justify-content:space-between; align-items:center; } }
+    .headline { font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; color:#94a3b8; font-weight:600; }
+    .title { font-size:1.5rem; font-weight:700; color:#0f172a; line-height:1.3; margin:0; }
+    .sub { color:#64748b; max-width:760px; font-weight:400; font-size:0.875rem; }
+    .head-actions { display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; }
 
-    .btn-primary { background:#0f172a; color:#fff; padding:0.65rem 1.1rem; border-radius:12px; font-weight:700; font-size:0.95rem; border:1px solid #0f172a; transition:transform 150ms ease, box-shadow 150ms ease; }
-    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 10px 20px rgba(15,23,42,0.18); }
-    .btn-ghost { background:#fff; border:1px solid #e5e7eb; color:#0f172a; padding:0.6rem 1rem; border-radius:10px; font-weight:700; font-size:0.95rem; }
+    /* Tabs: modern full-width style */
+    .tabs { display:flex; gap:0.5rem; margin-top:0.75rem; border-bottom:1px solid #e2e8f0; }
+    .tab { background:transparent; border:none; padding:0.5rem 0.75rem; border-radius:6px 6px 0 0; font-weight:500; font-size:0.8125rem; color:#64748b; cursor:pointer; position:relative; transition: all 150ms ease; }
+    .tab:hover { color:#0f172a; background:#f8fafc; }
+    .tab[aria-selected="true"] { color:#0f172a; background:#fff; border:1px solid #e2e8f0; border-bottom-color:#fff; margin-bottom:-1px; font-weight:600; }
+    .tab-badge { display:inline-flex; align-items:center; justify-content:center; margin-left:0.35rem; min-width:1.25rem; height:1.25rem; padding:0 0.3rem; border-radius:4px; background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:600; }
+    .tab[aria-selected="true"] .tab-badge { background:#e0e7ff; color:#4f46e5; }
 
-    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.85rem; margin-bottom:1.5rem; }
-    .stat-card { display:flex; align-items:center; gap:0.75rem; padding:0.9rem 1rem; background:#fff; border:1px solid #e5e7eb; border-radius:14px; box-shadow:0 12px 24px rgba(15,23,42,0.04); }
-    .stat-icon { width:42px; height:42px; border-radius:12px; display:grid; place-items:center; color:#0f172a; background:#f3f4f6; }
-    .stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#6b7280; font-weight:700; }
-    .stat-value { font-size:1.4rem; font-weight:800; color:#0f172a; line-height:1.1; }
-    .stat-sub { color:#6b7280; font-size:0.9rem; }
+    /* Buttons: single flat color, no shadows */
+    .btn-primary { background:#0f172a; color:#ffffff; padding:0.5rem 0.875rem; border-radius:6px; font-weight:600; font-size:0.8125rem; border:none; cursor:pointer; transition: background 150ms ease; }
+    .btn-primary:hover { background:#1e293b; }
+    .btn-ghost { background:transparent; border:1px solid #cbd5e1; color:#475569; padding:0.4rem 0.75rem; border-radius:6px; font-weight:500; font-size:0.8125rem; cursor:pointer; transition: all 150ms ease; }
+    .btn-ghost:hover { border-color:#94a3b8; color:#0f172a; background:#f8fafc; }
 
-    .dashboard-grid { display:grid; grid-template-columns:1fr; gap:1rem; }
-    @media (min-width:1024px) { .dashboard-grid { grid-template-columns: 1fr 1.4fr; } }
-    .card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:1.35rem; box-shadow:0 18px 35px rgba(15,23,42,0.06); }
-    .card-header { display:flex; align-items:center; gap:0.7rem; margin-bottom:1rem; }
-    .card-icon { width:40px; height:40px; border-radius:10px; display:grid; place-items:center; background:#f3f4f6; color:#0f172a; }
-    .card-title { font-size:1.1rem; font-weight:800; color:#0f172a; }
-    .card-kicker { font-size:0.85rem; color:#6b7280; }
+    /* Stats: simpler cards */
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1rem; }
+    .stat-card { position:relative; display:flex; align-items:center; gap:0.75rem; padding:0.875rem; background:#fafafa; border:1px solid #e2e8f0; border-radius:8px; transition:all 150ms ease; }
+    .stat-card:hover { background:#fff; border-color:#cbd5e1; }
+    .stat-card::after { display:none; }
+    .stat-card:nth-child(1) { --stat-accent:#dbeafe; --stat-color:#1e40af; }
+    .stat-card:nth-child(2) { --stat-accent:#dcfce7; --stat-color:#15803d; }
+    .stat-card:nth-child(3) { --stat-accent:#fef3c7; --stat-color:#b45309; }
+    .stat-icon { width:36px; height:36px; border-radius:6px; display:grid; place-items:center; color:var(--stat-color); background:var(--stat-accent); }
+    .stat-label { font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.05em; color:#94a3b8; font-weight:600; margin-bottom:0.15rem; }
+    .stat-value { font-size:1.25rem; font-weight:700; color:#0f172a; line-height:1; }
+    .stat-sub { color:#64748b; font-size:0.75rem; font-weight:400; margin-top:0.15rem; }
 
-    .profile-grid { display:grid; grid-template-columns:1fr; gap:0.75rem; }
-    .info-block { display:flex; gap:0.75rem; align-items:center; padding:0.85rem 0.95rem; border:1px solid #e5e7eb; border-radius:12px; background:#f9fafb; }
-    .soft-icon { width:40px; height:40px; border-radius:10px; display:grid; place-items:center; background:#e5e7eb; color:#0f172a; }
-    .info-label { font-size:0.85rem; color:#6b7280; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
-    .info-value { font-size:1rem; font-weight:700; color:#0f172a; }
-    .id-chip { display:inline-block; margin-top:0.5rem; padding:0.4rem 0.75rem; border-radius:999px; background:#eef2ff; color:#312e81; font-weight:700; font-size:0.85rem; }
+    /* Full-width sections (no sidebar) */
+    .dashboard-grid { display:block; }
+    .section-container { opacity:1; transition: opacity 250ms ease; }
+    .section-container.hidden { display:none; opacity:0; }
+    .card { position:relative; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:1.5rem; box-shadow:0 1px 2px rgba(0,0,0,0.03); margin-bottom:1rem; }
+    .card::after { display:none; }
+    .card > * { position:relative; z-index:1; }
+    .card-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .card-header.card-header--stacked { align-items:flex-start; }
+    .card-icon { width:36px; height:36px; border-radius:6px; display:grid; place-items:center; background:#f1f5f9; color:#475569; flex-shrink:0; }
+    .card-title { font-size:1rem; font-weight:700; color:#0f172a; margin:0; }
+    .card-kicker { font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.05em; background:#f1f5f9; color:#64748b; padding:0.15rem 0.5rem; border-radius:4px; font-weight:600; }
 
-    .list-controls { display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-bottom:1rem; }
+    .profile-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:1.5rem; }
+    .info-block { display:flex; gap:0.75rem; align-items:center; padding:0.75rem; border:1px solid #e2e8f0; border-radius:8px; background:#fafafa; transition:all 150ms ease; }
+    .info-block:hover { background:#fff; border-color:#cbd5e1; }
+    .soft-icon { width:32px; height:32px; border-radius:6px; display:grid; place-items:center; background:#f1f5f9; color:#64748b; flex-shrink:0; }
+    .info-label { font-size:0.6875rem; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:0.15rem; }
+    .info-value { font-size:0.875rem; font-weight:600; color:#0f172a; }
+    .id-chip { display:inline-block; margin-top:0.5rem; padding:0.35rem 0.65rem; border-radius:999px; background:rgba(243,244,246,0.6); color:#374151; font-weight:700; font-size:0.85rem; }
+
+    .list-controls { display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; margin-bottom:1rem; padding:0.6rem 0.75rem; border-radius:12px; border:1px solid rgba(226,232,240,0.9); background:transparent; box-shadow:none; }
     .search { position:relative; flex:1 1 240px; }
-    .search input { width:100%; padding:0.7rem 0.9rem 0.7rem 2.4rem; border:1px solid #e5e7eb; border-radius:12px; background:#f9fafb; font-weight:600; color:#0f172a; }
-    .search svg { position:absolute; top:50%; left:0.9rem; transform:translateY(-50%); width:16px; height:16px; color:#9ca3af; }
-    .page-indicator { color:#6b7280; font-weight:600; font-size:0.95rem; }
-    .pager { display:flex; gap:0.4rem; align-items:center; }
-    .pager button { border:1px solid #e5e7eb; background:#fff; border-radius:10px; padding:0.5rem 0.8rem; font-weight:700; color:#0f172a; }
-    .pager button:disabled { opacity:0.4; cursor:not-allowed; }
+    .search input { width:100%; padding:0.65rem 1rem 0.65rem 2.4rem; border:1px solid rgba(226,232,240,0.9); border-radius:10px; background:#ffffff; font-weight:600; color:#0f172a; box-shadow:none; }
+    .search svg { position:absolute; top:50%; left:1rem; transform:translateY(-50%); width:16px; height:16px; color:#94a3b8; }
+    .page-indicator { color:#94a3b8; font-weight:600; font-size:0.95rem; }
+    .pager { display:flex; gap:0.5rem; align-items:center; }
+    .pager button { border:1px solid rgba(203,213,225,0.9); background:#fff; border-radius:999px; padding:0.45rem 0.95rem; font-weight:700; color:#0f172a; transition:all 150ms ease; }
+    .pager button:disabled { opacity:0.35; cursor:not-allowed; }
+    .pager button:not(:disabled):hover { color:#2563eb; border-color:#2563eb; }
 
-    #autos-list > .autos-item { margin-bottom:0.85rem; }
-    .auto-card { border:1px solid #e5e7eb; border-radius:14px; padding:1rem; background:#fdfdfd; transition:box-shadow 150ms ease, transform 150ms ease; }
-    .auto-card:hover { box-shadow:0 16px 32px rgba(15,23,42,0.07); transform:translateY(-2px); }
-    .auto-header { display:flex; gap:0.85rem; justify-content:space-between; }
-    .auto-main { display:flex; gap:0.75rem; align-items:flex-start; }
-    .car-chip { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:#e5e7eb; color:#0f172a; }
-    .auto-name { font-size:1.05rem; font-weight:800; color:#0f172a; }
-    .auto-meta { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.15rem; }
-    .auto-badge { background:#eef2ff; color:#312e81; border-radius:999px; padding:0.35rem 0.65rem; font-weight:700; font-size:0.85rem; display:inline-flex; gap:0.3rem; align-items:center; }
-    .btn-del { border:1px solid #fee2e2; background:#fff5f5; color:#b91c1c; border-radius:10px; padding:0.45rem 0.6rem; }
-    .fields { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.65rem; margin-top:0.85rem; }
-    .field-tile { border:1px solid #e5e7eb; border-radius:10px; padding:0.7rem 0.85rem; background:#f9fafb; }
-    .field-label { color:#6b7280; font-weight:700; font-size:0.85rem; }
-    .field-value { color:#0f172a; font-weight:800; font-size:0.98rem; }
-    .vin { margin-top:0.75rem; padding:0.75rem 0.85rem; border-radius:10px; background:#eef2ff; color:#1f2937; font-family:monospace; font-size:0.9rem; word-break:break-all; }
+    #autos-list > .autos-item { margin-bottom:0.75rem; }
+    .auto-card { border:1px solid #e2e8f0; border-radius:8px; padding:1rem; background:#fafafa; transition:all 150ms ease; }
+    .auto-card:hover { background:#fff; border-color:#cbd5e1; box-shadow:0 6px 16px rgba(0,0,0,0.06); transform:translateY(-2px); }
+    .auto-header { display:flex; gap:0.75rem; justify-content:space-between; flex-wrap:wrap; align-items:center; }
+    .auto-main { display:flex; gap:0.65rem; align-items:center; flex:1; }
+    .car-chip { width:36px; height:36px; border-radius:6px; display:grid; place-items:center; background:#f1f5f9; color:#475569; flex-shrink:0; }
+    .auto-name { font-size:0.9375rem; font-weight:600; color:#0f172a; margin:0; }
+    .auto-meta { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.25rem; }
+    .auto-badge { background:#f1f5f9; color:#475569; border-radius:4px; padding:0.2rem 0.5rem; font-weight:500; font-size:0.75rem; display:inline-flex; gap:0.25rem; align-items:center; }
+    .btn-edit { border:1px solid #bfdbfe; background:#eff6ff; color:#1e40af; border-radius:6px; padding:0.375rem 0.625rem; font-weight:500; font-size:0.8125rem; margin-right:0.4rem; cursor:pointer; transition:all 150ms ease; }
+    .btn-edit:hover { background:#dbeafe; border-color:#60a5fa; }
+    .btn-del { border:1px solid #fecdd3; background:#fff1f2; color:#be123c; border-radius:6px; padding:0.375rem 0.625rem; font-weight:500; font-size:0.8125rem; cursor:pointer; transition:all 150ms ease; }
+    .btn-del:hover { background:#fee2e2; border-color:#f87171; }
+    .fields { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.5rem; margin-top:0.625rem; }
+    .field-tile { border:1px solid #e2e8f0; border-radius:6px; padding:0.5rem 0.625rem; background:#fafafa; }
+    .field-label { color:#94a3b8; font-weight:600; font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:0.15rem; }
+    .field-value { color:#0f172a; font-weight:600; font-size:0.875rem; }
+    .vin { margin-top:0.625rem; padding:0.5rem 0.625rem; border-radius:6px; background:#f8fafc; color:#475569; font-family:monospace; font-size:0.75rem; word-break:break-all; border:1px solid #e2e8f0; }
 
-    .cita-card { border:1px solid #e5e7eb; border-radius:14px; padding:1rem; background:#fdfdfd; }
-    .cita-heading { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; }
-    .cita-card .card-icon, .cita-card .card-icon svg { width:32px; height:32px; }
-    .cita-card svg { width:20px; height:20px; }
-    .badge { display:inline-block; padding:0.25rem 0.75rem; border-radius:9999px; font-size:0.75rem; font-weight:700; letter-spacing:0.02em; }
-    .badge-pending { background-color:#FEF3C7; color:#92400E; }
-    .badge-confirmed { background-color:#DBEAFE; color:#1E40AF; }
-    .badge-completed { background-color:#D1FAE5; color:#065F46; }
-    .badge-cancelled { background-color:#FEE2E2; color:#991B1B; }
+    .cita-card { border:1px solid #e2e8f0; border-radius:8px; padding:0.875rem; background:#fafafa; margin-bottom:0.625rem; transition:all 150ms ease; }
+    .cita-card:hover { background:#fff; border-color:#cbd5e1; }
+    .cita-heading { display:flex; justify-content:space-between; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+    .cita-card .card-icon, .cita-card .card-icon svg { width:28px; height:28px; }
+    .cita-card svg { width:18px; height:18px; }
+    .badge { display:inline-flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border-radius:4px; font-size:0.6875rem; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; }
+    .badge-pending { background-color:#fef3c7; color:#92400E; border:1px solid #fde68a; }
+    .badge-confirmed { background-color:#dbeafe; color:#1e40af; border:1px solid #bfdbfe; }
+    .badge-completed { background-color:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
+    .badge-cancelled { background-color:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
 
+    /* Modal backdrop and card simplified */
     #auto-modal { 
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.55);
+      background: rgba(15,23,42,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -89,21 +118,40 @@ template.innerHTML = `
       z-index: 1000;
     }
     #auto-modal .modal-card { 
-      background: #fff; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 16px; 
-      padding: 1.5rem; 
-      box-shadow: 0 30px 70px rgba(15,23,42,0.25);
+      background: #ffffff; 
+      border: 1px solid rgba(226,232,240,0.9); 
+      border-radius: 14px; 
+      padding: 1.25rem; 
+      box-shadow: none;
       max-height: 90vh;
       overflow-y: auto;
       width: 100%;
-      max-width: 600px;
+      max-width: 640px;
     }
-    #auto-modal h3 { font-size:1.35rem; font-weight:800; margin-bottom:0.75rem; }
-    #auto-modal form input, #auto-modal form select { border:1px solid #e5e7eb; }
+    #auto-modal h3 { font-size:1.25rem; font-weight:700; margin-bottom:0.6rem; }
+    #auto-modal form input, #auto-modal form select { border:1px solid rgba(226,232,240,0.9); border-radius:10px; background:#fff; }
+    
+    /* Apply same modal styles to custom modal-card elements */
+    .modal-card { 
+      background: #ffffff; 
+      border: 1px solid rgba(226,232,240,0.9); 
+      border-radius: 14px; 
+      padding: 1.25rem; 
+      box-shadow: none;
+      max-height: 90vh;
+      overflow-y: auto;
+      width: 100%;
+      max-width: 640px;
+    }
+    .modal-card h3 { font-size:1.25rem; font-weight:700; margin-bottom:0.6rem; }
+    .modal-card form input, .modal-card form select { border:1px solid rgba(226,232,240,0.9); border-radius:10px; background:#fff; }
 
     .car-chip svg, .small-auto-icon svg { width:1rem; height:1rem; }
     .tiny-icon svg { width:0.75rem; height:0.75rem; }
+
+    /* Modal actions: explicit spacing and padding (works inside Shadow DOM) */
+    .modal-actions { display:flex; gap:12px; justify-content:flex-end; padding-top:16px; }
+    @media (max-width:640px) { .modal-actions { flex-direction:column-reverse; align-items:stretch; } .modal-actions .btn-primary, .modal-actions .btn-ghost { width:100%; } }
   </style>
 
   <section class="page-shell">
@@ -116,6 +164,22 @@ template.innerHTML = `
       <div class="head-actions">
         <a href="agendar-cita.html" class="btn-ghost">Agendar cita</a>
         <button id="btn-add-auto-top" class="btn-primary">Registrar auto</button>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Dashboard tabs">
+        <button role="tab" class="tab" data-tab="general" aria-selected="true">
+          <svg style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          General
+        </button>
+        <button role="tab" class="tab" data-tab="perfil" aria-selected="false">
+          Perfil
+        </button>
+        <button role="tab" class="tab" data-tab="autos" aria-selected="false">
+          Autos<span class="tab-badge" id="tab-autos-count">0</span>
+        </button>
+        <button role="tab" class="tab" data-tab="citas" aria-selected="false">
+          Citas<span class="tab-badge" id="tab-citas-count">0</span>
+        </button>
       </div>
     </div>
 
@@ -159,31 +223,108 @@ template.innerHTML = `
     </div>
 
     <div class="dashboard-grid">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+      <!-- SECCIÓN GENERAL: Vista completa de todo -->
+      <div class="section-container" id="general-section">
+        <div style="display:grid;grid-template-columns:1fr;gap:1.25rem;">
+          
+          <!-- Perfil Resumido -->
+          <div class="card">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.8rem;">
+                <div class="card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="card-kicker">Tu Perfil</p>
+                  <h2 class="card-title">Información Personal</h2>
+                </div>
+              </div>
+              <button class="btn-ghost" style="padding:0.4rem 0.8rem;font-size:0.85rem;" onclick="this.getRootNode().host.showTab('perfil')">Ver detalles →</button>
+            </div>
+            <div id="general-profile" class="profile-grid" style="grid-template-columns:repeat(auto-fit,minmax(360px,1fr));"></div>
           </div>
-          <div>
-            <p class="card-kicker">Perfil</p>
-            <h2 class="card-title">Datos del cliente</h2>
+
+          <!-- Autos Resumidos -->
+          <div class="card">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.8rem;">
+                <div class="card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="card-kicker">Garaje</p>
+                  <h2 class="card-title">Mis Vehículos</h2>
+                </div>
+              </div>
+              <div style="display:flex;gap:0.5rem;">
+                <button class="btn-ghost" style="padding:0.4rem 0.8rem;font-size:0.85rem;" onclick="this.getRootNode().host.showTab('autos')">Ver todos →</button>
+                <button id="btn-add-auto-general" class="btn-primary" style="padding:0.4rem 0.8rem;font-size:0.85rem;">+ Nuevo</button>
+              </div>
+            </div>
+            <div id="general-autos" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:1.5rem;"></div>
           </div>
+
+          <!-- Citas Resumidas -->
+          <div class="card">
+            <div class="card-header">
+              <div style="display:flex;align-items:center;gap:0.8rem;">
+                <div class="card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="card-kicker">Agenda</p>
+                  <h2 class="card-title">Citas y Servicios</h2>
+                </div>
+              </div>
+              <button class="btn-ghost" style="padding:0.4rem 0.8rem;font-size:0.85rem;" onclick="this.getRootNode().host.showTab('citas')">Ver todas →</button>
+            </div>
+            <div id="general-citas" class="space-y-4"></div>
+          </div>
+
         </div>
-        <div id="profile" class="profile-grid"></div>
       </div>
 
-      <div class="card">
-        <div class="card-header" style="align-items:flex-start;">
-          <div class="card-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
+      <div class="section-container hidden" id="perfil-section">
+        <div class="card" data-section="perfil" id="perfil">
+          <div class="card-header" style="justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p class="card-kicker">Perfil</p>
+                <h2 class="card-title">Datos del cliente</h2>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <button id="edit-profile-btn-mini" class="btn-primary" title="Editar perfil completo" style="padding:0.5rem 0.8rem;font-size:0.8125rem;">Editar perfil</button>
+            </div>
           </div>
-          <div style="flex:1">
-            <p class="card-kicker">Garaje</p>
-            <h2 class="card-title">Autom&oacute;viles</h2>
+          <div id="profile" class="profile-grid"></div>
+        </div>
+      </div>
+
+      <div class="section-container" id="autos-section">
+        <div class="card" data-section="autos" id="autos">
+        <div class="card-header" style="justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+            </div>
+            <div>
+              <p class="card-kicker">Garaje</p>
+              <h2 class="card-title">Autom&oacute;viles</h2>
+            </div>
           </div>
           <button id="btn-add-auto" class="btn-primary" style="padding:0.5rem 0.8rem;">+ Nuevo</button>
         </div>
@@ -202,22 +343,27 @@ template.innerHTML = `
           </div>
         </div>
 
-        <div id="autos-list"></div>
+          <div id="autos-list"></div>
+        </div>
       </div>
 
-      <div class="card" style="grid-column:1 / -1;">
-        <div class="card-header">
-          <div class="card-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div>
-            <p class="card-kicker">Agenda</p>
-            <h2 class="card-title">Citas</h2>
+      <div class="section-container" id="citas-section">
+        <div class="card" data-section="citas" id="citas">
+        <div class="card-header card-header--stacked">
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div class="card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="card-kicker">Agenda</p>
+              <h2 class="card-title">Citas</h2>
+            </div>
           </div>
         </div>
-        <div id="citas-list" class="space-y-4"></div>
+          <div id="citas-list" class="space-y-4"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -277,7 +423,7 @@ template.innerHTML = `
           </div>
         </div>
         
-        <div class="flex justify-end gap-3 pt-4">
+        <div class="modal-actions">
           <button type="button" id="auto-cancel-footer" class="btn-ghost">Cancelar</button>
           <button type="submit" id="auto-save" class="btn-primary">Guardar autom&oacute;vil</button>
         </div>
@@ -301,6 +447,7 @@ class AccountDashboard extends HTMLElement {
     this.profileEl = this.root.querySelector('#profile');
     this.autosList = this.root.querySelector('#autos-list');
     this.citasList = this.root.querySelector('#citas-list');
+    this.tabButtons = Array.from(this.root.querySelectorAll('.tab'));
     this.modal = this.root.querySelector('#auto-modal');
     this.form = this.root.querySelector('#auto-form');
     this.btnAdd = this.root.querySelector('#btn-add-auto');
@@ -324,11 +471,82 @@ class AccountDashboard extends HTMLElement {
       console.debug('[account-dashboard] Modal explicitly set to hidden');
     }
 
+    // Tabs: attach listeners and restore last tab
+    try {
+      if (this.tabButtons && this.tabButtons.length) {
+        this.tabButtons.forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tab = btn.getAttribute('data-tab');
+            this.showTab(tab);
+          });
+        });
+        const last = localStorage.getItem('dashboard.activeTab') || 'general';
+        this.showTab(last);
+      }
+    } catch (e) {
+      console.warn('[account-dashboard] tabs setup error', e);
+    }
+
     this.registerEvents();
     this.loadData();
     
     this.handleUrlHash();
     console.debug('[account-dashboard] connectedCallback completed');
+  }
+
+  showTab(tabName) {
+    try {
+      if (!tabName) return;
+      // update buttons
+      (this.tabButtons || []).forEach((b) => {
+        const name = b.getAttribute('data-tab');
+        const sel = name === tabName ? 'true' : 'false';
+        b.setAttribute('aria-selected', sel);
+      });
+
+      // show/hide full-width sections with fade
+      const sections = [
+        { name: 'general', el: this.root.querySelector('#general-section') },
+        { name: 'perfil', el: this.root.querySelector('#perfil-section') },
+        { name: 'autos', el: this.root.querySelector('#autos-section') },
+        { name: 'citas', el: this.root.querySelector('#citas-section') }
+      ];
+
+      sections.forEach(({ name, el }) => {
+        if (!el) return;
+        if (name === tabName) {
+          el.classList.remove('hidden');
+          requestAnimationFrame(() => { el.style.opacity = '1'; });
+        } else {
+          el.style.opacity = '0';
+          setTimeout(() => { el.classList.add('hidden'); }, 250);
+        }
+      });
+
+      // If switching to general tab, render overview
+      if (tabName === 'general') {
+        this.renderGeneralOverview();
+      }
+
+      localStorage.setItem('dashboard.activeTab', tabName);
+    } catch (e) {
+      console.warn('[account-dashboard] showTab error', e);
+    }
+  }
+
+  updateTabCounts() {
+    try {
+      const autosCount = this.autosData ? this.autosData.length : 0;
+      const autosBadge = this.root.querySelector('#tab-autos-count');
+      if (autosBadge) autosBadge.textContent = autosCount;
+
+      const citasCount = this.root.querySelector('#citas-list')?.children?.length || 0;
+      const citasBadge = this.root.querySelector('#tab-citas-count');
+      if (citasBadge) citasBadge.textContent = citasCount;
+    } catch (e) {
+      console.warn('[account-dashboard] updateTabCounts error', e);
+    }
   }
 
   handleUrlHash() {
@@ -386,6 +604,16 @@ class AccountDashboard extends HTMLElement {
         });
       }
     });
+    
+    // Add auto button from general section
+    const btnAddGeneral = this.root.querySelector('#btn-add-auto-general');
+    if (btnAddGeneral) {
+      btnAddGeneral.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showModal();
+      });
+    }
+    
     [this.btnCancel, this.btnCancelFooter].forEach((btn) => {
       if (btn) btn.addEventListener('click', () => this.hideModal());
     });
@@ -422,6 +650,7 @@ class AccountDashboard extends HTMLElement {
 
   async loadData() {
     await Promise.all([this.loadProfile(), this.loadAutos(), this.loadCitas()]);
+    this.updateTabCounts();
   }
 
   async loadProfile() {
@@ -501,10 +730,7 @@ class AccountDashboard extends HTMLElement {
             </button>
           </div>
         </div>
-        <div class="flex justify-between items-center mt-4">
-          <span class="id-chip">ID cliente: ${profile.id_cliente || '---'}</span>
-          <button id="edit-profile-btn" class="btn-primary text-sm px-4 py-2">Editar Perfil Completo</button>
-        </div>
+        <!-- full profile edit footer removed for compact layout -->
       `;
       
       this.setupProfileEditListeners();
@@ -535,6 +761,7 @@ class AccountDashboard extends HTMLElement {
       if (this.statAutosSub) this.statAutosSub.textContent = autos.length ? 'Vehículos listos para tus servicios' : 'Registra tu primer auto para agendar';
       this.currentPage = 1;
       this.renderAutosList();
+      this.updateTabCounts();
     } catch (e) {
       if (!this.handleAuthError(e, this.autosList)) {
         this.autosList.innerHTML = '<p class="text-sm text-red-600">Error cargando automóviles.</p>';
@@ -600,11 +827,20 @@ class AccountDashboard extends HTMLElement {
               </div>
             </div>
           </div>
-          <button data-id="${a.id_auto}" class="btn-del">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+          <div style="display:flex;gap:0.5rem;">
+            <button data-id="${a.id_auto}" class="btn-edit">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;display:inline-block;vertical-align:middle;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Editar
+            </button>
+            <button data-id="${a.id_auto}" class="btn-del">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:16px;height:16px;display:inline-block;vertical-align:middle;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Eliminar
+            </button>
+          </div>
         </div>
 
         <div class="fields">
@@ -623,6 +859,9 @@ class AccountDashboard extends HTMLElement {
       this.autosList.appendChild(el);
     });
 
+    this.autosList.querySelectorAll('.btn-edit').forEach((btn) => {
+      btn.addEventListener('click', (e) => this.handleEditAuto(e));
+    });
     this.autosList.querySelectorAll('.btn-del').forEach((btn) => {
       btn.addEventListener('click', (e) => this.handleDeleteAuto(e));
     });
@@ -741,9 +980,43 @@ class AccountDashboard extends HTMLElement {
             <span>Auto ID: ${c.id_auto}</span>
           </div>
           ` : ''}
+        
+          <div class="mt-4" style="display:flex;gap:0.5rem;justify-content:flex-end;">
+            ${(() => {
+              try {
+                const start = new Date(c.inicio);
+                const now = Date.now();
+                const msDiff = start.getTime() - now;
+                const allowCancel = !isNaN(msDiff) && msDiff >= (24 * 60 * 60 * 1000);
+                if (allowCancel && estadoNorm !== 'CANCELADA') {
+                  return `<button data-id="${c.id_cita}" class="btn-del cancel-cita">Cancelar cita</button>`;
+                }
+                return '';
+              } catch (e) { return ''; }
+            })()}
+          </div>
         `;
         this.citasList.appendChild(el);
       });
+      // attach cancel handlers
+      this.citasList.querySelectorAll('.cancel-cita').forEach(btn => {
+        btn.addEventListener('click', async (ev) => {
+          const id = btn.getAttribute('data-id');
+          if (!id) return;
+          if (!confirm('¿Cancelar esta cita?')) return;
+          try {
+            const client = this.getClient();
+            await client.put(`/citas/${id}`, { estado: 'CANCELADA' });
+            this.showSuccessMessage('Cita cancelada correctamente');
+            await this.loadCitas();
+          } catch (err) {
+            if (!this.handleAuthError(err, this.citasList)) {
+              this.showErrorMessage('Error cancelando cita: ' + (err.message || JSON.stringify(err.body) || err));
+            }
+          }
+        });
+      });
+      this.updateTabCounts();
     } catch (e) {
       if (!this.handleAuthError(e, this.citasList)) {
         this.citasList.innerHTML = '<p class="text-sm text-red-600">Error cargando citas.</p>';
@@ -753,6 +1026,13 @@ class AccountDashboard extends HTMLElement {
 
   showModal() {
     console.debug('[account-dashboard] showModal called explicitly by user action');
+    
+    // Reset modal title to "Agregar automóvil" when opening without editingAutoId
+    const modalTitle = this.modal.querySelector('h3');
+    if (modalTitle && !this.editingAutoId) {
+      modalTitle.textContent = 'Agregar automóvil';
+    }
+    
     this.modal.classList.remove('hidden');
     this.modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -762,6 +1042,7 @@ class AccountDashboard extends HTMLElement {
     this.modal.classList.add('hidden');
     this.modal.style.display = 'none';
     this.form.reset();
+    this.editingAutoId = null;
     document.body.style.overflow = '';
   }
 
@@ -773,9 +1054,17 @@ class AccountDashboard extends HTMLElement {
       }
     });
     
-    const editBtn = this.profileEl.querySelector('#edit-profile-btn');
-    if (editBtn) {
-      editBtn.addEventListener('click', () => this.showProfileEditModal());
+    // Mini full-profile edit button (compact, placed in card header)
+    try {
+      const fullBtn = this.root.querySelector('#edit-profile-btn-mini');
+      if (fullBtn) {
+        fullBtn.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          try { this.showProfileEditModal(); } catch (err) { console.warn('[account-dashboard] showProfileEditModal error', err); }
+        });
+      }
+    } catch (err) {
+      console.debug('[account-dashboard] No mini profile edit button found to bind', err);
     }
   }
 
@@ -812,7 +1101,7 @@ class AccountDashboard extends HTMLElement {
               ${field === 'nombre' || field === 'email' ? 'required' : ''}
             />
           </div>
-          <div class="flex justify-end gap-3 pt-4">
+          <div class="modal-actions">
             <button type="button" id="cancel-field-edit" class="btn-ghost">Cancelar</button>
             <button type="submit" id="save-field-edit" class="btn-primary">Guardar</button>
           </div>
@@ -880,7 +1169,7 @@ class AccountDashboard extends HTMLElement {
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
             </div>
           </div>
-          <div class="flex justify-end gap-3 pt-4">
+          <div class="modal-actions">
             <button type="button" id="cancel-profile-edit" class="btn-ghost">Cancelar</button>
             <button type="submit" id="save-profile-edit" class="btn-primary">Guardar Cambios</button>
           </div>
@@ -954,6 +1243,81 @@ class AccountDashboard extends HTMLElement {
   }
 
   showCustomModal(title, content, setupFn) {
+    // Inject global styles for modal if not already present
+    if (!document.getElementById('profile-modal-global-styles')) {
+      const globalStyle = document.createElement('style');
+      globalStyle.id = 'profile-modal-global-styles';
+      globalStyle.textContent = `
+        #profile-edit-modal .modal-card { 
+          background: #ffffff; 
+          border: 1px solid rgba(226,232,240,0.9); 
+          border-radius: 14px; 
+          padding: 1.25rem; 
+          box-shadow: none;
+          max-height: 90vh;
+          overflow-y: auto;
+          width: 100%;
+          max-width: 640px;
+        }
+        #profile-edit-modal h3 { font-size:1.25rem; font-weight:700; margin-bottom:0.6rem; }
+        #profile-edit-modal form input, #profile-edit-modal form select, #profile-edit-modal form textarea { 
+          border:1px solid rgba(226,232,240,0.9); 
+          border-radius:10px; 
+          background:#fff; 
+          font-size: 0.875rem;
+          padding: 0.65rem 1rem;
+        }
+        #profile-edit-modal label {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #374151;
+        }
+        #profile-edit-modal .modal-actions { 
+          display:flex; 
+          gap:12px; 
+          justify-content:flex-end; 
+          padding-top:16px; 
+        }
+        #profile-edit-modal .btn-primary, #profile-edit-modal .btn-ghost {
+          padding: 0.5rem 0.875rem;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.8125rem;
+          border: none;
+          cursor: pointer;
+          transition: all 150ms ease;
+        }
+        #profile-edit-modal .btn-primary {
+          background: #0f172a;
+          color: #ffffff;
+        }
+        #profile-edit-modal .btn-primary:hover {
+          background: #1e293b;
+        }
+        #profile-edit-modal .btn-ghost {
+          background: transparent;
+          border: 1px solid #cbd5e1;
+          color: #475569;
+        }
+        #profile-edit-modal .btn-ghost:hover {
+          border-color: #94a3b8;
+          color: #0f172a;
+          background: #f8fafc;
+        }
+        @media (max-width:640px) { 
+          #profile-edit-modal .modal-actions { 
+            flex-direction:column-reverse; 
+            align-items:stretch; 
+          } 
+          #profile-edit-modal .modal-actions .btn-primary, 
+          #profile-edit-modal .modal-actions .btn-ghost { 
+            width:100%; 
+          } 
+        }
+      `;
+      document.head.appendChild(globalStyle);
+    }
+    
     let customModal = document.getElementById('profile-edit-modal') || this.root.querySelector('#profile-edit-modal');
     if (!customModal) {
       customModal = document.createElement('div');
@@ -977,15 +1341,27 @@ class AccountDashboard extends HTMLElement {
     }
     
     customModal.innerHTML = `
-      <div class="modal-card w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-lg p-6">
+      <div class="modal-card w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold">${title}</h3>
-          <button id="close-custom-modal" class="btn-ghost" type="button">×</button>
+          <h3>${title}</h3>
+          <button id="close-custom-modal" class="btn-ghost" type="button">Cerrar</button>
         </div>
         ${content}
       </div>
     `;
-    
+    // Apply inline fallback styles to modal footers so spacing works even without global utility CSS
+    try {
+      const footers = customModal.querySelectorAll('.modal-actions');
+      footers.forEach(f => {
+        f.style.gap = f.style.gap || '12px';
+        f.style.paddingTop = f.style.paddingTop || '16px';
+        // keep alignment consistent with component modal
+        f.style.justifyContent = f.style.justifyContent || 'flex-end';
+      });
+    } catch (err) {
+      console.debug('[account-dashboard] no modal-actions elements to style inline', err);
+    }
+
     customModal.classList.remove('hidden');
     customModal.style.display = 'flex';
     customModal.style.alignItems = 'center';
@@ -1002,24 +1378,7 @@ class AccountDashboard extends HTMLElement {
         console.debug('[account-dashboard] close button not found in custom modal');
       }
 
-      try {
-        const modalCard = customModal.querySelector('.modal-card');
-        if (modalCard) {
-          modalCard.style.background = modalCard.style.background || '#fff';
-          modalCard.style.border = modalCard.style.border || '1px solid #e5e7eb';
-          modalCard.style.borderRadius = modalCard.style.borderRadius || '12px';
-          modalCard.style.padding = modalCard.style.padding || '1rem';
-          modalCard.style.boxShadow = modalCard.style.boxShadow || '0 30px 70px rgba(15,23,42,0.25)';
-          modalCard.style.maxHeight = modalCard.style.maxHeight || '90vh';
-          modalCard.style.overflowY = modalCard.style.overflowY || 'auto';
-          modalCard.style.width = modalCard.style.width || '100%';
-          modalCard.style.maxWidth = modalCard.style.maxWidth || '680px';
-        } else {
-          console.debug('[account-dashboard] modal-card element not found to apply inline styles');
-        }
-      } catch (e) {
-        console.warn('[account-dashboard] error applying inline modal-card styles', e);
-      }
+      // Modal card styles are now handled by CSS
 
       if (typeof setupFn === 'function') {
         try {
@@ -1071,32 +1430,237 @@ class AccountDashboard extends HTMLElement {
     const body = Object.fromEntries(fd.entries());
     try {
       const client = this.getClient();
-      const res = await client.post('/automoviles', body);
-      const newAuto = (res?.data || res);
+      
+      // Check if we're editing (editingAutoId is set by handleEditAuto)
+      if (this.editingAutoId) {
+        await client.put(`/automoviles/${this.editingAutoId}`, body);
+        this.showSuccessMessage('Auto actualizado correctamente');
+      } else {
+        await client.post('/automoviles', body);
+        this.showSuccessMessage('Auto agregado correctamente');
+      }
+      
       this.hideModal();
+      this.editingAutoId = null;
       await this.loadAutos();
+      
       if (this.autosList) {
         try { this.autosList.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (err) {}
       }
-      try { window.dispatchEvent(new CustomEvent('auto-saved', { detail: newAuto })); } catch (evErr) {}
     } catch (err) {
       if (!this.handleAuthError(err, this.autosList)) {
-        alert('Error guardando automovil: ' + (err.message || JSON.stringify(err.body) || err));
+        this.showErrorMessage('Error guardando automovil: ' + (err.message || JSON.stringify(err.body) || err));
       }
     }
   }
 
+  async handleEditAuto(e) {
+    const id = e.currentTarget.getAttribute('data-id');
+    const auto = this.autosData.find(a => a.id_auto == id);
+    
+    if (!auto) {
+      this.showErrorMessage('No se encontró el auto');
+      return;
+    }
+    
+    // Store the ID we're editing
+    this.editingAutoId = id;
+    
+    // Update modal title
+    const modalTitle = this.modal.querySelector('h3');
+    if (modalTitle) modalTitle.textContent = 'Editar Automóvil';
+    
+    // Pre-fill form fields
+    if (this.form) {
+      this.form.marca.value = auto.marca || '';
+      this.form.modelo.value = auto.modelo || '';
+      this.form.anio.value = auto.anio || '';
+      this.form.color.value = auto.color || '';
+      this.form.placas.value = auto.placas || '';
+      this.form.numero_serie.value = auto.numero_serie || '';
+    }
+    
+    this.showModal();
+  }
+
   async handleDeleteAuto(e) {
     const id = e.currentTarget.getAttribute('data-id');
-    if (!confirm('Eliminar este automóvil?')) return;
+    if (!confirm('¿Eliminar este automóvil?')) return;
     try {
       const client = this.getClient();
       await client.delete(`/automoviles/${id}`);
+      this.showSuccessMessage('Auto eliminado correctamente');
       await this.loadAutos();
     } catch (err) {
       if (!this.handleAuthError(err, this.autosList)) {
-        alert('Error eliminando automovil: ' + (err.message || JSON.stringify(err.body) || err));
+        this.showErrorMessage('Error eliminando automovil: ' + (err.message || JSON.stringify(err.body) || err));
       }
+    }
+  }
+
+  renderGeneralOverview() {
+    // Render profile summary
+    const generalProfile = this.root.querySelector('#general-profile');
+    if (generalProfile && this.currentProfile) {
+      const p = this.currentProfile;
+      generalProfile.innerHTML = `
+        <div class="info-block">
+          <div class="soft-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div>
+            <p class="info-label">Nombre completo</p>
+            <p class="info-value">${p.nombre || 'Sin nombre'}</p>
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="soft-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="info-label">Email</p>
+            <p class="info-value">${p.email || 'Agrega tu correo'}</p>
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="soft-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </div>
+          <div>
+            <p class="info-label">Teléfono</p>
+            <p class="info-value">${p.telefono || 'Agrega tu teléfono'}</p>
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="soft-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="info-label">Dirección</p>
+            <p class="info-value">${p.direccion || 'Sin dirección'}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render autos summary (show up to 3 most recent)
+    const generalAutos = this.root.querySelector('#general-autos');
+    if (generalAutos) {
+      const recentAutos = (this.autosData || []).slice(0, 3);
+      if (recentAutos.length) {
+        generalAutos.innerHTML = recentAutos.map(a => `
+          <div class="auto-card">
+            <div class="auto-header">
+              <div class="auto-main">
+                <div class="car-chip">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="auto-name">${a.marca} ${a.modelo}</p>
+                  <div class="auto-meta">
+                    <span class="auto-badge">${a.anio || 'Sin año'}</span>
+                    ${a.color ? `<span class="auto-badge">${a.color}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fields">
+              <div class="field-tile">
+                <p class="field-label">Placas</p>
+                <p class="field-value">${a.placas}</p>
+              </div>
+              <div class="field-tile">
+                <p class="field-label">Color</p>
+                <p class="field-value">${a.color || 'N/A'}</p>
+              </div>
+            </div>
+            <div class="vin">VIN: ${a.numero_serie}</div>
+          </div>
+        `).join('');
+      } else {
+        generalAutos.innerHTML = `
+          <div style="text-align:center;padding:2rem;color:#94a3b8;">
+            <svg style="width:48px;height:48px;margin:0 auto 1rem;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            <p style="font-weight:600;color:#64748b;">No hay vehículos registrados</p>
+            <p style="font-size:0.9rem;">Agrega tu primer auto para comenzar</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render citas summary
+    const generalCitas = this.root.querySelector('#general-citas');
+    if (generalCitas) {
+      this.getClient().get('/citas/mine').then(res => {
+        const allCitas = res?.data || res || [];
+        const recentCitas = allCitas.slice(0, 4);
+        
+        if (recentCitas.length) {
+          generalCitas.innerHTML = recentCitas.map(c => {
+            const estadoNorm = (c.estado || 'PENDIENTE').toUpperCase();
+            let badgeClass = 'badge badge-pending';
+            if (estadoNorm === 'CONFIRMADA' || estadoNorm === 'CONFIRMED') badgeClass = 'badge badge-confirmed';
+            else if (estadoNorm === 'COMPLETADA' || estadoNorm === 'COMPLETED') badgeClass = 'badge badge-completed';
+            else if (estadoNorm === 'CANCELADA' || estadoNorm === 'CANCELLED') badgeClass = 'badge badge-cancelled';
+
+            const fechaInicio = new Date(c.inicio);
+            const fechaStr = fechaInicio.toLocaleDateString('es-MX', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short'
+            });
+            const horaStr = fechaInicio.toLocaleTimeString('es-MX', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+
+            return `
+              <div class="cita-card">
+                <div class="cita-heading">
+                  <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div class="card-icon" style="width:36px;height:36px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 style="font-size:1rem;font-weight:700;margin:0;color:#0f172a;">${c.motivo || 'Servicio'}</h3>
+                      <p style="font-size:0.85rem;color:#64748b;margin:0.25rem 0 0 0;">${fechaStr} • ${horaStr}</p>
+                    </div>
+                  </div>
+                  <span class="${badgeClass}">${estadoNorm}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          generalCitas.innerHTML = `
+            <div style="text-align:center;padding:2rem;color:#94a3b8;">
+              <svg style="width:48px;height:48px;margin:0 auto 1rem;opacity:0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p style="font-weight:600;color:#64748b;">No hay citas registradas</p>
+              <p style="font-size:0.9rem;">Agenda tu primera cita de servicio</p>
+            </div>
+          `;
+        }
+      }).catch(err => {
+        console.error('Error loading citas for general view:', err);
+        generalCitas.innerHTML = '<div style="padding:1rem;color:#ef4444;">Error cargando citas</div>';
+      });
     }
   }
 

@@ -1,5 +1,5 @@
 ﻿const appointmentShellTemplate = () => `
-  <section class="py-16">
+  <section class="py-8">
     <div class="container mx-auto px-6">
       <div class="text-center mb-12">
         <p class="text-sm uppercase tracking-[0.3em] text-blue-500 mb-2">Agenda en minutos</p>
