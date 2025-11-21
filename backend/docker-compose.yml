@@ -30,6 +30,8 @@ services:
       - "8000:8000"
       - "5555:5555"
     command: sh -lc "npx prisma db push && node src/server.js"
+    volumes:
+      - ./public:/app/public:rw
 
 volumes:
   mysqldata:

@@ -10,7 +10,6 @@ class HomePopularServices extends HTMLElement {
   constructor() {
     super();
     this.servicesService = new ServicesService();
-    // default to a larger limit so the host shows more popular services (e.g., 4+)
     this.limit = Number(this.getAttribute('limit')) || 12;
     this.mode = this.getAttribute('mode') || 'carousel';
     this.pageSizeAttr = Number(this.getAttribute('page-size')) || null;
@@ -37,7 +36,6 @@ class HomePopularServices extends HTMLElement {
       this.pageSizeAttr = Number(newValue) || null;
       if (this.isConnected) this.loadServices();
     } else if (name === 'hide-cta') {
-      // will be applied after render
       if (this.isConnected) this.applyCtaVisibility();
     }
   }
@@ -52,32 +50,25 @@ class HomePopularServices extends HTMLElement {
       templateCache.innerHTML = `${popularServicesTemplate()}`;
     }
 
-    // Render inside shadow root with injected styles
     console.log('[home-popular-services] render start');
     this.root.innerHTML = '';
-    // inject compiled Tailwind + component styles
-    // lazy import to avoid circular deps if any
     import('../../../utils/shadow-style-loader.js').then(({ injectStyles }) => {
       injectStyles(this.root, popularServicesStyles).then(() => {
         this.root.appendChild(templateCache.content.cloneNode(true));
-        // adjust section padding based on mode: keep default spacious for homepage (carousel),
-        // but compact the section when in list mode (e.g., servicios page)
         try {
           const sectionEl = this.root.querySelector('#servicios-populares');
           if (sectionEl) {
             if (this.mode === 'list' || this.hasAttribute('compact') || this.getAttribute('compact') === 'true') {
               sectionEl.style.padding = '1.5rem 0';
             } else {
-              // reset to default (allow template classes to take effect)
               sectionEl.style.padding = '';
             }
           }
         } catch (e) {
-          // ignore
+          
         }
         this.servicesContainer = this.root.querySelector('[data-services-container]');
         console.log('[home-popular-services] servicesContainer found?', !!this.servicesContainer, this.servicesContainer);
-        // Once template is rendered and container is available, load services
         this.loadServices().catch((err) => {
           console.error('[home-popular-services] loadServices error after render:', err);
         });
@@ -102,7 +93,6 @@ class HomePopularServices extends HTMLElement {
       }
 
       this.renderServices(services);
-      // Apply CTA visibility depending on attribute
       this.applyCtaVisibility();
     } catch (error) {
       console.error('[home-popular-services] error loading services:', error);
@@ -114,18 +104,30 @@ class HomePopularServices extends HTMLElement {
   applyCtaVisibility() {
     const showAllLink = this.root.querySelector('[data-show-all]');
     if (!showAllLink) return;
-    // hide if `hide-cta` attribute is present on the host
     if (this.hasAttribute('hide-cta') || this.getAttribute('hide-cta') === 'true') {
       showAllLink.style.display = 'none';
     } else {
       showAllLink.style.display = '';
     }
+    try {
+      if (this._showAllHandler) showAllLink.removeEventListener('click', this._showAllHandler);
+      this._showAllHandler = (ev) => {
+        if (ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
+        ev.preventDefault();
+        try {
+          const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+          window.location.href = base + 'servicios.html';
+        } catch (e) {
+          window.location.href = 'servicios.html';
+        }
+      };
+      showAllLink.addEventListener('click', this._showAllHandler);
+    } catch (e) {}
   }
 
   renderServices(services) {
     if (!this.servicesContainer) return;
     this.servicesContainer.innerHTML = '';
-    // Deduplicate by id_servicio / id / _id / codigo
     const seen = new Set();
     const unique = [];
     services.forEach((svc) => {
@@ -137,8 +139,6 @@ class HomePopularServices extends HTMLElement {
       }
     });
 
-    // Create horizontal carousel items
-    // Ensure the track is a horizontal flex container (force from JS to avoid late CSS load issues)
     try {
       this.servicesContainer.style.display = 'flex';
       this.servicesContainer.style.flexWrap = 'nowrap';
@@ -148,10 +148,8 @@ class HomePopularServices extends HTMLElement {
       this.servicesContainer.style.paddingBottom = '4px';
       this.servicesContainer.style.alignItems = 'stretch';
     } catch (e) {
-      // ignore if not supported
     }
 
-    // compute flex basis based on current pageSize to avoid relying only on CSS
     const basisPercent = (() => {
       const ps = this.computePageSize();
       if (ps <= 1) return '100%';
@@ -162,12 +160,14 @@ class HomePopularServices extends HTMLElement {
     unique.forEach((service, index) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'carousel-item';
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.alignItems = 'stretch';
+      wrapper.style.height = '100%';
       wrapper.style.flex = `0 0 ${basisPercent}`;
       wrapper.style.minWidth = basisPercent;
       wrapper.style.boxSizing = 'border-box';
-      // ensure inline-block so that if flex fails it still lays out horizontally
-      wrapper.style.display = 'inline-block';
-      wrapper.style.verticalAlign = 'top';
+      wrapper.style.overflow = 'hidden';
 
       const card = document.createElement('service-card');
       const idAttr = service.id_servicio || service.id || service._id || `svc-${index}`;
@@ -176,29 +176,29 @@ class HomePopularServices extends HTMLElement {
       card.setAttribute('description', service.description || service.descripcion || 'Descripción del servicio');
       const price = service.precio_con_utilidad || service.price || service.precio || service.precio_con_iva || 0;
       card.setAttribute('price', price);
-      card.setAttribute('image', this.resolveImage(service, index));
+      const resolved = this.resolveImage(service, index);
+      // Debug: log service image fields and resolved URL
+      try { console.debug('[popular-services] service image raw:', { id: idAttr, imagen: service.imagen, image: service.image, imageUrl: service.imageUrl, resolved }); } catch (e) {}
+      card.setAttribute('image', resolved);
 
+      try { card.style.height = '100%'; card.style.display = 'flex'; card.style.flexDirection = 'column'; card.style.boxSizing = 'border-box'; } catch (e) {}
       wrapper.appendChild(card);
       this.servicesContainer.appendChild(wrapper);
     });
 
     console.debug('[home-popular-services] renderServices: total=', services.length, 'unique=', unique.length, 'basis=', basisPercent);
 
-    // Choose behavior depending on `mode` attribute: 'carousel' (arrows) or 'list' (paged list)
-    // Default is 'carousel'.
+    
     if (this.mode === 'list') {
-      // LIST MODE: render paginated list (page buttons), items per page controlled by attribute or default 8
       this._allServices = unique;
       this.totalItems = unique.length;
         this.pageSize = this.pageSizeAttr || 9;
       this.pagesCount = Math.max(1, Math.ceil(this.totalItems / this.pageSize));
       this.currentPage = 0;
 
-      // style container as grid
       try {
         this.track = this.servicesContainer;
         this.track.style.display = 'grid';
-        // If pageSize is 9, prefer a 3x3 grid (3 columns). Otherwise fallback to responsive columns.
         if (this.pageSize === 9) {
           this.track.style.gridTemplateColumns = 'repeat(3, 1fr)';
         } else {
@@ -207,7 +207,6 @@ class HomePopularServices extends HTMLElement {
         this.track.style.gap = '1.5rem';
       } catch (e) {}
 
-      // Show page buttons area (reuse dotsContainer for pagination controls)
       this.prevBtn = this.root.querySelector('.carousel-prev');
       this.nextBtn = this.root.querySelector('.carousel-next');
       this.dotsContainer = this.root.querySelector('[data-carousel-dots]');
@@ -221,20 +220,16 @@ class HomePopularServices extends HTMLElement {
       return;
     }
 
-    // CAROUSEL MODE: Use transform-based horizontal pagination controlled by arrows (no dots).
-    // Keep items in a single row (nowrap) so arrow clicks move full "pages".
-    this.track = this.servicesContainer; // alias
+    this.track = this.servicesContainer; 
     this.prevBtn = this.root.querySelector('.carousel-prev');
     this.nextBtn = this.root.querySelector('.carousel-next');
     this.dotsContainer = this.root.querySelector('[data-carousel-dots]');
 
     this.totalItems = unique.length;
-    // Fixed pageSize for pagination (compute responsively)
     this.pageSize = this.computePageSize();
     this.pagesCount = Math.max(1, Math.ceil(this.totalItems / this.pageSize));
     this.currentPage = 0;
 
-    // Ensure the track is a single horizontal strip ready for scroll-based paging
     try {
       this.track.style.display = 'flex';
       this.track.style.flexWrap = 'nowrap';
@@ -244,16 +239,13 @@ class HomePopularServices extends HTMLElement {
       this.track.style.alignItems = 'stretch';
     } catch (e) {}
 
-    // Show arrow controls and hide dots (user requested arrows only)
     if (this.prevBtn) this.prevBtn.style.display = '';
     if (this.nextBtn) this.nextBtn.style.display = '';
     if (this.dotsContainer) this.dotsContainer.style.display = 'none';
 
-    // Compute exact item widths and wire up arrow handlers
     this.updateItemWidths();
     this.updateControls();
     this.attachCarouselEvents();
-    // Ensure we're on page 0
     this.scrollToPage(0);
   }
 
@@ -274,12 +266,15 @@ class HomePopularServices extends HTMLElement {
     const start = page * this.pageSize;
     const end = start + this.pageSize;
     const items = this._allServices.slice(start, end);
-    // render items in grid/list
     this.servicesContainer.innerHTML = '';
     items.forEach((service, index) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'list-item';
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.height = '100%';
       wrapper.style.boxSizing = 'border-box';
+      wrapper.style.overflow = 'hidden';
 
       const card = document.createElement('service-card');
       const idAttr = service.id_servicio || service.id || service._id || `svc-${start + index}`;
@@ -290,6 +285,7 @@ class HomePopularServices extends HTMLElement {
       card.setAttribute('price', price);
       card.setAttribute('image', this.resolveImage(service, start + index));
 
+      try { card.style.height = '100%'; card.style.display = 'flex'; card.style.flexDirection = 'column'; card.style.boxSizing = 'border-box'; } catch (e) {}
       wrapper.appendChild(card);
       this.servicesContainer.appendChild(wrapper);
     });
@@ -301,7 +297,6 @@ class HomePopularServices extends HTMLElement {
   buildPageButtons() {
     if (!this.dotsContainer) return;
     this.dotsContainer.innerHTML = '';
-    // Prev / Next textual buttons
     const prev = document.createElement('button');
     prev.type = 'button';
     prev.className = 'px-3 py-2 mr-2 bg-gray-100 rounded';
@@ -311,7 +306,6 @@ class HomePopularServices extends HTMLElement {
     });
     this.dotsContainer.appendChild(prev);
 
-    // Page number buttons
     for (let i = 0; i < this.pagesCount; i++) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -336,7 +330,6 @@ class HomePopularServices extends HTMLElement {
 
   buildDots() {
     if (!this.dotsContainer) return;
-    // keep compatibility: if list mode, page buttons are built by buildPageButtons
     if (this.mode === 'list') return;
     this.dotsContainer.innerHTML = '';
     for (let i = 0; i < this.pagesCount; i++) {
@@ -355,7 +348,6 @@ class HomePopularServices extends HTMLElement {
     if (!this.dotsContainer) return;
     const buttons = Array.from(this.dotsContainer.children);
     if (this.mode === 'list') {
-      // in list mode we have Prev, [page buttons], Next -> page buttons have dataset.page
       buttons.forEach((b) => {
         const p = b.dataset && typeof b.dataset.page !== 'undefined' ? Number(b.dataset.page) : null;
         if (p === null) return;
@@ -376,7 +368,6 @@ class HomePopularServices extends HTMLElement {
 
   attachCarouselEvents() {
     if (!this.track) return;
-    // remove previous listeners if buttons exist
     if (this._prevHandler && this.prevBtn) this.prevBtn.removeEventListener('click', this._prevHandler);
     if (this._nextHandler && this.nextBtn) this.nextBtn.removeEventListener('click', this._nextHandler);
 
@@ -384,7 +375,6 @@ class HomePopularServices extends HTMLElement {
     this._nextHandler = () => { this.scrollByPage(1); };
     if (this.prevBtn) this.prevBtn.addEventListener('click', this._prevHandler);
     if (this.nextBtn) this.nextBtn.addEventListener('click', this._nextHandler);
-    // Disable native scrolling and use transform-based pagination
     try {
       this.track.style.overflowX = 'hidden';
       this.track.style.touchAction = 'none';
@@ -392,14 +382,11 @@ class HomePopularServices extends HTMLElement {
       this.track.style.willChange = 'transform';
     } catch (e) {}
 
-    // Resize observer to recompute pages on container resize
     if (this._ro) this._ro.disconnect();
     this._ro = new ResizeObserver(() => {
-      // Recompute pageSize on resize (responsive breakpoints)
       this.pageSize = this.computePageSize();
       this.pagesCount = Math.max(1, Math.ceil(this.totalItems / this.pageSize));
       this.updateItemWidths();
-      // No dots in arrow-only mode, but keep current page within bounds
       this.scrollToPage(Math.min(this.currentPage, this.pagesCount - 1));
     });
     this._ro.observe(this.track);
@@ -412,10 +399,8 @@ class HomePopularServices extends HTMLElement {
 
   scrollToPage(pageIndex) {
     if (!this.track) return;
-    // compute left offset using the carousel viewport width (parent) for robustness
     const viewportWidth = (this.track.parentElement && this.track.parentElement.clientWidth) || (this.root.host && this.root.host.clientWidth) || window.innerWidth;
     const left = Math.round(pageIndex * viewportWidth);
-    // Use scrollTo for smoother, more robust behavior
     try {
       this.track.scrollTo({ left, behavior: 'smooth' });
     } catch (e) {
@@ -428,9 +413,7 @@ class HomePopularServices extends HTMLElement {
 
   updateItemWidths() {
     if (!this.track) return;
-    // Use the carousel viewport (parent element) as the visible width for paging calculations
     const viewportWidth = (this.track.parentElement && this.track.parentElement.clientWidth) || (this.root.host && this.root.host.clientWidth) || window.innerWidth;
-    // Determine gap in pixels (fallback to 16px if not found)
     const gapPx = parseFloat(getComputedStyle(this.track).gap) || 16;
     const visibleWidth = Math.max(0, viewportWidth - 1);
     const perItemWidth = Math.floor((visibleWidth - gapPx * (this.pageSize - 1)) / this.pageSize);
@@ -442,11 +425,9 @@ class HomePopularServices extends HTMLElement {
       wrapper.style.boxSizing = 'border-box';
     });
 
-    // store values for scroll calculations
     this._perItemWidth = perItemWidth;
     this._gapPx = gapPx;
 
-    // ensure transform stays valid when widths change
     const cappedPage = Math.min(this.currentPage || 0, Math.max(0, Math.ceil(this.totalItems / this.pageSize) - 1));
     this.currentPage = cappedPage;
   }
@@ -458,12 +439,25 @@ class HomePopularServices extends HTMLElement {
   }
 
   resolveImage(service, index) {
-    return (
-      service.image ||
-      service.imageUrl ||
-      service.imagen ||
-      POPULAR_SERVICE_IMAGES[index % POPULAR_SERVICE_IMAGES.length]
-    );
+    const candidate = service.image || service.imageUrl || service.imagen || POPULAR_SERVICE_IMAGES[index % POPULAR_SERVICE_IMAGES.length];
+    if (!candidate) return candidate;
+    // If candidate is already absolute URL, return as-is
+    if (/^https?:\/\//i.test(candidate)) return candidate;
+    // If candidate is root-relative (starts with /), prefix with API origin derived from apiClient.baseURL
+    if (candidate.startsWith('/')) {
+      try {
+        const base = (this.servicesService && this.servicesService.apiClient && this.servicesService.apiClient.baseURL) || null;
+        if (base) {
+          // remove trailing /api if present
+          const origin = base.replace(/\/api\/?$/i, '').replace(/\/$/, '');
+          return origin + candidate;
+        }
+      } catch (e) {}
+      // fallback to candidate as-is
+      return candidate;
+    }
+    // Otherwise return candidate (could be relative to client assets)
+    return candidate;
   }
 
   attachRetryHandler() {

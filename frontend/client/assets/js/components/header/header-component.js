@@ -665,6 +665,9 @@ class HeaderComponent extends HTMLElement {
                 const form = event.currentTarget;
                 const fd = new FormData(form);
                 const body = Object.fromEntries(fd.entries());
+                if (body.email && typeof body.email === 'string') body.email = body.email.trim();
+                if (body.password && typeof body.password === 'string') body.password = body.password.trim();
+                try { console.debug('[header] login payload', { email: body.email, passwordLength: body.password ? body.password.length : 0 }); } catch (e) {}
                 lastLoginPayload = body;
             const statusEl = this.root.querySelector('#global-auth-status');
             if (statusEl) { statusEl.className = 'text-sm text-gray-600'; statusEl.textContent = 'Iniciando sesión...'; }

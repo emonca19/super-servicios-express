@@ -53,6 +53,21 @@ class AppointmentForm extends HTMLElement {
     window.addEventListener('auto-saved', async (ev) => {
       try { await this.loadSavedVehicles(true); } catch (e) { }
     });
+
+    try {
+      const dateEl = this.root.querySelector('#appointment-fecha');
+      const serviceEl = this.root.querySelector('#servicio-select');
+      if (dateEl) {
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const d = String(today.getDate()).padStart(2, '0');
+        try { dateEl.setAttribute('min', `${y}-${m}-${d}`); } catch (e) {}
+        dateEl.addEventListener('change', () => { this.updateAvailableSlots(); });
+      }
+      if (serviceEl) serviceEl.addEventListener('change', () => { this.updateAvailableSlots(); });
+      setTimeout(() => { try { this.updateAvailableSlots(); } catch (e) {} }, 50);
+    } catch (e) {}
   }
 
   async _loadTailwindCss() {
@@ -148,6 +163,154 @@ class AppointmentForm extends HTMLElement {
       console.error('[appointment-form] Error al cargar servicios:', error);
       const serviceSelectFallback = this.root.querySelector('#servicio-select');
       if (serviceSelectFallback) serviceSelectFallback.innerHTML = '<option value="">No se pudieron cargar los servicios</option>';
+    }
+  }
+
+  /**
+   * Load available time slots for selected date and service and populate the time select.
+   */
+  async updateAvailableSlots() {
+    try {
+      const dateEl = this.root.querySelector('#appointment-fecha');
+      const horaEl = this.root.querySelector('#appointment-hora');
+      const serviceEl = this.root.querySelector('#servicio-select');
+      if (!horaEl) return;
+      const date = dateEl ? dateEl.value : null;
+      const serviceId = serviceEl ? serviceEl.value : null;
+
+      horaEl.innerHTML = '';
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.textContent = 'Selecciona hora';
+      horaEl.appendChild(defaultOpt);
+
+      if (!date) {
+        const info = document.createElement('option');
+        info.value = '';
+        info.textContent = 'Selecciona una fecha primero';
+        info.disabled = true;
+        horaEl.appendChild(info);
+        return;
+      }
+
+      try {
+        const dateObj = new Date(`${date}T00:00:00`);
+        const dow = dateObj.getDay(); 
+        if (dow === 0) {
+          try {
+            dateEl.value = '';
+            dateEl.classList.add('border-red-500');
+            setTimeout(() => { try { dateEl.classList.remove('border-red-500'); } catch (e) {} }, 2500);
+          } catch (e) {}
+
+          horaEl.innerHTML = '';
+          const none = document.createElement('option');
+          none.value = '';
+          none.textContent = 'No se pueden agendar citas los domingos';
+          none.disabled = true;
+          horaEl.appendChild(none);
+          return;
+        }
+      } catch (e) {
+      }
+
+      let slots = [];
+      try {
+        slots = await this.appointmentsService.getAvailableSlots(date, serviceId);
+      } catch (err) {
+        console.warn('[appointment-form] getAvailableSlots failed, falling back to default slots', err);
+        slots = this.appointmentsService.getDefaultSlots();
+      }
+
+      try {
+        const dateObj2 = new Date(`${date}T00:00:00`);
+        if (dateObj2.getDay() === 6) {
+          slots = (Array.isArray(slots) ? slots : []).filter((s) => {
+            try {
+              const [hh, mm] = String(s).split(':').map(Number);
+              if (Number.isNaN(hh)) return false;
+              const minutes = hh * 60 + (Number(mm) || 0);
+              return minutes >= (8 * 60) && minutes < (14 * 60);
+            } catch (e) { return false; }
+          });
+        }
+      } catch (e) {}
+
+      const now = new Date();
+      const marginMinutes = 30; 
+      const marginMs = marginMinutes * 60000;
+      const isToday = (() => {
+        try {
+          const [y, m, d] = (date || '').split('-').map(Number);
+          return y === now.getFullYear() && m === (now.getMonth() + 1) && d === now.getDate();
+        } catch (e) { return false; }
+      })();
+
+      let existingCitas = [];
+      try {
+        const resp = await apiClient.get('/citas/mine');
+        const raw = resp?.data || resp || [];
+        existingCitas = Array.isArray(raw) ? raw : (Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []));
+        try {
+          existingCitas = existingCitas.filter((c) => {
+            const st = (c.estado || '').toString().toUpperCase();
+            return st !== 'CANCELADA' && st !== 'CANCELLED';
+          });
+        } catch (e) { }
+      } catch (err) {
+        existingCitas = [];
+      }
+
+      const durationMin = Number(this.root.querySelector('#appointment-duracion')?.value) || 60;
+
+      let added = 0;
+      slots.forEach((slot) => {
+        try {
+          const slotDate = new Date(`${date}T${slot}:00`);
+          const slotEnd = new Date(slotDate.getTime() + durationMin * 60000);
+          const option = document.createElement('option');
+          option.value = slot;
+          const [hh, mm] = slot.split(':');
+          const hourNum = Number(hh);
+          const ampm = hourNum >= 12 ? 'PM' : 'AM';
+          const displayHour = ((hourNum + 11) % 12) + 1;
+          option.textContent = `${String(displayHour).padStart(2,'0')}:${mm} ${ampm}`;
+
+          if (isToday && slotDate.getTime() <= (now.getTime() + marginMs)) {
+            option.disabled = true;
+            option.className = 'opacity-50';
+            option.title = option.title ? option.title + ' (Demasiado cercano)' : 'Demasiado cercano';
+          }
+
+          for (let i = 0; i < existingCitas.length; i += 1) {
+            try {
+              const c = existingCitas[i];
+              const cInicio = c.inicio ? new Date(c.inicio) : null;
+              const cFin = c.fin ? new Date(c.fin) : null;
+              if (!cInicio || !cFin || Number.isNaN(cInicio.getTime()) || Number.isNaN(cFin.getTime())) continue;
+              if (slotDate.getTime() < cFin.getTime() && slotEnd.getTime() > cInicio.getTime()) {
+                option.disabled = true;
+                option.className = 'opacity-50';
+                option.title = `Ocupado: ${c.motivo || c.id_cita}`;
+                break;
+              }
+            } catch (e) {}
+          }
+
+          horaEl.appendChild(option);
+          added += 1;
+        } catch (e) {}
+      });
+
+      if (!added) {
+        const none = document.createElement('option');
+        none.value = '';
+        none.textContent = 'No hay horas disponibles para esta fecha';
+        none.disabled = true;
+        horaEl.appendChild(none);
+      }
+    } catch (e) {
+      console.error('[appointment-form] updateAvailableSlots error', e);
     }
   }
 
@@ -497,12 +660,33 @@ class AppointmentForm extends HTMLElement {
     try {
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
-      const validation = this.appointmentsService.validateAppointmentData(data);
 
+      const validation = this.appointmentsService.validateAppointmentData(data);
       if (!validation.isValid) {
         this.renderErrorStatus(statusDiv, 'Por favor corrige los siguientes campos:', validation.errors);
         statusDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
+      }
+
+      try {
+        const constraint = await this.appointmentsService.validateAppointmentConstraints(data);
+        if (!constraint.isValid) {
+          this.renderErrorStatus(statusDiv, 'No se puede agendar esta cita por:', constraint.errors);
+          try { statusDiv.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { try { statusDiv.scrollIntoView(); } catch (e) {} }
+          try {
+            const dateEl = this.root.querySelector('#appointment-fecha');
+            const horaEl = this.root.querySelector('#appointment-hora');
+            if (dateEl) dateEl.classList.add('border-red-500');
+            if (horaEl) horaEl.classList.add('border-red-500');
+            const firstErr = (constraint.errors && constraint.errors[0]) || '';
+            if (/fecha|anterior|pasado/i.test(firstErr) && dateEl) { try { dateEl.focus(); } catch (e) {} }
+            else if (/hora|franja|solap/i.test(firstErr) && horaEl) { try { horaEl.focus(); } catch (e) {} }
+            else if (dateEl) { try { dateEl.focus(); } catch (e) {} }
+          } catch (e) {}
+          return;
+        }
+      } catch (err) {
+        console.warn('[appointment-form] constraints validation error', err);
       }
 
       const response = await this.appointmentsService.create(data);

@@ -6,7 +6,6 @@ template.innerHTML = `
     * { box-sizing: border-box; }
     :host { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:block; color:#1e293b; background:transparent; font-size:14px; }
 
-    /* Page shell: flat, subtle border, no shadow */
     .page-shell { background:#ffffff; padding:1.5rem; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 1px 2px rgba(0,0,0,0.02); max-width:1400px; margin:0 auto; }
     .page-head { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid #e2e8f0; }
     @media (min-width:768px) { .page-head { flex-direction:row; justify-content:space-between; align-items:center; } }
@@ -15,7 +14,6 @@ template.innerHTML = `
     .sub { color:#64748b; max-width:760px; font-weight:400; font-size:0.875rem; }
     .head-actions { display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; }
 
-    /* Tabs: modern full-width style */
     .tabs { display:flex; gap:0.5rem; margin-top:0.75rem; border-bottom:1px solid #e2e8f0; }
     .tab { background:transparent; border:none; padding:0.5rem 0.75rem; border-radius:6px 6px 0 0; font-weight:500; font-size:0.8125rem; color:#64748b; cursor:pointer; position:relative; transition: all 150ms ease; }
     .tab:hover { color:#0f172a; background:#f8fafc; }
@@ -23,13 +21,11 @@ template.innerHTML = `
     .tab-badge { display:inline-flex; align-items:center; justify-content:center; margin-left:0.35rem; min-width:1.25rem; height:1.25rem; padding:0 0.3rem; border-radius:4px; background:#f1f5f9; color:#475569; font-size:0.7rem; font-weight:600; }
     .tab[aria-selected="true"] .tab-badge { background:#e0e7ff; color:#4f46e5; }
 
-    /* Buttons: single flat color, no shadows */
     .btn-primary { background:#0f172a; color:#ffffff; padding:0.5rem 0.875rem; border-radius:6px; font-weight:600; font-size:0.8125rem; border:none; cursor:pointer; transition: background 150ms ease; }
     .btn-primary:hover { background:#1e293b; }
     .btn-ghost { background:transparent; border:1px solid #cbd5e1; color:#475569; padding:0.4rem 0.75rem; border-radius:6px; font-weight:500; font-size:0.8125rem; cursor:pointer; transition: all 150ms ease; }
     .btn-ghost:hover { border-color:#94a3b8; color:#0f172a; background:#f8fafc; }
 
-    /* Stats: simpler cards */
     .stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1rem; }
     .stat-card { position:relative; display:flex; align-items:center; gap:0.75rem; padding:0.875rem; background:#fafafa; border:1px solid #e2e8f0; border-radius:8px; transition:all 150ms ease; }
     .stat-card:hover { background:#fff; border-color:#cbd5e1; }
@@ -42,7 +38,6 @@ template.innerHTML = `
     .stat-value { font-size:1.25rem; font-weight:700; color:#0f172a; line-height:1; }
     .stat-sub { color:#64748b; font-size:0.75rem; font-weight:400; margin-top:0.15rem; }
 
-    /* Full-width sections (no sidebar) */
     .dashboard-grid { display:block; }
     .section-container { opacity:1; transition: opacity 250ms ease; }
     .section-container.hidden { display:none; opacity:0; }
@@ -103,7 +98,6 @@ template.innerHTML = `
     .badge-completed { background-color:#dcfce7; color:#15803d; border:1px solid #bbf7d0; }
     .badge-cancelled { background-color:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
 
-    /* Modal backdrop and card simplified */
     #auto-modal { 
       position: fixed;
       top: 0;
@@ -131,7 +125,6 @@ template.innerHTML = `
     #auto-modal h3 { font-size:1.25rem; font-weight:700; margin-bottom:0.6rem; }
     #auto-modal form input, #auto-modal form select { border:1px solid rgba(226,232,240,0.9); border-radius:10px; background:#fff; }
     
-    /* Apply same modal styles to custom modal-card elements */
     .modal-card { 
       background: #ffffff; 
       border: 1px solid rgba(226,232,240,0.9); 
@@ -149,7 +142,6 @@ template.innerHTML = `
     .car-chip svg, .small-auto-icon svg { width:1rem; height:1rem; }
     .tiny-icon svg { width:0.75rem; height:0.75rem; }
 
-    /* Modal actions: explicit spacing and padding (works inside Shadow DOM) */
     .modal-actions { display:flex; gap:12px; justify-content:flex-end; padding-top:16px; }
     @media (max-width:640px) { .modal-actions { flex-direction:column-reverse; align-items:stretch; } .modal-actions .btn-primary, .modal-actions .btn-ghost { width:100%; } }
   </style>
@@ -223,11 +215,9 @@ template.innerHTML = `
     </div>
 
     <div class="dashboard-grid">
-      <!-- SECCIÓN GENERAL: Vista completa de todo -->
       <div class="section-container" id="general-section">
         <div style="display:grid;grid-template-columns:1fr;gap:1.25rem;">
           
-          <!-- Perfil Resumido -->
           <div class="card">
             <div class="card-header">
               <div style="display:flex;align-items:center;gap:0.8rem;">
@@ -246,7 +236,6 @@ template.innerHTML = `
             <div id="general-profile" class="profile-grid" style="grid-template-columns:repeat(auto-fit,minmax(360px,1fr));"></div>
           </div>
 
-          <!-- Autos Resumidos -->
           <div class="card">
             <div class="card-header">
               <div style="display:flex;align-items:center;gap:0.8rem;">
@@ -268,7 +257,6 @@ template.innerHTML = `
             <div id="general-autos" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:1.5rem;"></div>
           </div>
 
-          <!-- Citas Resumidas -->
           <div class="card">
             <div class="card-header">
               <div style="display:flex;align-items:center;gap:0.8rem;">
@@ -471,7 +459,6 @@ class AccountDashboard extends HTMLElement {
       console.debug('[account-dashboard] Modal explicitly set to hidden');
     }
 
-    // Tabs: attach listeners and restore last tab
     try {
       if (this.tabButtons && this.tabButtons.length) {
         this.tabButtons.forEach((btn) => {
@@ -481,8 +468,10 @@ class AccountDashboard extends HTMLElement {
             this.showTab(tab);
           });
         });
+        const hash = (typeof window !== 'undefined' && window.location && window.location.hash) ? String(window.location.hash).replace('#', '') : '';
         const last = localStorage.getItem('dashboard.activeTab') || 'general';
-        this.showTab(last);
+        const initialTab = (hash && hash.length) ? hash : last;
+        this.showTab(initialTab);
       }
     } catch (e) {
       console.warn('[account-dashboard] tabs setup error', e);
@@ -524,7 +513,6 @@ class AccountDashboard extends HTMLElement {
         }
       });
 
-      // If switching to general tab, render overview
       if (tabName === 'general') {
         this.renderGeneralOverview();
       }
@@ -605,7 +593,6 @@ class AccountDashboard extends HTMLElement {
       }
     });
     
-    // Add auto button from general section
     const btnAddGeneral = this.root.querySelector('#btn-add-auto-general');
     if (btnAddGeneral) {
       btnAddGeneral.addEventListener('click', (e) => {
@@ -872,150 +859,39 @@ class AccountDashboard extends HTMLElement {
       const client = this.getClient();
       const res = await client.get('/citas/mine');
       const citas = res?.data || res || [];
-      const count = citas.length || 0;
+      this.citasData = Array.isArray(citas) ? citas : (Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []));
+
+      const count = this.citasData.length || 0;
       if (this.statCitasValue) this.statCitasValue.textContent = count;
       if (this.statCitasSub) this.statCitasSub.textContent = count ? 'Últimos servicios y citas activas' : 'Agenda tu primera visita al taller';
 
-      let nextText = 'Sin próxima cita';
-      let nextSub = 'Programa una fecha';
-      if (count) {
+      try {
         const now = Date.now();
-        const upcoming = [...citas]
-          .map((c) => ({ ...c, _start: new Date(c.inicio) }))
-          .filter((c) => c._start && !Number.isNaN(c._start.getTime()))
-          .sort((a, b) => a._start - b._start)
-          .find((c) => c._start.getTime() >= now);
-        if (upcoming) {
-          const dateStr = upcoming._start.toLocaleDateString('es-MX', { weekday: 'short', month: 'short', day: 'numeric' });
-          const timeStr = upcoming._start.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-          nextText = `${dateStr} ${timeStr}`;
-          nextSub = upcoming.motivo || 'Servicio agendado';
-        }
-      }
-      if (this.statNextValue) this.statNextValue.textContent = nextText;
-      if (this.statNextSub) this.statNextSub.textContent = nextSub;
-      if (!citas.length) {
-        this.citasList.innerHTML = `
-          <div class="text-center py-12 px-6 bg-white border border-dashed border-gray-200 rounded-2xl">
-            <p class="text-gray-800 font-bold mb-2">A&uacute;n no tienes citas</p>
-            <p class="text-sm text-gray-600">Agenda tu primera visita para mantener tu auto impecable</p>
-          </div>
-        `;
-        return;
-      }
-      this.citasList.innerHTML = '';
-      citas.forEach((c) => {
-        const el = document.createElement('div');
-        el.className = 'cita-card';
-
-        const estadoNorm = (c.estado || 'PENDIENTE').toUpperCase();
-        let badgeClass = 'badge badge-pending';
-        if (estadoNorm === 'CONFIRMADA' || estadoNorm === 'CONFIRMED') badgeClass = 'badge badge-confirmed';
-        else if (estadoNorm === 'COMPLETADA' || estadoNorm === 'COMPLETED') badgeClass = 'badge badge-completed';
-        else if (estadoNorm === 'CANCELADA' || estadoNorm === 'CANCELLED') badgeClass = 'badge badge-cancelled';
-
-        const fechaInicio = new Date(c.inicio);
-        const fechaFin = new Date(c.fin);
-        const fechaStr = fechaInicio.toLocaleDateString('es-MX', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        const horaInicioStr = fechaInicio.toLocaleTimeString('es-MX', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        const horaFinStr = fechaFin.toLocaleTimeString('es-MX', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        el.innerHTML = `
-          <div class="cita-heading mb-4">
-            <div class="flex items-center gap-3">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">ID: ${c.id_cita}</p>
-                <h3 class="text-lg font-black text-gray-900">${c.motivo || 'Servicio'}</h3>
-              </div>
-            </div>
-            <span class="${badgeClass}">${estadoNorm}</span>
-          </div>
-          
-          <div class="fields">
-            <div class="field-tile">
-              <p class="field-label">Fecha</p>
-              <p class="field-value capitalize">${fechaStr}</p>
-            </div>
-            <div class="field-tile">
-              <p class="field-label">Horario</p>
-              <p class="field-value">${horaInicioStr} - ${horaFinStr}</p>
-            </div>
-          </div>
-          
-          ${c.observaciones ? `
-          <div class="mt-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
-            <p class="text-sm text-blue-700 font-semibold mb-1">Observaciones</p>
-            <p class="text-base text-gray-700">${c.observaciones}</p>
-          </div>
-          ` : ''}
-          
-          ${c.automovil ? `
-          <div class="mt-4 flex items-center text-base text-gray-700 gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="small-auto-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            <span>${c.automovil.marca} ${c.automovil.modelo} (${c.automovil.placas})</span>
-          </div>
-          ` : c.id_auto ? `
-          <div class="mt-4 flex items-center text-base text-gray-700 gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            <span>Auto ID: ${c.id_auto}</span>
-          </div>
-          ` : ''}
-        
-          <div class="mt-4" style="display:flex;gap:0.5rem;justify-content:flex-end;">
-            ${(() => {
-              try {
-                const start = new Date(c.inicio);
-                const now = Date.now();
-                const msDiff = start.getTime() - now;
-                const allowCancel = !isNaN(msDiff) && msDiff >= (24 * 60 * 60 * 1000);
-                if (allowCancel && estadoNorm !== 'CANCELADA') {
-                  return `<button data-id="${c.id_cita}" class="btn-del cancel-cita">Cancelar cita</button>`;
-                }
-                return '';
-              } catch (e) { return ''; }
-            })()}
-          </div>
-        `;
-        this.citasList.appendChild(el);
-      });
-      // attach cancel handlers
-      this.citasList.querySelectorAll('.cancel-cita').forEach(btn => {
-        btn.addEventListener('click', async (ev) => {
-          const id = btn.getAttribute('data-id');
-          if (!id) return;
-          if (!confirm('¿Cancelar esta cita?')) return;
+        for (let i = 0; i < this.citasData.length; i += 1) {
+          const c = this.citasData[i];
           try {
-            const client = this.getClient();
-            await client.put(`/citas/${id}`, { estado: 'CANCELADA' });
-            this.showSuccessMessage('Cita cancelada correctamente');
-            await this.loadCitas();
-          } catch (err) {
-            if (!this.handleAuthError(err, this.citasList)) {
-              this.showErrorMessage('Error cancelando cita: ' + (err.message || JSON.stringify(err.body) || err));
+            const fin = c.fin ? new Date(c.fin).getTime() : null;
+            const estadoNorm = (c.estado || 'PENDIENTE').toUpperCase();
+            if (fin && !Number.isNaN(fin) && fin < now && estadoNorm !== 'COMPLETADA' && estadoNorm !== 'COMPLETED') {
+              try {
+                await client.put(`/citas/${c.id_cita || c.id}`, { estado: 'COMPLETADA' });
+                c.estado = 'COMPLETADA';
+              } catch (e) {
+                c.estado = 'COMPLETADA';
+              }
             }
-          }
-        });
-      });
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      this.citasPage = this.citasPage || 1;
+      this.citasPageSize = this.citasPageSize || 3;
+      this.citasFilter = this.citasFilter || { search: '', from: '', to: '' };
+
+      try { this.setupCitasFilters(); } catch (e) {}
+
+      this.renderCitasList();
+
       this.updateTabCounts();
     } catch (e) {
       if (!this.handleAuthError(e, this.citasList)) {
@@ -1024,10 +900,195 @@ class AccountDashboard extends HTMLElement {
     }
   }
 
+  setupCitasFilters() {
+    try {
+      if (this._citasFiltersSetup) return;
+      this._citasFiltersSetup = true;
+      const container = this.root.querySelector('#citas-list');
+      if (!container) return;
+
+      const controls = document.createElement('div');
+      controls.className = 'list-controls mb-4';
+      controls.innerHTML = `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%">
+          <div class="search" style="display:flex;align-items:center;gap:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:18px;height:18px;color:#94a3b8;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 5a6 6 0 100 12 6 6 0 000-12z" />
+            </svg>
+            <span style="color:#475569;font-weight:600">Filtrar por fecha:</span>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px">Desde <input id="citas-from" type="date" class="px-2 py-2 border rounded" /></label>
+          <label style="display:flex;align-items:center;gap:6px">Hasta <input id="citas-to" type="date" class="px-2 py-2 border rounded" /></label>
+          <button id="citas-filter-apply" class="btn-ghost">Aplicar</button>
+          <button id="citas-filter-clear" class="btn-ghost">Limpiar</button>
+        </div>
+      `;
+      container.insertAdjacentElement('beforebegin', controls);
+
+      const f = controls.querySelector('#citas-from');
+      const t = controls.querySelector('#citas-to');
+      const apply = controls.querySelector('#citas-filter-apply');
+      const clear = controls.querySelector('#citas-filter-clear');
+
+      if (apply) apply.addEventListener('click', () => { this.citasFilter.from = f.value || ''; this.citasFilter.to = t.value || ''; this.citasPage = 1; this.renderCitasList(); });
+      if (clear) clear.addEventListener('click', () => { if (f) f.value = ''; if (t) t.value = ''; this.citasFilter = { from: '', to: '' }; this.citasPage = 1; this.renderCitasList(); });
+    } catch (e) {
+      console.warn('[account-dashboard] setupCitasFilters error', e);
+    }
+  }
+
+  renderCitasList() {
+    try {
+      const all = this.citasData || [];
+      let filtered = all.slice();
+      const flt = this.citasFilter || { search: '', from: '', to: '' };
+
+
+      if (flt.from) {
+        const fromTs = new Date(flt.from + 'T00:00:00').getTime();
+        filtered = filtered.filter(c => (c.inicio && new Date(c.inicio).getTime() >= fromTs));
+      }
+      if (flt.to) {
+        const toTs = new Date(flt.to + 'T23:59:59').getTime();
+        filtered = filtered.filter(c => (c.inicio && new Date(c.inicio).getTime() <= toTs));
+      }
+
+      filtered = filtered.filter((c) => {
+        try {
+          const st = (c.estado || '').toString().toUpperCase();
+          return st !== 'CANCELADA' && st !== 'CANCELLED';
+        } catch (e) { return true; }
+      });
+
+      const total = filtered.length;
+      const pageSize = this.citasPageSize || 3;
+      const page = this.citasPage || 1;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      const start = (page - 1) * pageSize;
+      const pageItems = filtered.slice(start, start + pageSize);
+
+      const citasBadge = this.root.querySelector('#tab-citas-count');
+      if (citasBadge) citasBadge.textContent = total;
+
+      this.citasList.innerHTML = '';
+      if (!pageItems.length) {
+        this.citasList.innerHTML = `<div class="text-center py-6">No hay citas que coincidan</div>`;
+      } else {
+        pageItems.forEach((c) => {
+          const el = document.createElement('div');
+          el.className = 'cita-card';
+
+          const estadoNorm = (c.estado || 'PENDIENTE').toUpperCase();
+          let badgeClass = 'badge badge-pending';
+          if (estadoNorm === 'CONFIRMADA' || estadoNorm === 'CONFIRMED') badgeClass = 'badge badge-confirmed';
+          else if (estadoNorm === 'COMPLETADA' || estadoNorm === 'COMPLETED') badgeClass = 'badge badge-completed';
+          else if (estadoNorm === 'CANCELADA' || estadoNorm === 'CANCELLED') badgeClass = 'badge badge-cancelled';
+
+          const fechaInicio = new Date(c.inicio);
+          const fechaFin = new Date(c.fin);
+          const fechaStr = fechaInicio.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          const horaInicioStr = fechaInicio.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+          const horaFinStr = fechaFin.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+          el.innerHTML = `
+            <div class="cita-heading mb-4">
+              <div class="flex items-center gap-3">
+                <div class="card-icon">...</div>
+                <div>
+                  <p class="text-sm text-gray-500">ID: ${c.id_cita || c.id}</p>
+                  <h3 class="text-lg font-black text-gray-900">${c.motivo || 'Servicio'}</h3>
+                </div>
+              </div>
+              <span class="${badgeClass}">${estadoNorm}</span>
+            </div>
+            <div class="fields">
+              <div class="field-tile"><p class="field-label">Fecha</p><p class="field-value capitalize">${fechaStr}</p></div>
+              <div class="field-tile"><p class="field-label">Horario</p><p class="field-value">${horaInicioStr} - ${horaFinStr}</p></div>
+            </div>
+            ${c.observaciones ? `<div class="mt-4 bg-blue-50 p-4 rounded-xl border border-blue-100"><p class="text-sm text-blue-700 font-semibold mb-1">Observaciones</p><p class="text-base text-gray-700">${c.observaciones}</p></div>` : ''}
+            ${c.automovil ? `<div class="mt-4 flex items-center text-base text-gray-700 gap-2"><span>${c.automovil.marca} ${c.automovil.modelo} (${c.automovil.placas})</span></div>` : (c.id_auto ? `<div class="mt-4 flex items-center text-base text-gray-700 gap-2"><span>Auto ID: ${c.id_auto}</span></div>` : '')}
+          `;
+
+          // actions
+          const actions = document.createElement('div');
+          actions.style.display = 'flex';
+          actions.style.gap = '0.5rem';
+          actions.style.justifyContent = 'flex-end';
+          actions.style.marginTop = '12px';
+
+          const startTs = fechaInicio.getTime();
+          const nowTs = Date.now();
+          const msDiff = startTs - nowTs;
+          const allowCancel = !isNaN(msDiff) && msDiff >= (24 * 60 * 60 * 1000);
+
+          if (allowCancel && estadoNorm !== 'CANCELADA') {
+            const btn = document.createElement('button');
+            btn.className = 'btn-del cancel-cita';
+            btn.textContent = 'Cancelar cita';
+            btn.dataset.id = c.id_cita || c.id;
+            btn.addEventListener('click', async () => {
+              if (!confirm('¿Deseas cancelar esta cita? Se marcará como CANCELADA y dejará disponible el horario para otras personas.')) return;
+              try {
+                await this.getClient().put(`/citas/${btn.dataset.id}`, { estado: 'CANCELADA' });
+                this.showSuccessMessage('Cita cancelada correctamente');
+                await this.loadCitas();
+              } catch (err) {
+                if (!this.handleAuthError(err, this.citasList)) this.showErrorMessage('Error cancelando cita');
+              }
+            });
+            actions.appendChild(btn);
+          }
+
+          el.appendChild(actions);
+          this.citasList.appendChild(el);
+        });
+      }
+
+      this.renderCitasPagination(total, page, Math.max(1, Math.ceil(total / pageSize)));
+    } catch (e) {
+      console.error('[account-dashboard] renderCitasList error', e);
+    }
+  }
+
+  renderCitasPagination(total, currentPage, totalPages) {
+    try {
+      const existing = this.root.querySelector('#citas-pager');
+      if (existing) existing.remove();
+      if (totalPages <= 1) return;
+      const pager = document.createElement('div');
+      pager.id = 'citas-pager';
+      pager.className = 'pager';
+      pager.style.display = 'flex';
+      pager.style.gap = '8px';
+      pager.style.marginTop = '12px';
+      pager.style.justifyContent = 'center';
+
+      const prev = document.createElement('button');
+      prev.textContent = '←';
+      prev.disabled = currentPage <= 1;
+      prev.addEventListener('click', () => { this.citasPage = Math.max(1, this.citasPage - 1); this.renderCitasList(); });
+      pager.appendChild(prev);
+
+      const info = document.createElement('span');
+      info.textContent = `Página ${currentPage} de ${totalPages}`;
+      pager.appendChild(info);
+
+      const next = document.createElement('button');
+      next.textContent = '→';
+      next.disabled = currentPage >= totalPages;
+      next.addEventListener('click', () => { this.citasPage = Math.min(totalPages, this.citasPage + 1); this.renderCitasList(); });
+      pager.appendChild(next);
+
+      const container = this.root.querySelector('#citas-list');
+      if (container) container.insertAdjacentElement('afterend', pager);
+    } catch (e) {
+      console.warn('[account-dashboard] renderCitasPagination error', e);
+    }
+  }
+
   showModal() {
     console.debug('[account-dashboard] showModal called explicitly by user action');
     
-    // Reset modal title to "Agregar automóvil" when opening without editingAutoId
     const modalTitle = this.modal.querySelector('h3');
     if (modalTitle && !this.editingAutoId) {
       modalTitle.textContent = 'Agregar automóvil';
@@ -1054,7 +1115,6 @@ class AccountDashboard extends HTMLElement {
       }
     });
     
-    // Mini full-profile edit button (compact, placed in card header)
     try {
       const fullBtn = this.root.querySelector('#edit-profile-btn-mini');
       if (fullBtn) {
@@ -1216,6 +1276,12 @@ class AccountDashboard extends HTMLElement {
       
       this.showSuccessMessage(`${field} actualizado correctamente`);
       
+      try {
+        const profile = this.currentProfile;
+        try { sessionStorage.setItem('pendingCliente', JSON.stringify(profile)); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('user-logged-in', { detail: profile })); } catch (e) {}
+      } catch (e) {}
+      
     } catch (error) {
       console.error('Error updating profile field:', error);
       this.showErrorMessage(`Error al actualizar ${field}: ` + (error.message || 'Error desconocido'));
@@ -1236,6 +1302,12 @@ class AccountDashboard extends HTMLElement {
       
       this.showSuccessMessage('Perfil actualizado correctamente');
       
+      try {
+        const profile = this.currentProfile;
+        try { sessionStorage.setItem('pendingCliente', JSON.stringify(profile)); } catch (e) {}
+        try { window.dispatchEvent(new CustomEvent('user-logged-in', { detail: profile })); } catch (e) {}
+      } catch (e) {}
+      
     } catch (error) {
       console.error('Error updating profile:', error);
       this.showErrorMessage('Error al actualizar perfil: ' + (error.message || 'Error desconocido'));
@@ -1243,7 +1315,6 @@ class AccountDashboard extends HTMLElement {
   }
 
   showCustomModal(title, content, setupFn) {
-    // Inject global styles for modal if not already present
     if (!document.getElementById('profile-modal-global-styles')) {
       const globalStyle = document.createElement('style');
       globalStyle.id = 'profile-modal-global-styles';
@@ -1349,13 +1420,11 @@ class AccountDashboard extends HTMLElement {
         ${content}
       </div>
     `;
-    // Apply inline fallback styles to modal footers so spacing works even without global utility CSS
     try {
       const footers = customModal.querySelectorAll('.modal-actions');
       footers.forEach(f => {
         f.style.gap = f.style.gap || '12px';
         f.style.paddingTop = f.style.paddingTop || '16px';
-        // keep alignment consistent with component modal
         f.style.justifyContent = f.style.justifyContent || 'flex-end';
       });
     } catch (err) {
@@ -1378,7 +1447,6 @@ class AccountDashboard extends HTMLElement {
         console.debug('[account-dashboard] close button not found in custom modal');
       }
 
-      // Modal card styles are now handled by CSS
 
       if (typeof setupFn === 'function') {
         try {
@@ -1431,7 +1499,6 @@ class AccountDashboard extends HTMLElement {
     try {
       const client = this.getClient();
       
-      // Check if we're editing (editingAutoId is set by handleEditAuto)
       if (this.editingAutoId) {
         await client.put(`/automoviles/${this.editingAutoId}`, body);
         this.showSuccessMessage('Auto actualizado correctamente');
@@ -1463,14 +1530,11 @@ class AccountDashboard extends HTMLElement {
       return;
     }
     
-    // Store the ID we're editing
     this.editingAutoId = id;
     
-    // Update modal title
     const modalTitle = this.modal.querySelector('h3');
     if (modalTitle) modalTitle.textContent = 'Editar Automóvil';
     
-    // Pre-fill form fields
     if (this.form) {
       this.form.marca.value = auto.marca || '';
       this.form.modelo.value = auto.modelo || '';
@@ -1499,7 +1563,6 @@ class AccountDashboard extends HTMLElement {
   }
 
   renderGeneralOverview() {
-    // Render profile summary
     const generalProfile = this.root.querySelector('#general-profile');
     if (generalProfile && this.currentProfile) {
       const p = this.currentProfile;
@@ -1552,7 +1615,6 @@ class AccountDashboard extends HTMLElement {
       `;
     }
 
-    // Render autos summary (show up to 3 most recent)
     const generalAutos = this.root.querySelector('#general-autos');
     if (generalAutos) {
       const recentAutos = (this.autosData || []).slice(0, 3);
@@ -1601,12 +1663,14 @@ class AccountDashboard extends HTMLElement {
       }
     }
 
-    // Render citas summary
     const generalCitas = this.root.querySelector('#general-citas');
     if (generalCitas) {
       this.getClient().get('/citas/mine').then(res => {
         const allCitas = res?.data || res || [];
-        const recentCitas = allCitas.slice(0, 4);
+        const activeCitas = (Array.isArray(allCitas) ? allCitas : []).filter(c => {
+          try { const s = (c.estado || '').toString().toUpperCase(); return s !== 'CANCELADA' && s !== 'CANCELLED'; } catch (e) { return true; }
+        });
+        const recentCitas = activeCitas.slice(0, 4);
         
         if (recentCitas.length) {
           generalCitas.innerHTML = recentCitas.map(c => {

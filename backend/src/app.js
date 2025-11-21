@@ -1,8 +1,8 @@
-// src/app.js
+
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const routes = require('./api/index.routes'); // centralizado
+const routes = require('./api/index.routes'); 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
@@ -10,19 +10,32 @@ const app = express();
 app.use(helmet());
 app.use(express.json());
 
-// CORS: permitir llamadas desde el servidor de frontend (dev)
-// CORS: during development allow any localhost origin (any port) and keep strict in production
+const path = require('path');
+const fs = require('fs');
+try {
+  const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
+  app.use('/uploads', (req, res, next) => {
+    try {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+      if (req.method === 'OPTIONS') return res.status(204).end();
+    } catch (e) {}
+    return next();
+  }, express.static(uploadsDir));
+} catch (e) {
+  console.warn('[app] Could not configure uploads static dir', e && e.message);
+}
+
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow non-browser tools (curl, Postman) where origin is undefined
     if (!origin) return callback(null, true);
     try {
       const u = new URL(origin);
       if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return callback(null, true);
     } catch (e) {
-      // fallthrough
     }
-    // In production you may want to restrict this further
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -30,8 +43,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Simple request logger for debugging (prints method, url and small body preview)
-// Simple request logger for debugging (prints method, url and small body preview)
 app.use((req, res, next) => {
   try {
     const bodyPreview = req.body && Object.keys(req.body).length ? JSON.stringify(req.body).slice(0, 500) : '';
@@ -42,9 +53,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Handler específico para JSON mal formado (body-parser SyntaxError)
-// Debe registrarse inmediatamente después de express.json() para interceptar
-// errores de parseo y devolver 400 en lugar de 500.
+
 app.use((err, req, res, next) => {
   if (err && err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     console.warn('Bad JSON received:', err.message);
@@ -53,28 +62,31 @@ app.use((err, req, res, next) => {
   return next(err);
 });
 
-// Swagger UI (montado antes del router /api para mantener la documentación pública
-// incluso si las rutas bajo /api están protegidas por middleware de autenticación)
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Endpoint que expone la especificación OpenAPI (útil para pruebas o CI)
 app.get('/api/docs.json', (req, res) => {
   res.json(swaggerSpec);
 });
 
-// Rutas (aplicadas después de exponer la documentación)
 app.use('/api', routes);
 
-// Redirect raíz a la documentación para facilitar el acceso
+app.get('/uploads-debug', (req, res) => {
+  try {
+    const servicesDir = path.join(__dirname, '..', 'public', 'uploads', 'services');
+    let files = [];
+    try { files = fs.readdirSync(servicesDir); } catch (e) { /* ignore */ }
+    return res.json({ ok: true, path: servicesDir, files });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+});
+
 app.get('/', (req, res) => res.redirect('/api/docs'));
 
-// Health check
 app.get('/health', (req, res) => res.json({ ok: true, status: 'healthy' }));
 
-// 404
 app.use((req, res) => res.status(404).json({ ok: false, message: 'Not Found' }));
 
-// Error handler (más verboso en desarrollo)
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err && err.stack ? err.stack : err);
   const isProd = process.env.NODE_ENV === 'production';

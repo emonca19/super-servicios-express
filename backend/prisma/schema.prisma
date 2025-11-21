@@ -67,6 +67,7 @@ model Servicio {
   descripcion         String
   duracion_estimada   Int     // Asumimos minutos (en Int)
   precio_con_utilidad Decimal @db.Decimal(10, 2) 
+  imagen              String?
   
   detalles DetalleCita[] 
   
