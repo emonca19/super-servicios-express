@@ -3,6 +3,14 @@ import ServicesService from '../../services/services.service.js';
 import { appointmentFormTemplate } from './appointment-form.template.js';
 import { appointmentFormStyles } from './appointment-form.styles.js';
 import apiClient from '../../services/api-client.js';
+import {
+  formatDisplayHour,
+  getDefaultSlots,
+  filterSaturdaySlots,
+  isSunday,
+  isSaturday,
+  safeJsonParse,
+} from './logic.js';
 
 const templateCache = document.createElement('template');
 
@@ -194,9 +202,7 @@ class AppointmentForm extends HTMLElement {
       }
 
       try {
-        const dateObj = new Date(`${date}T00:00:00`);
-        const dow = dateObj.getDay(); 
-        if (dow === 0) {
+        if (isSunday(date)) {
           try {
             dateEl.value = '';
             dateEl.classList.add('border-red-500');
@@ -211,28 +217,19 @@ class AppointmentForm extends HTMLElement {
           horaEl.appendChild(none);
           return;
         }
-      } catch (e) {
-      }
+      } catch (e) {}
 
       let slots = [];
       try {
         slots = await this.appointmentsService.getAvailableSlots(date, serviceId);
       } catch (err) {
         console.warn('[appointment-form] getAvailableSlots failed, falling back to default slots', err);
-        slots = this.appointmentsService.getDefaultSlots();
+        slots = getDefaultSlots();
       }
 
       try {
-        const dateObj2 = new Date(`${date}T00:00:00`);
-        if (dateObj2.getDay() === 6) {
-          slots = (Array.isArray(slots) ? slots : []).filter((s) => {
-            try {
-              const [hh, mm] = String(s).split(':').map(Number);
-              if (Number.isNaN(hh)) return false;
-              const minutes = hh * 60 + (Number(mm) || 0);
-              return minutes >= (8 * 60) && minutes < (14 * 60);
-            } catch (e) { return false; }
-          });
+        if (isSaturday(date)) {
+          slots = filterSaturdaySlots(slots);
         }
       } catch (e) {}
 
@@ -270,11 +267,7 @@ class AppointmentForm extends HTMLElement {
           const slotEnd = new Date(slotDate.getTime() + durationMin * 60000);
           const option = document.createElement('option');
           option.value = slot;
-          const [hh, mm] = slot.split(':');
-          const hourNum = Number(hh);
-          const ampm = hourNum >= 12 ? 'PM' : 'AM';
-          const displayHour = ((hourNum + 11) % 12) + 1;
-          option.textContent = `${String(displayHour).padStart(2,'0')}:${mm} ${ampm}`;
+          option.textContent = formatDisplayHour(slot);
 
           if (isToday && slotDate.getTime() <= (now.getTime() + marginMs)) {
             option.disabled = true;
@@ -467,8 +460,8 @@ class AppointmentForm extends HTMLElement {
         const v = ev.target.value;
         if (!v) return;
         const opt = ev.target.options[ev.target.selectedIndex];
-        try {
-          const auto = JSON.parse(opt.dataset.auto || null);
+          try {
+          const auto = safeJsonParse(opt.dataset.auto, null);
           if (auto) this.applyVehicleToForm(auto);
         } catch (e) {  }
       });

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,8 +8,8 @@
     <meta name="api-base" content="http://localhost:8000/api">
     
     <!-- Compiled Tailwind CSS (local) -->
-    <link rel="stylesheet" href="./assets/css/tailwind.css">
-    <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,9 +48,9 @@
     <script type="module">
         try {
             await Promise.all([
-                import('./assets/js/components/header/header-component.js'),
-                import('./assets/js/components/footer-component/footer-component.js'),
-                import('./assets/js/microfrontends/home/index.js')
+                import('../assets/js/components/header/header-component.js'),
+                import('../assets/js/components/footer-component/footer-component.js'),
+                import('../assets/js/microfrontends/home/index.js')
             ]);
             console.log('[home] Microfrontends cargados');
         } catch (error) {

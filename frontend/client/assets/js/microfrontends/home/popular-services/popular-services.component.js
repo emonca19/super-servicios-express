@@ -89,6 +89,12 @@ class HomePopularServices extends HTMLElement {
 
       if (!services || services.length === 0) {
         this.servicesContainer.innerHTML = emptyState();
+        try {
+          // Center the empty state inside the carousel track
+          this.servicesContainer.style.display = 'flex';
+          this.servicesContainer.style.justifyContent = 'center';
+          this.servicesContainer.style.alignItems = 'center';
+        } catch (e) {}
         return;
       }
 
@@ -142,6 +148,8 @@ class HomePopularServices extends HTMLElement {
     try {
       this.servicesContainer.style.display = 'flex';
       this.servicesContainer.style.flexWrap = 'nowrap';
+      // ensure normal carousel alignment when items exist
+      try { this.servicesContainer.style.justifyContent = 'flex-start'; } catch (e) {}
       this.servicesContainer.style.overflowX = 'auto';
       this.servicesContainer.style.scrollSnapType = 'x mandatory';
       this.servicesContainer.style.gap = '1.5rem';

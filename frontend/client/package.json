@@ -4,7 +4,7 @@
   "private": true,
   "description": "Static client for Super Servicios (agendar-cita)",
   "scripts": {
-    "dev": "live-server --port=3000 --open=agendar-cita.html",
+    "dev": "live-server --port=3000 --open=pages/index.html",
     "build:css": "npx tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --minify",
     "watch:css": "npx tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --watch"
   },

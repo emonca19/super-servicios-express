@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Ubicación - Auto Servicios Express</title>
-  <link rel="stylesheet" href="./assets/css/tailwind.css">
-  <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="bg-gray-50">
   <ubicacion-page></ubicacion-page>
@@ -13,9 +13,9 @@
   <script type="module">
     try {
       await Promise.all([
-        import('./assets/js/components/header/header-component.js'),
-        import('./assets/js/components/footer-component/footer-component.js'),
-        import('./assets/js/components/ubicacion/ubicacion-component.js')
+        import('../assets/js/components/header/header-component.js'),
+        import('../assets/js/components/footer-component/footer-component.js'),
+        import('../assets/js/components/ubicacion/ubicacion-component.js')
       ]);
     } catch (e) { console.error(e); }
   </script>

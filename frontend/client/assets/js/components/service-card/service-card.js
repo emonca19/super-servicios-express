@@ -160,8 +160,8 @@ class ServiceCard extends HTMLElement {
 
         try {
           try { sessionStorage.setItem('pendingService', String(sid)); } catch (e) {}
-          const url = `servicios.html?service=${encodeURIComponent(sid)}&openAuth=1`;
-          window.location.href = url;
+          // If user is not authenticated, open the global auth modal immediately
+          try { window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' })); } catch (e) {}
         } catch (e) {
           try { window.dispatchEvent(new Event('open-auth')); } catch (e) {}
         }

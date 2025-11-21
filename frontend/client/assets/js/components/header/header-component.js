@@ -578,6 +578,12 @@ class HeaderComponent extends HTMLElement {
                             placeholder="+51 912 345 678" />
                     </div>
                     <div>
+                        <label for="global-register-direccion" class="block text-sm font-medium text-gray-700 mb-1.5">Dirección</label>
+                        <input id="global-register-direccion" name="direccion" type="text" autocomplete="street-address"
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="Calle, número, colonia" />
+                    </div>
+                    <div>
                         <label for="global-register-password" class="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
                         <input id="global-register-password" name="password" type="password" autocomplete="new-password" required 
                             class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 

@@ -1,5 +1,5 @@
 /**
- * SSE Toast - Notificaciones toast
+ * SSE Toast - Notificaciones toast (migrated)
  */
 
 class SSEToast extends HTMLElement {
@@ -212,6 +212,34 @@ class SSEToast extends HTMLElement {
   }
 }
 
-// Deprecated root file: forward to new location
-export * from './sse-toast/sse-toast.js';
-export { SSEToast, ToastService } from './sse-toast/sse-toast.js';
+customElements.define('sse-toast', SSEToast);
+
+// Helper para mostrar toasts fácilmente
+export class ToastService {
+  static show(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('sse-toast');
+    toast.setAttribute('message', message);
+    toast.setAttribute('type', type);
+    toast.setAttribute('duration', duration);
+    document.body.appendChild(toast);
+    return toast;
+  }
+
+  static success(message, duration = 3000) {
+    return this.show(message, 'success', duration);
+  }
+
+  static error(message, duration = 4000) {
+    return this.show(message, 'error', duration);
+  }
+
+  static warning(message, duration = 3000) {
+    return this.show(message, 'warning', duration);
+  }
+
+  static info(message, duration = 3000) {
+    return this.show(message, 'info', duration);
+  }
+}
+
+export { SSEToast };
