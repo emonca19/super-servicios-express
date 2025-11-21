@@ -150,7 +150,17 @@ class HeaderComponent extends HTMLElement {
             templateCache.innerHTML = headerTemplate();
         }
 
-        window.addEventListener('open-auth', () => { try { this.showAuthModal('login'); } catch (e) {} });
+        window.addEventListener('open-auth', (ev) => {
+            try {
+                const d = ev && ev.detail;
+                let mode = 'login';
+                if (d) {
+                    if (typeof d === 'string') mode = d;
+                    else if (typeof d === 'object' && d.mode) mode = d.mode;
+                }
+                this.showAuthModal(mode);
+            } catch (e) {}
+        });
 
         window.addEventListener('user-logged-in', (ev) => { try { this.onUserLoggedIn(ev); } catch (e) {} });
    
@@ -161,13 +171,38 @@ class HeaderComponent extends HTMLElement {
         await this.render();
 
         try {
+            this._globalOpenAuthClick = (ev) => {
+                try {
+                    const path = ev.composedPath ? ev.composedPath() : (ev.path || []);
+                    if (path && path.indexOf && (path.indexOf(this) !== -1 || path.indexOf(this.root) !== -1)) return;
+
+                    let el = null;
+                    if (path && path.length) {
+                        for (let i = 0; i < path.length; i++) {
+                            const p = path[i];
+                            if (!p || !p.tagName) continue;
+                            const tag = String(p.tagName).toLowerCase();
+                            if (tag === 'a' || tag === 'button') { el = p; break; }
+                        }
+                    }
+                    if (!el) return;
+                    const txt = (el.textContent || '').trim();
+                    if (/reg[ií]strate/i.test(txt)) {
+                        try { ev.preventDefault(); } catch (e) {}
+                        try { window.dispatchEvent(new CustomEvent('open-auth', { detail: 'register' })); } catch (e) {}
+                    }
+                } catch (e) {}
+            };
+            document.addEventListener('click', this._globalOpenAuthClick, true);
+        } catch (e) {}
+
+        try {
             if (!this._modalObserver) {
                 this._modalObserver = new MutationObserver((mutations) => {
                     try {
                         if (!this._protectModalUntil || Date.now() >= this._protectModalUntil) return;
                         const modal = this.root.querySelector('#global-auth-modal');
                         if (!modal) {
-                            console.debug('[header][observer] modal removed during protection window — re-rendering and scheduling re-open');
                             try {
                                 this.render().then(() => {
                                     try {
@@ -181,7 +216,6 @@ class HeaderComponent extends HTMLElement {
                         }
                         const isHidden = modal.classList.contains('hidden') || modal.style.display === 'none';
                         if (isHidden) {
-                            console.debug('[header][observer] modal hidden during protection window — re-opening');
                             try { modal.classList.remove('hidden'); modal.style.display = 'block'; modal.dataset.open = 'true'; } catch (e) {}
                             try { const first = this.root.querySelector('#global-auth-forms input'); if (first) first.focus(); } catch (e) {}
                         }
@@ -212,7 +246,40 @@ class HeaderComponent extends HTMLElement {
 
     async render() {
         this.root.innerHTML = '';
-        await injectStyles(this.root, '');
+            const componentStyles = `
+                #global-auth-forms .mt-4.pt-4.border-t.border-gray-100.text-center.text-sm {
+                    margin-bottom: 20px !important;
+                }
+                #global-auth-forms .flex.justify-between.items-start.mb-4 {
+                    margin-top: 20px !important;
+                }
+                #global-auth-forms a.text-blue-600.hover\\:underline {
+                    display: block !important;
+                    margin: 16px auto !important;
+                }
+                #global-auth-forms #login-form a.text-blue-600.hover\\:underline {
+                    margin-top: 4px !important;
+                    margin-bottom: 15px !important;
+                }
+                
+                /* APLICA EL ESTILO A TODOS LOS INPUTS DENTRO DE LOS FORMS (LOGIN Y REGISTER) */
+                #global-auth-forms form input {
+                    padding-top: 16px !important;
+                    padding-bottom: 16px !important;
+                    padding-left: 14px !important;
+                    padding-right: 14px !important;
+                    height: 30px !important;
+                    font-size: 15px !important;
+                    border-radius: 10px !important;
+                }
+                
+                /* increase top margin of labels */
+                #global-auth-forms form label {
+                    margin-top: 8px !important;
+                    display: block !important;
+                }
+            `;
+        await injectStyles(this.root, componentStyles);
         this.root.appendChild(templateCache.content.cloneNode(true));
 
         try {
@@ -345,7 +412,10 @@ class HeaderComponent extends HTMLElement {
             if (globalModal) {
                 globalModal.addEventListener('click', (ev) => {
                     try {
-                        if (ev.target === globalModal && globalModal.dataset.open === 'true') {
+                        const card = globalModal.querySelector('div:first-child');
+                        const isOpen = globalModal.dataset.open === 'true';
+                        const clickedOutsideCard = !card || !card.contains(ev.target);
+                        if (isOpen && clickedOutsideCard) {
                             this.hideAuthModal();
                         }
                     } catch (err) { console.warn('[header] globalModal click handler error', err); }
@@ -378,163 +448,213 @@ class HeaderComponent extends HTMLElement {
     }
 
   showAuthModal(mode = 'login') {
-        try {
-            const now = Date.now();
-            if (now - (this._lastModalRenderAt || 0) < 120) {
-                return;
-            }
-            this._lastModalRenderAt = now;
-        } catch (e) {}
-        const modal = this.root.querySelector('#global-auth-modal');
-        const forms = this.root.querySelector('#global-auth-forms');
+    try {
+        const now = Date.now();
+        if (now - (this._lastModalRenderAt || 0) < 120) return;
+        this._lastModalRenderAt = now;
+    } catch (e) {}
+
+    const modal = this.root.querySelector('#global-auth-modal');
+    const forms = this.root.querySelector('#global-auth-forms');
     if (!modal || !forms) return;
 
     const isMobile = window.innerWidth < 768; 
     const modalCard = modal.querySelector('div:first-child');
-    
-        if (isMobile) {
-            modal.classList.remove('bg-slate-900/40');
-            modal.classList.add('flex', 'items-center', 'justify-center', 'p-4');
-            modalCard.className = 'bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl border';
-        } else {
-            modal.classList.remove('flex', 'items-center', 'justify-center', 'p-4');
-            modal.classList.add('bg-slate-900/40');
-            modalCard.className = 'absolute top-24 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border';
-        }
+    const self = this;
 
-                const attachHandlers = () => {
+    if (isMobile) {
+        modal.classList.remove('bg-slate-900/40');
+        modal.classList.add('flex', 'items-center', 'justify-center', 'p-4', 'fixed', 'inset-0', 'z-[9999]', 'bg-slate-900/40');
+        modal.style.position = 'fixed'; 
+        
+        modalCard.className = 'bg-white rounded-2xl w-full max-w-sm p-4 shadow-2xl border relative';
+        modalCard.style.top = ''; 
+        modalCard.style.left = '';
+        modalCard.style.transform = '';
+    } else {
+        modal.classList.remove('flex', 'items-center', 'justify-center', 'p-4');
+        modal.classList.add('fixed', 'inset-0', 'z-[9999]', 'bg-slate-900/40');
+        modal.style.position = 'fixed'; 
+
+        modalCard.className = 'absolute bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border';
+        modalCard.style.top = '3.8rem'; 
+        modalCard.style.left = '50%';
+        modalCard.style.transform = 'translateX(-50%)';
+    }
+
+    
+    const attachHandlers = () => {
+        try {
+            const loginForm = forms.querySelector('#login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    try { e.preventDefault(); e.stopImmediatePropagation(); } catch (err) {}
+                    try { self.handleLogin(e); } catch (err) { console.warn(err); }
+                });
+            }
+            const registerForm = forms.querySelector('#register-form');
+            if (registerForm) registerForm.addEventListener('submit', (e) => self.handleRegister(e));
+        } catch (err) { console.warn(err); }
+    };
+
+    function renderLogin() {
+        forms.innerHTML = `
+            <div style="max-width:360px;margin:0 auto;">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Iniciar sesión</h3>
+                        <p class="text-sm text-gray-500 mt-1">Accede con tu correo y contraseña</p>
+                    </div>
+                </div>
+
+                <div id="global-auth-status" class="mb-4"></div>
+
+                <form id="login-form" class="space-y-4" method="post">
+                    <div>
+                        <label for="global-login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input id="global-login-email" name="email" type="email" autocomplete="email" required 
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 
+                            placeholder="tu@email.com" />
+                    </div>
+                    <div>
+                        <label for="global-login-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                        <input id="global-login-password" name="password" type="password" autocomplete="current-password" required 
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 
+                            placeholder="••••••••" />
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm">
+                            <a href="#" class="text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
+                        </div>
+                    </div>
+                    <button id="global-login-submit" type="submit" style="display:block;width:100%;padding:12px 16px;background:#0f172a;color:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,0.12);font-weight:700" class="w-full text-white">Ingresar</button>
+                </form>
+                <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm">
+                    <button type="button" id="switch-to-register" class="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">¿No tienes cuenta? <span class="font-semibold">Regístrate</span></button>
+                </div>
+            </div>
+        `;
+        attachHandlers();
+        if (self.applyPendingLoginState) self.applyPendingLoginState();
+        
+        const switchBtn = forms.querySelector('#switch-to-register');
+        if (switchBtn) {
+            switchBtn.addEventListener('click', (ev) => { 
+                try { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); } catch (e) {}
+                renderRegister(); 
+            });
+        }
+    }
+
+    function renderRegister() {
+        forms.innerHTML = `
+            <div style="max-width:360px;margin:0 auto;">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Crear cuenta</h3>
+                        <p class="text-sm text-gray-500 mt-1">Regístrate en segundos</p>
+                    </div>
+                </div>
+
+                <div id="global-auth-status" class="mb-4 text-sm text-gray-600"></div>
+
+                <form id="register-form" class="space-y-3">
+                    <div>
+                        <label for="global-register-nombre" class="block text-sm font-medium text-gray-700 mb-1.5">Nombre completo</label>
+                        <input id="global-register-nombre" name="nombre" type="text" autocomplete="name" required 
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 
+                            placeholder="Juan Pérez" />
+                    </div>
+                    <div>
+                        <label for="global-register-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                        <input id="global-register-email" name="email" type="email" autocomplete="email" required 
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 
+                            placeholder="tu@email.com" />
+                    </div>
+                    <div>
+                        <label for="global-register-telefono" class="block text-sm font-medium text-gray-700 mb-1.5">Teléfono</label>
+                        <input id="global-register-telefono" name="telefono" type="tel" autocomplete="tel" required 
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 
+                            placeholder="+51 912 345 678" />
+                    </div>
+                    <div>
+                        <label for="global-register-password" class="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+                        <input id="global-register-password" name="password" type="password" autocomplete="new-password" required 
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" 
+                            placeholder="••••••••" />
+                    </div>
+                    <button type="submit" style="display:block;width:100%;padding:12px 16px;background:#0f172a;color:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,0.12);font-weight:700;margin-top:22px;" class="w-full text-white mt-4">Crear cuenta</button>
+                </form>
+                <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm">
+                    <button type="button" id="switch-to-login" class="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">¿Ya tienes cuenta? <span class="font-semibold">Inicia sesión</span></button>
+                </div>
+            </div>
+        `;
+        attachHandlers();
+        if (self.applyPendingLoginState) self.applyPendingLoginState();
+        
+        const switchBtn = forms.querySelector('#switch-to-login');
+        if (switchBtn) {
+            switchBtn.addEventListener('click', (ev) => { 
+                try { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); } catch (e) {}
+                renderLogin(); 
+            });
+        }
+    }
+
+    if (mode === 'register') renderRegister(); else renderLogin();
+    
+    modal.classList.remove('hidden');
+    modal.style.display = 'block'; 
+    try { modal.dataset.open = 'true'; } catch (e) {}
+
+    try {
+        if (this._outsideClickHandler) { try { document.removeEventListener('click', this._outsideClickHandler, true); } catch (e) {} this._outsideClickHandler = null; }
+        if (this._escHandler) { try { document.removeEventListener('keydown', this._escHandler); } catch (e) {} this._escHandler = null; }
+
+        const card = modal.querySelector('div:first-child');
+        this._outsideClickHandler = (ev) => {
             try {
-                const loginForm = forms.querySelector('#login-form');
-                console.debug('[header] attachHandlers loginForm found:', !!loginForm);
-                if (loginForm) {
-                    loginForm.addEventListener('submit', (e) => {
-                        try {
-                            e.preventDefault();
-                            e.stopImmediatePropagation();
-                        } catch (err) {}
-                        try { this.handleLogin(e); } catch (err) { console.warn('[header] submit listener error', err); }
-                    });
-                }
-                const registerForm = forms.querySelector('#register-form');
-                console.debug('[header] attachHandlers registerForm found:', !!registerForm);
-                if (registerForm) registerForm.addEventListener('submit', (e) => this.handleRegister(e));
-                const closeTop = forms.querySelector('#auth-close-top');
-                console.debug('[header] attachHandlers closeTop found:', !!closeTop);
-                if (closeTop) closeTop.addEventListener('click', () => this.hideAuthModal());
+                const path = ev.composedPath ? ev.composedPath() : (ev.path || []);
+                const clickedInsideCard = card && path && path.indexOf(card) !== -1;
+                if (!clickedInsideCard) this.hideAuthModal();
             } catch (err) {
-                console.warn('[header] attachHandlers error', err);
+                try { if (card && !card.contains(ev.target)) this.hideAuthModal(); } catch (e) {}
             }
         };
 
-        const renderLogin = () => {
-                        forms.innerHTML = `
-                            <div style="max-width:360px;margin:0 auto;">
-                                        <div class="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h3 class="text-lg font-semibold text-gray-900">Iniciar sesión</h3>
-                                                    <p class="text-sm text-gray-500 mt-1">Accede con tu correo y contraseña</p>
-                                                </div>
-                                                <button id="auth-close-top" class="text-gray-400 hover:text-gray-700 text-2xl font-light leading-none" aria-label="Cerrar">×</button>
-                                        </div>
+        setTimeout(() => {
+            try { document.addEventListener('click', this._outsideClickHandler, true); } catch (e) {}
+        }, 50);
 
-                                        <div id="global-auth-status" class="mb-4"></div>
+        this._escHandler = (ev) => { try { if (ev.key === 'Escape' || ev.key === 'Esc') this.hideAuthModal(); } catch (e) {} };
+        document.addEventListener('keydown', this._escHandler);
+    } catch (e) {}
 
-                                                        <form id="login-form" class="space-y-4" method="post">
-                                                                <div>
-                                                                    <label for="global-login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                                                    <input id="global-login-email" name="email" type="email" autocomplete="email" required class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="tu@email.com" />
-                                                                </div>
-                                                                <div>
-                                                                    <label for="global-login-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                                                                    <input id="global-login-password" name="password" type="password" autocomplete="current-password" required class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="••••••••" />
-                                                                </div>
-                                                                <div class="flex items-center justify-between">
-                                                                    <div class="text-sm">
-                                                                        <a href="#" class="text-blue-600 hover:underline">¿Olvidaste tu contraseña?</a>
-                                                                    </div>
-                                                                </div>
-                                                                                        <button id="global-login-submit" type="submit" style="display:block;width:100%;padding:12px 16px;background:#0f172a;color:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,0.12);font-weight:700" class="w-full text-white">Ingresar</button>
-                                                        </form>
-                                        <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm">
-                                                <button id="switch-to-register" class="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">¿No tienes cuenta? <span class="font-semibold">Regístrate</span></button>
-                                        </div>
-                                </div>
-                        `;
-                              attachHandlers();
-                              this.applyPendingLoginState();
-      const switchBtn = forms.querySelector('#switch-to-register');
-      if (switchBtn) switchBtn.addEventListener('click', () => renderRegister());
-    };
-
-        const renderRegister = () => {
-                        forms.innerHTML = `
-                            <div style="max-width:360px;margin:0 auto;">
-                                        <div class="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h3 class="text-lg font-semibold text-gray-900">Crear cuenta</h3>
-                                                    <p class="text-sm text-gray-500 mt-1">Regístrate en segundos</p>
-                                                </div>
-                                                <button id="auth-close-top" class="text-gray-400 hover:text-gray-700 text-2xl font-light leading-none" aria-label="Cerrar">×</button>
-                                        </div>
-
-                                        <div id="global-auth-status" class="mb-4 text-sm text-gray-600"></div>
-
-                                        <form id="register-form" class="space-y-3">
-                                                <div>
-                                                    <label for="global-register-nombre" class="block text-sm font-medium text-gray-700 mb-1.5">Nombre completo</label>
-                                                    <input id="global-register-nombre" name="nombre" type="text" autocomplete="name" required class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="Juan Pérez" />
-                                                </div>
-                                                <div>
-                                                    <label for="global-register-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                                                    <input id="global-register-email" name="email" type="email" autocomplete="email" required class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="tu@email.com" />
-                                                </div>
-                                                <div>
-                                                    <label for="global-register-telefono" class="block text-sm font-medium text-gray-700 mb-1.5">Teléfono</label>
-                                                    <input id="global-register-telefono" name="telefono" type="tel" autocomplete="tel" required class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="+51 912 345 678" />
-                                                </div>
-                                                <div>
-                                                    <label for="global-register-password" class="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
-                                                    <input id="global-register-password" name="password" type="password" autocomplete="new-password" required class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="••••••••" />
-                                                </div>
-                                                <button type="submit" class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-150 text-sm">Crear cuenta</button>
-                                        </form>
-                                        <div class="mt-4 pt-4 border-t border-gray-100 text-center text-sm">
-                                                <button id="switch-to-login" class="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">¿Ya tienes cuenta? <span class="font-semibold">Inicia sesión</span></button>
-                                        </div>
-                                </div>
-                        `;
-      attachHandlers();
-      this.applyPendingLoginState();
-      const switchBtn = forms.querySelector('#switch-to-login');
-      if (switchBtn) switchBtn.addEventListener('click', () => renderLogin());
-    };
-
-    this._renderLoginForm = renderLogin;
-    if (mode === 'register') renderRegister(); else renderLogin();
-    modal.classList.remove('hidden');
-    modal.style.display = 'block';
-    try { modal.dataset.open = 'true'; } catch (e) {}
     try { setTimeout(() => { const first = forms.querySelector('input'); if (first) first.focus(); }, 30); } catch (e) {}
-    }
-        hideAuthModal() {
-            if (this._suppressHide) {
-                console.debug('[header] hideAuthModal suppressed due to login in progress');
+  }
+
+    hideAuthModal() {
+        if (this._suppressHide) {
+            console.debug('[header] hideAuthModal suppressed due to login in progress');
+            return;
+        }
+        try {
+            if (this._protectModalUntil && Date.now() < this._protectModalUntil) {
                 return;
             }
-            try {
-                if (this._protectModalUntil && Date.now() < this._protectModalUntil) {
-                    return;
-                }
-            } catch (e) {}
-                try { this._pendingLoginError = null; this._pendingLoginValues = null; } catch (e) {}
-            const modal = this.root.querySelector('#global-auth-modal');
-                const forms = this.root.querySelector('#global-auth-forms');
-                if (!modal) return;
-                try { modal.dataset.open = 'false'; modal.removeAttribute('data-open'); } catch (e) {}
-                modal.classList.add('hidden');
-                modal.style.display = 'none';
-                if (forms) forms.innerHTML = '';
-        }
+        } catch (e) {}
+            try { this._pendingLoginError = null; this._pendingLoginValues = null; } catch (e) {}
+        const modal = this.root.querySelector('#global-auth-modal');
+            const forms = this.root.querySelector('#global-auth-forms');
+            if (!modal) return;
+            try { modal.dataset.open = 'false'; modal.removeAttribute('data-open'); } catch (e) {}
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            if (forms) forms.innerHTML = '';
+            try { if (this._outsideClickHandler) { this.root.removeEventListener('click', this._outsideClickHandler); this._outsideClickHandler = null; } } catch (e) {}
+            try { if (this._escHandler) { document.removeEventListener('keydown', this._escHandler); this._escHandler = null; } } catch (e) {}
+    }
 
     async handleLogin(event) {
         this._suppressHide = true;
