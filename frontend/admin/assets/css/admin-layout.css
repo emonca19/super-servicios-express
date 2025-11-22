@@ -1,0 +1,47 @@
+:root{
+	--bg-1: linear-gradient(135deg,#f7f9fc 0%,#eef2f7 100%);
+	--card-bg: #ffffff;
+	--accent: #0ea5a4; 
+	--accent-700: #0b8b88;
+	--muted: #6b7280;
+	--radius: 12px;
+	--shadow: 0 8px 30px rgba(16,24,40,0.08);
+	--glass: rgba(255,255,255,0.6);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111827}
+body{background:var(--bg-1);display:flex;align-items:center;justify-content:center}
+
+.login-page{width:100%;min-height:100vh;padding:40px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+.login-card{width:100%;max-width:420px;background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;display:flex;flex-direction:column;align-items:stretch;gap:18px}
+
+.brand{display:flex;flex-direction:column;align-items:center;text-align:center;padding-bottom:6px}
+.brand img{width:56px;height:56px;object-fit:contain;margin-bottom:8px}
+.brand h1{font-size:20px;margin:0;color:#0f172a}
+.brand .subtitle{margin:0;margin-top:6px;color:var(--muted);font-size:13px}
+
+.login-form{display:flex;flex-direction:column;gap:12px}
+.login-form input{height:44px;padding:10px 12px;border-radius:10px;border:1px solid #e6e9ee;background:transparent;font-size:15px}
+.login-form input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(14,165,164,0.08)}
+
+.btn-primary{height:46px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-700));color:white;font-weight:600;cursor:pointer;font-size:15px}
+.btn-primary:active{transform:translateY(1px)}
+.btn-primary[disabled]{opacity:0.7;cursor:default}
+
+.help{display:flex;justify-content:flex-end}
+.help a{font-size:13px;color:var(--accent);text-decoration:none}
+.help a:hover{text-decoration:underline}
+
+.login-footer{margin-top:18px;color:var(--muted);font-size:13px}
+
+.visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px 1px 1px 1px);white-space:nowrap}
+
+@media (max-width:480px){
+	.login-card{padding:20px;border-radius:10px}
+	.brand h1{font-size:18px}
+}
+
+.login-page::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(rgba(15,23,42,0.02) 1px, transparent 1px);background-size:20px 20px}
+
