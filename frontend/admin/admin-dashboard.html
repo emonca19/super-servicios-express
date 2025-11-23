@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,11 +12,7 @@
   <link rel="stylesheet" href="../client/assets/css/tailwind.css" />
 
   <!-- Favicon -->
-  <link
-    rel="icon"
-    href="../client/assets/images/favicon.svg"
-    type="image/svg+xml"
-  />
+  <link rel="icon" href="../client/assets/images/favicon.svg" type="image/svg+xml" />
 
   <!-- Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,21 +29,21 @@
     }
   </style>
 </head>
-<body class="bg-slate-900">
-  <div class="min-h-screen flex">
 
-    <!-- SIDEBAR (web component) -->
+<body class="bg-[#F5F7FA]">
+  <!-- LAYOUT GENERAL: SIDEBAR + CONTENIDO -->
+  <div class="min-h-screen flex">
+    <!-- SIDEBAR -->
     <admin-sidebar></admin-sidebar>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-1 bg-[#F5F7FA] flex flex-col">
-
+    <main class="flex-1 flex flex-col">
       <!-- BARRA SUPERIOR -->
       <header
-        class="h-16 flex items-center justify-between px-8 xl:px-12 border-b border-slate-200 bg-white"
+        class="h-16 flex items-center justify-between px-8 2xl:px-12 border-b border-slate-200 bg-white"
       >
         <div>
-          <h1 class="text-xl font-semibold text-slate-900">Dashboard</h1>
+          <h1 class="text-2xl font-semibold text-slate-900">Dashboard</h1>
           <p class="text-xs text-slate-500">Resumen de la operación del día</p>
         </div>
 
@@ -67,23 +63,21 @@
         </div>
       </header>
 
-      <!-- CONTENIDO SCROLLEABLE -->
-      <section
-        class="flex-1 px-8 xl:px-12 py-8 overflow-y-auto"
-      >
-        <!-- Limitar un poco el ancho pero usando casi toda la pantalla -->
-        <div class="max-w-7xl mx-auto space-y-8">
+      <!-- CONTENIDO -->
+      <section class="flex-1 px-8 2xl:px-12 py-8 overflow-y-auto">
+        <!-- OJO: ya no hay max-w, esto se va a todo el ancho -->
+        <div class="w-full space-y-8">
 
-          <!-- CARDS RESUMEN -->
+          <!-- CARDS RESUMEN (más grandes y llenando mejor) -->
           <section
-            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
+            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
             aria-label="Resumen del día"
           >
             <!-- Citas hoy -->
             <article
-              class="bg-white rounded-2xl shadow-sm border border-slate-200 pt-4 pb-5 px-6 flex flex-col justify-between"
+              class="bg-white rounded-2xl shadow-sm border border-slate-200 py-5 px-6 flex flex-col justify-between min-h-[130px]"
             >
-              <div class="flex items-start justify-between mb-3">
+              <div class="flex items-start justify-between mb-1">
                 <div>
                   <p
                     class="text-[11px] uppercase tracking-[0.18em] text-slate-500"
@@ -98,18 +92,17 @@
                   </p>
                 </div>
                 <div
-                  class="w-9 h-9 rounded-xl border-t-4 border-orange-500 flex items-center justify-center text-orange-500 text-xl"
+                  class="w-10 h-10 rounded-xl border-t-4 border-orange-500 flex items-center justify-center text-orange-500 text-xl"
                 >
-                  📅
                 </div>
               </div>
             </article>
 
             <!-- Ingresos hoy -->
             <article
-              class="bg-white rounded-2xl shadow-sm border border-slate-200 pt-4 pb-5 px-6 flex flex-col justify-between"
+              class="bg-white rounded-2xl shadow-sm border border-slate-200 py-5 px-6 flex flex-col justify-between min-h-[130px]"
             >
-              <div class="flex items-start justify-between mb-3">
+              <div class="flex items-start justify-between mb-1">
                 <div>
                   <p
                     class="text-[11px] uppercase tracking-[0.18em] text-slate-500"
@@ -124,7 +117,7 @@
                   </p>
                 </div>
                 <div
-                  class="w-9 h-9 rounded-xl border-t-4 border-emerald-500 flex items-center justify-center text-emerald-500 text-xl"
+                  class="w-10 h-10 rounded-xl border-t-4 border-emerald-500 flex items-center justify-center text-emerald-500 text-xl"
                 >
                   💲
                 </div>
@@ -133,9 +126,9 @@
 
             <!-- Clientes nuevos -->
             <article
-              class="bg-white rounded-2xl shadow-sm border border-slate-200 pt-4 pb-5 px-6 flex flex-col justify-between"
+              class="bg-white rounded-2xl shadow-sm border border-slate-200 py-5 px-6 flex flex-col justify-between min-h-[130px]"
             >
-              <div class="flex items-start justify-between mb-3">
+              <div class="flex items-start justify-between mb-1">
                 <div>
                   <p
                     class="text-[11px] uppercase tracking-[0.18em] text-slate-500"
@@ -150,18 +143,18 @@
                   </p>
                 </div>
                 <div
-                  class="w-9 h-9 rounded-xl border-t-4 border-blue-500 flex items-center justify-center text-blue-500 text-xl"
+                  class="w-10 h-10 rounded-xl border-t-4 border-blue-500 flex items-center justify-center text-blue-500 text-xl"
                 >
                   👤
                 </div>
               </div>
             </article>
 
-            <!-- Ocupación -->
+            <!-- Ocupación (ocupa 2 columnas en pantallas grandes) -->
             <article
-              class="bg-white rounded-2xl shadow-sm border border-slate-200 pt-4 pb-5 px-6 flex flex-col justify-between"
+              class="bg-white rounded-2xl shadow-sm border border-slate-200 py-5 px-6 flex flex-col justify-between min-h-[130px] xl:col-span-3 md:col-span-2"
             >
-              <div class="flex items-start justify-between mb-3">
+              <div class="flex items-start justify-between mb-1">
                 <div>
                   <p
                     class="text-[11px] uppercase tracking-[0.18em] text-slate-500"
@@ -176,18 +169,17 @@
                   </p>
                 </div>
                 <div
-                  class="w-9 h-9 rounded-xl border-t-4 border-amber-400 flex items-center justify-center text-amber-400 text-xl"
+                  class="w-10 h-10 rounded-xl border-t-4 border-amber-400 flex items-center justify-center text-amber-400 text-xl"
                 >
-                  📈
                 </div>
               </div>
             </article>
           </section>
 
-          <!-- TABLA DE CITAS -->
-          <section class="space-y-4">
+          <!-- TABLA DE CITAS (más grande y alta) -->
+          <section class="space-y-3">
             <div>
-              <h2 class="text-lg font-semibold text-slate-900">
+              <h2 class="text-xl font-semibold text-slate-900">
                 Citas Programadas Hoy
               </h2>
               <p class="text-sm text-slate-500">
@@ -199,17 +191,17 @@
               class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
             >
               <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
+                <table class="w-full text-sm">
                   <thead
                     class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"
                   >
                     <tr>
-                      <th class="px-6 py-3 text-left font-medium">Hora</th>
-                      <th class="px-6 py-3 text-left font-medium">Cliente</th>
-                      <th class="px-6 py-3 text-left font-medium">Vehículo</th>
-                      <th class="px-6 py-3 text-left font-medium">Servicio</th>
-                      <th class="px-6 py-3 text-left font-medium">Estado</th>
-                      <th class="px-6 py-3 text-right font-medium">
+                      <th class="px-6 py-4 text-left font-medium">Hora</th>
+                      <th class="px-6 py-4 text-left font-medium">Cliente</th>
+                      <th class="px-6 py-4 text-left font-medium">Vehículo</th>
+                      <th class="px-6 py-4 text-left font-medium">Servicio</th>
+                      <th class="px-6 py-4 text-left font-medium">Estado</th>
+                      <th class="px-6 py-4 text-right font-medium">
                         Acciones
                       </th>
                     </tr>
@@ -219,8 +211,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="text-xs font-semibold text-blue-600"
-                          >09:00 AM</span
-                        >
+                        >09:00 AM</span>
                       </td>
                       <td class="px-6 py-4 text-slate-800">Juan García</td>
                       <td class="px-6 py-4 text-slate-600">
@@ -232,8 +223,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700"
-                          >Completada</span
-                        >
+                        >Completada</span>
                       </td>
                       <td
                         class="px-6 py-4 space-x-2 whitespace-nowrap text-right"
@@ -260,8 +250,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="text-xs font-semibold text-blue-600"
-                          >10:30 AM</span
-                        >
+                        >10:30 AM</span>
                       </td>
                       <td class="px-6 py-4 text-slate-800">María López</td>
                       <td class="px-6 py-4 text-slate-600">
@@ -273,8 +262,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700"
-                          >En proceso</span
-                        >
+                        >En proceso</span>
                       </td>
                       <td
                         class="px-6 py-4 space-x-2 whitespace-nowrap text-right"
@@ -301,8 +289,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="text-xs font-semibold text-blue-600"
-                          >12:00 PM</span
-                        >
+                        >12:00 PM</span>
                       </td>
                       <td class="px-6 py-4 text-slate-800">Pedro Ramírez</td>
                       <td class="px-6 py-4 text-slate-600">
@@ -314,8 +301,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"
-                          >Pendiente</span
-                        >
+                        >Pendiente</span>
                       </td>
                       <td
                         class="px-6 py-4 space-x-2 whitespace-nowrap text-right"
@@ -342,8 +328,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="text-xs font-semibold text-blue-600"
-                          >02:30 PM</span
-                        >
+                        >02:30 PM</span>
                       </td>
                       <td class="px-6 py-4 text-slate-800">Ana Martínez</td>
                       <td class="px-6 py-4 text-slate-600">
@@ -355,8 +340,7 @@
                       <td class="px-6 py-4">
                         <span
                           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700"
-                          >Pendiente</span
-                        >
+                        >Pendiente</span>
                       </td>
                       <td
                         class="px-6 py-4 space-x-2 whitespace-nowrap text-right"
