@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Cita - Auto Servicios Express</title>
+    <meta name="api-base" content="http://localhost:8000/api">
+    <link rel="stylesheet" href="../assets/css/tailwind.css">
+    <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <header-component></header-component>
+
+    <main class="min-h-screen py-16">
+        <appointment-shell></appointment-shell>
+    </main>
+
+    <footer-component></footer-component>
+
+    <script type="module">
+      import('../assets/js/pages/appointments-entry.js').catch((e)=>console.error('[entry] appointments load', e));
+    </script>
+</body>
+</html>
