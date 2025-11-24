@@ -55,19 +55,27 @@ enableDragging() {
     const cursorX = e.clientX;
     const threshold = this.fullWidth - 40;
 
-    // Smooth transition to slim mode
     if (cursorX < threshold && !this.isSlim) {
       this.sidebar.classList.add("slim");
       this.sidebar.style.width = this.slimWidth + "px";
       this.isSlim = true;
+      
+      this.dispatchEvent(new CustomEvent('sidebar:modechange', {
+        detail: { slim: true },
+        bubbles: true
+      }));
       return;
     }
 
-    // Smooth transition to normal mode
     if (cursorX >= threshold && this.isSlim) {
       this.sidebar.classList.remove("slim");
       this.sidebar.style.width = this.fullWidth + "px";
       this.isSlim = false;
+      
+      this.dispatchEvent(new CustomEvent('sidebar:modechange', {
+        detail: { slim: false },
+        bubbles: true
+      }));
       return;
     }
   });

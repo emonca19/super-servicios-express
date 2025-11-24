@@ -3,7 +3,6 @@ export const adminSidebarStyles = `
   display: block;
 }
 
-/* SIDEBAR */
 .sidebar {
   position: fixed;
   top: 0;
@@ -22,7 +21,6 @@ export const adminSidebarStyles = `
   width: 70px !important;
 }
 
-/* RESIZE HANDLE */
 #resize-handle {
   position: absolute;
   top: 0;
@@ -33,9 +31,6 @@ export const adminSidebarStyles = `
   z-index: 50;
 }
 
-/* ========================= */
-/* LOGO COMO NAV-ITEM        */
-/* ========================= */
 
 .logo-section {
   padding: 0;
@@ -61,7 +56,6 @@ export const adminSidebarStyles = `
   background: rgba(255,255,255,.12);
 }
 
-/* Los iconos del logo y navegación permanecen fijos */
 .logo-nav .icon,
 .nav-item .icon {
   width: 24px;
@@ -88,16 +82,15 @@ export const adminSidebarStyles = `
 }
 
 .label-group .sub {
-  font-size: 9px;        /* más pequeño */
+  font-size: 9px;        
   opacity: .7;
-  margin-top: -2px;      /* ajusta la alineación */
-  line-height: 1.1;      /* compacta como la imagen */
-  letter-spacing: 0.2px; /* mejora la lectura como el original */
+  margin-top: -2px;      
+  line-height: 1.1;      
+  letter-spacing: 0.2px; 
   margin-left:5px;
 }
 
 
-/* SLIM MODE - solo ocultamos el texto del logo */
 .sidebar.slim .label-group {
   opacity: 0;
   transform: translateX(-10px);
@@ -109,9 +102,6 @@ export const adminSidebarStyles = `
   padding: 0 1rem;
 }
 
-/* ========================= */
-/* NAV ITEMS                 */
-/* ========================= */
 
 .nav-container {
   padding-top: 1.5rem;
@@ -134,19 +124,43 @@ export const adminSidebarStyles = `
   gap: 1rem;
   border-radius: 8px;
   white-space: nowrap;
+  position: relative;
 }
 
 .nav-item:hover {
   background: rgba(255,255,255,.12);
 }
 
-/* Los iconos NO se mueven - posición fija */
+.nav-item.active {
+  background: rgba(255, 152, 0, 0.15) !important;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: #FF9800;
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-item.active .label {
+  color: #FF9800 !important;
+  font-weight: 600;
+}
+
+.nav-item.active .icon {
+  filter: brightness(0) saturate(100%) invert(67%) sepia(90%) saturate(1322%) hue-rotate(360deg) brightness(102%) contrast(105%);
+}
+
 .nav-item .icon {
   transition: none !important;
   transform: translateX(0) !important;
 }
 
-/* Labels con transición suave */
 .nav-item .label {
   color: #dfe7ef;
   font-size: 15px;
@@ -165,13 +179,10 @@ export const adminSidebarStyles = `
   color: white;
 }
 
-/* Slim mode - solo ocultamos labels */
 .sidebar.slim .nav-item {
   justify-content: flex-start;
   padding: 0 1rem;
 }
-
-
 
 .sidebar.slim .nav-item .label {
   opacity: 0;
@@ -180,9 +191,11 @@ export const adminSidebarStyles = `
   overflow: hidden;
 }
 
-/* ========================= */
-/* FOOTER - MEJORADO         */
-/* ========================= */
+.sidebar.slim .nav-item.active::before {
+  height: 40%;
+  width: 3px;
+}
+
 
 .footer {
   height: 110px;
@@ -196,7 +209,6 @@ export const adminSidebarStyles = `
   overflow: hidden;
 }
 
-/* Contenedor para textos del footer */
 .footer-content {
   display: flex;
   flex-direction: column;
@@ -208,7 +220,7 @@ export const adminSidebarStyles = `
   transform: translateX(0);
 }
 
-/* Footer text styling */
+
 .footer-text {
   display: block !important;
   color: #dfe7ef;
@@ -241,11 +253,7 @@ export const adminSidebarStyles = `
   opacity: 1;
 }
 
-/* ========================= */
-/* LOGOUT WRAPPER - NUEVO    */
-/* ========================= */
 
-/* Wrapper para el logout en modo slim */
 .logout-wrapper {
   position: absolute;
   left: 0;
@@ -261,20 +269,20 @@ export const adminSidebarStyles = `
   transition: background-color 0.2s ease;
   padding: 0 1rem;
   box-sizing: border-box;
+  text-decoration: none;
 }
-/* Icono logout */
+
 .logout-icon {
   width: 24px;
   height: 24px;
   opacity: 0;
   visibility: hidden;
   transition: 
-    opacity 0.4s ease 0.15s, /* Más lento y con delay */
-    visibility 0.4s ease 0.15s; /* Mismo timing para visibilidad */
+    opacity 0.4s ease 0.15s,
+    visibility 0.4s ease 0.15s;
   flex-shrink: 0;
 }
 
-/* Hover effect igual que los nav-items */
 .logout-wrapper:hover {
   background: rgba(255,255,255,.12);
 }
@@ -283,49 +291,40 @@ export const adminSidebarStyles = `
   opacity: 0.9;
 }
 
-/* Slim: mostramos icono logout y ocultamos textos */
-.sidebar.slim .footer-content {
-  opacity: 0 !important;
-  transform: translateX(-5px);
-  visibility: hidden;
-  transition-delay: -1s;
-}
-
-/* SLIM: mostrar icono con un pequeño retraso suave */
 .sidebar.slim .logout-icon {
   opacity: 1;
   visibility: visible;
-  transition-delay: .2s;
 }
 
-/* NORMAL: mostrar texto con un pequeño retraso bonito */
-.sidebar:not(.slim) .footer-content {
-  opacity: 1;
-  transform: translateX(0);
-  visibility: visible;
-  transition-delay: 0.12s;
-}
-
-/* NORMAL: ocultar icono logout suavemente */
 .sidebar:not(.slim) .logout-wrapper {
   display: none;
 }
-
-.sidebar.slim .logout-wrapper {
-  width: 100%;
-  padding: 0 1rem; /* Mismo padding horizontal que los nav-items */
-  justify-content: flex-start; /* Icono alineado a la izquierda */
-}
-
-.
 
 .sidebar.slim .logout-wrapper:hover .logout-icon {
   opacity: 1;
 }
 
-/* ========================= */
-/* ANIMACIONES MEJORADAS     */
-/* ========================= */
+.sidebar.slim .footer-content {
+  opacity: 0 !important;
+  transform: translateX(-5px);
+  visibility: hidden;
+  transition: 
+    opacity 0.00s ease 0.00s,  /* Desaparece rápido con poco delay */
+    transform 0.25s ease 0s,
+    visibility 0.25s ease 0s;
+}
+
+.sidebar:not(.slim) .footer-content {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
+  transition: 
+    opacity 0.3s ease 0.1s,
+    transform 0.3s ease 0.1s,
+    visibility 0.3s ease 0.1s;
+}
+
+
 
 .sidebar,
 .logo-nav,
@@ -342,7 +341,6 @@ export const adminSidebarStyles = `
     visibility .3s ease;
 }
 
-/* Eliminamos transiciones de iconos */
 .nav-item .icon,
 .logo-nav .icon {
   transition: none;
@@ -360,27 +358,26 @@ export const adminSidebarStyles = `
   transform: translateX(0);
 }
 
-/* === Scrollbar moderno === */
+
 .nav-container::-webkit-scrollbar {
-  width: 6px;               /* delgado y elegante */
+  width: 6px;               
 }
 
 .nav-container::-webkit-scrollbar-track {
-  background: transparent;   /* sin fondo */
+  background: transparent;   
 }
 
 .nav-container::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.25);  /* color suave */
+  background: rgba(255,255,255,0.25);  
   border-radius: 20px;
 }
 
 .nav-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.35);  /* hover suave */
+  background: rgba(255,255,255,0.35); 
 }
 
-/* Firefox */
 .nav-container {
-  scrollbar-width: thin;
+  scrollbar-width: medium;
   scrollbar-color: rgba(255,255,255,0.25) transparent;
 }
 `;
