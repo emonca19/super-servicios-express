@@ -36,7 +36,7 @@ class AdminSidebar extends HTMLElement {
   }
 
  
- enableDragging() {
+enableDragging() {
   let dragging = false;
 
   this.handle.addEventListener("mousedown", () => {
@@ -53,10 +53,9 @@ class AdminSidebar extends HTMLElement {
     if (!dragging) return;
 
     const cursorX = e.clientX;
+    const threshold = this.fullWidth - 40;
 
-    const threshold = this.fullWidth - 40; 
-
-    // Cambiar a slim
+    // Smooth transition to slim mode
     if (cursorX < threshold && !this.isSlim) {
       this.sidebar.classList.add("slim");
       this.sidebar.style.width = this.slimWidth + "px";
@@ -64,7 +63,7 @@ class AdminSidebar extends HTMLElement {
       return;
     }
 
-    // Cambiar a extendido
+    // Smooth transition to normal mode
     if (cursorX >= threshold && this.isSlim) {
       this.sidebar.classList.remove("slim");
       this.sidebar.style.width = this.fullWidth + "px";
