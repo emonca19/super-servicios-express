@@ -1,9 +1,9 @@
-(async function() {
+(async function () {
   try {
     await Promise.all([
       import('../components/header/header-component.js'),
       import('../components/footer-component/footer-component.js'),
-      import('../../js/microfrontends/home/index.js')
+      import('../microfrontends/home/index.js')
     ]);
     console.log('[home] Microfrontends cargados');
   } catch (error) {

@@ -160,11 +160,5 @@ class ApiClient {
 
 const apiClient = new ApiClient();
 
-try {
-  console.debug('[api-client] loaded, instance:', apiClient);
-  console.debug('[api-client] has get:', typeof apiClient.get === 'function');
-} catch (e) {
-}
-
 export { ApiClient };
 export default apiClient;

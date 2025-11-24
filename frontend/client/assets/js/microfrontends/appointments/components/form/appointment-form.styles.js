@@ -1,4 +1,11 @@
-﻿const appointmentFormStyles = `
+﻿/*
+  appointment-form.styles.js
+
+  Contiene estilos CSS que se inyectan dentro del `shadow root` del
+  componente. Al mantener estilos separados se facilita la lectura y
+  permite reutilizar o modificar el aspecto sin tocar la lógica.
+*/
+const appointmentFormStyles = `
   :host { display: block; }
   :host([hidden]) { display: none; }
 

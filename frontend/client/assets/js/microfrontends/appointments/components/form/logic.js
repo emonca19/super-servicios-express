@@ -1,6 +1,18 @@
-// Utility functions for appointment-form
-// These are pure helpers intended to be imported from the component
+/*
+  logic.js
 
+  Funciones auxiliares (puras) usadas por `appointment-form.component.js`.
+  - Están separadas porque no dependen del DOM: son fáciles de probar y
+    mantener.
+  - Aquí hay helpers para formatear horas, parsear fechas y filtrar
+    horarios especiales (p. ej. sábados y domingos).
+*/
+
+/**
+ * formatDisplayHour(slot)
+ * - slot: string en formato "HH:MM" (p. ej. "09:00")
+ * Devuelve una cadena legible con AM/PM, p. ej. "09:00 AM".
+ */
 export function formatDisplayHour(slot) {
   if (!slot) return '';
   const [hhStr, mm = '00'] = String(slot).split(':');
@@ -11,6 +23,11 @@ export function formatDisplayHour(slot) {
   return `${String(displayHour).padStart(2, '0')}:${mm} ${ampm}`;
 }
 
+/**
+ * parseDateParts(dateStr)
+ * - dateStr: 'YYYY-MM-DD'
+ * Devuelve un objeto { year, month, day } o null si el string no es válido.
+ */
 export function parseDateParts(dateStr) {
   if (!dateStr) return null;
   const parts = String(dateStr).split('-').map((p) => Number(p));
@@ -18,6 +35,10 @@ export function parseDateParts(dateStr) {
   return { year: parts[0], month: parts[1], day: parts[2] };
 }
 
+/**
+ * isSunday(dateStr)
+ * - Retorna true si la fecha indicada cae en domingo.
+ */
 export function isSunday(dateStr) {
   try {
     const p = parseDateParts(dateStr);
@@ -29,6 +50,10 @@ export function isSunday(dateStr) {
   }
 }
 
+/**
+ * isSaturday(dateStr)
+ * - Retorna true si la fecha indicada es sábado.
+ */
 export function isSaturday(dateStr) {
   try {
     const p = parseDateParts(dateStr);
@@ -40,6 +65,10 @@ export function isSaturday(dateStr) {
   }
 }
 
+/**
+ * getDefaultSlots()
+ * - Devuelve la lista de horas por defecto cuando el backend no responde.
+ */
 export function getDefaultSlots() {
   return [
     '08:00', '09:00', '10:00', '11:00', '12:00',
@@ -47,6 +76,11 @@ export function getDefaultSlots() {
   ];
 }
 
+/**
+ * filterSaturdaySlots(slots)
+ * - Filtra las franjas horarias para ajustarlas al horario de sábados
+ *   (p. ej. sólo hasta las 14:00).
+ */
 export function filterSaturdaySlots(slots = []) {
   return (Array.isArray(slots) ? slots : []).filter((s) => {
     try {
@@ -58,6 +92,10 @@ export function filterSaturdaySlots(slots = []) {
   });
 }
 
+/**
+ * safeJsonParse(str, fallback)
+ * - Intenta parsear JSON de forma segura devolviendo `fallback` en error.
+ */
 export function safeJsonParse(str, fallback = null) {
   try { return JSON.parse(str); } catch (e) { return fallback; }
 }

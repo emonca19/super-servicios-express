@@ -1,4 +1,14 @@
-﻿const appointmentFormTemplate = () => `
+﻿/*
+  appointment-form.template.js
+
+  Plantilla HTML del formulario. Este archivo contiene solo HTML
+  (como una función que devuelve una cadena). El componente toma
+  este HTML y lo inserta en su `shadow root`.
+
+  Mantener la estructura HTML separada facilita leer y mantener
+  el código y permite reutilizar la plantilla en distintos lugares.
+*/
+const appointmentFormTemplate = () => `
   <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-xl">
     <div id="form-status" class="mb-3 hidden"></div>
 
