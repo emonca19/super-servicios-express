@@ -4,9 +4,9 @@ async function _fetchTailwind() {
   if (_cachedTailwind !== null) return _cachedTailwind;
 
   try {
-    const res = await fetch('/assets/css/tailwind.css');
+    const res = await fetch('/frontend/admin/assets/css/tailwind.css');
     if (!res.ok) throw new Error();
-    const css = await res.text(); 
+    const css = await res.text();
     _cachedTailwind = css;
     return css;
   } catch (e) {
@@ -16,13 +16,7 @@ async function _fetchTailwind() {
   }
 }
 
-export async function injectStyles(root, componentStyles = '') {
+export async function injectStyles(componentStyles = '') {
   const tw = await _fetchTailwind();
-  const style = document.createElement('style');
-  style.textContent = `${tw}\n${componentStyles}`;
-  root.appendChild(style);
-}
-
-export async function getTailwindCss() {
-  return await _fetchTailwind();
+  return `${tw}\n${componentStyles}`;
 }
