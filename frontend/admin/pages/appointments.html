@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test Dashboard</title>
+  <title>Appointments</title>
+  <link rel="stylesheet" href="../assets/css/tailwind.css" />
+</head>
 
-  <link rel="stylesheet" href="../assets/css/tailwind.css">
-  
+ 
   <style>
    body {
   background: #f5f6f8;
@@ -36,7 +36,7 @@ admin-navbar {
 main {
   flex: 1;
   padding: 2rem;
-  overflow-y: auto;  
+  overflow-y: auto; 
   overflow-x: hidden;
   transition: padding 0.3s ease;
 }
@@ -75,33 +75,26 @@ main::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
   </style>
-
-</head>
-
 <body>
 
- <admin-sidebar></admin-sidebar>
+  <admin-sidebar></admin-sidebar>
 
-<div class="content-area">
-  <admin-navbar></admin-navbar>
+  <div class="content-area">
+    <main>
+      <appointments-page></appointments-page>
+    </main>
+  </div>
 
-  <main>
-    <dashboard-page></dashboard-page>
-  </main>
-</div>
 <script type="module" src="../assets/js/components/table/index.js"></script>
-  <script type="module" src="../assets/js/components/sidebar/index.js"></script>
-  <script type="module" src="../assets/js/microfrontends/dashboard/index.js"></script>
-  <script type="module" src="../assets/js/components/navbar/index.js"></script>
 
+  <script type="module" src="../assets/js/components/sidebar/index.js"></script>
+  <script type="module" src="../assets/js/components/navbar/index.js"></script>
+  <script type="module" src="../assets/js/microfrontends/appointments/index.js"></script>
 
   <script>
     document.addEventListener("sidebar:modechange", (e) => {
-      const slim = e.detail.slim;
-      document.body.classList.toggle("slim", slim);
-      console.log('Sidebar mode changed:', slim ? 'slim' : 'normal');
+      document.body.classList.toggle("slim", e.detail.slim);
     });
   </script>
-
 </body>
 </html>
