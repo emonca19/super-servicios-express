@@ -1,11 +1,9 @@
 export const appointmentsTemplate = (activeFilter = "all") => `
   <div class="appointments">
 
-    <!-- Título -->
     <h1 class="title">Citas Pendientes</h1>
     <p class="subtitle">Todas las citas que requieren atención</p>
 
-    <!-- Filtros -->
     <div class="filters">
       <button class="filter-pill ${activeFilter === "all" ? "active" : ""}" data-filter="all">
         Todas
@@ -24,7 +22,6 @@ export const appointmentsTemplate = (activeFilter = "all") => `
       </button>
     </div>
 
-    <!-- Tabla RENDERIZADA POR EL COMPONENTE -->
     <admin-table id="tabla-appointments"></admin-table>
 
   </div>
