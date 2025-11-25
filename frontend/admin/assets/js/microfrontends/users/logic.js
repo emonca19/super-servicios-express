@@ -46,16 +46,21 @@ export const ClientsLogic = {
   },
 
   filter(clients, searchText) {
-    if (!searchText) return clients;
+  if (!searchText) return clients;
 
-    const query = searchText.toLowerCase().trim();
-    
-    return clients.filter(client => 
-      client.nombre.toLowerCase().includes(query) ||
-      client.telefono.toLowerCase().includes(query) ||
-      client.email.toLowerCase().includes(query) ||
-      client.vehiculos.toLowerCase().includes(query) ||
-      client.ultimasCitas.toLowerCase().includes(query)
-    );
-  }
+  const q = searchText.toLowerCase().trim();
+
+  return clients.filter(c => {
+    return [
+      c.nombre,
+      c.telefono,
+      c.email,
+      c.vehiculos,
+      c.ultimasCitas
+    ]
+    .filter(Boolean) // elimina undefined/null
+    .some(field => field.toLowerCase().includes(q));
+  });
+}
+
 };
