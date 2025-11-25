@@ -1,0 +1,72 @@
+export const vehiclesStyles = `
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vehicles {
+  height: 100%;
+  min-height: 100%;
+  padding-bottom: 2rem;
+  overflow-y: auto;
+}
+
+.vehicles::-webkit-scrollbar { width: 8px; }
+.vehicles::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 20px;
+}
+.vehicles::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 20px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: .25rem;
+  color: #1f2937;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.3rem;
+  gap: 1rem;
+}
+
+.new-vehicle-btn {
+  background: #ff8a00;
+  color: white;
+  border: none;
+  padding: .65rem 1.4rem;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: .25s ease;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.new-vehicle-btn:hover {
+  background: #e67a00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 138, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+`;
