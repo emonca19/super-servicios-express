@@ -14,9 +14,11 @@ export const adminSearchStyles = `
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0.45;
+  color: #6b7280;
+  opacity: 0.6;
   pointer-events: none;
-  font-size: 15px;
+  width: 16px;
+  height: 16px;
 }
 
 input {
@@ -26,11 +28,17 @@ input {
   border-radius: 10px;
   background: #ffffff;
   font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 input:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+input::placeholder {
+  color: #9ca3af;
 }
 `;

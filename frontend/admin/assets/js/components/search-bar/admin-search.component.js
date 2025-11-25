@@ -10,7 +10,7 @@ class AdminSearch extends HTMLElement {
     this.root = this.attachShadow({ mode: "open" });
 
     this.debounceTimer = null;
-    this.debounce = Number(this.getAttribute("debounce")) || 200;
+    this.debounce = Number(this.getAttribute("debounce")) || 300;
   }
 
   async connectedCallback() {
@@ -26,6 +26,12 @@ class AdminSearch extends HTMLElement {
     this.root.appendChild(wrapper);
 
     this.setupListener();
+    
+    // Configurar placeholder si existe el atributo
+    const placeholder = this.getAttribute("placeholder");
+    if (placeholder) {
+      this.root.querySelector("input").placeholder = placeholder;
+    }
   }
 
   setupListener() {
@@ -36,7 +42,7 @@ class AdminSearch extends HTMLElement {
 
       this.debounceTimer = setTimeout(() => {
         
-        let raw = e.target.value;
+        let raw = input.value;
         let processed = AdminSearchLogic.normalize(raw);
 
         this.dispatchEvent(
@@ -60,6 +66,16 @@ class AdminSearch extends HTMLElement {
 
   get value() {
     return this.root.querySelector("input").value;
+  }
+
+  // Método para limpiar el search
+  clear() {
+    this.value = "";
+    this.dispatchEvent(new CustomEvent("search:change", {
+      detail: { raw: "", value: "" },
+      bubbles: true,
+      composed: true,
+    }));
   }
 }
 
