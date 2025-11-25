@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard servicios</title>
+
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+
+  <style>
+    body {
+      background: #f5f6f8;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      width: calc(100% - 260px);
+      margin-left: 260px;
+      height: 100vh;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    admin-navbar {
+      flex-shrink: 0;
+      transition: padding 0.3s ease;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: padding 0.3s ease;
+    }
+
+    body.slim .content-area {
+      margin-left: 70px;
+      width: calc(100% - 70px);
+    }
+
+    body.slim main {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    main::-webkit-scrollbar {
+      width: 8px;
+    }
+    main::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+    main::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <admin-sidebar></admin-sidebar>
+
+  <div class="content-area">
+    <admin-navbar></admin-navbar>
+
+    <main>
+      <vehicles-page></vehicles-page>
+    </main>
+  </div>
+
+<script type="module" src="../assets/js/components/search-bar/index.js"></script>
+
+  <script type="module" src="../assets/js/components/sidebar/index.js"></script>
+  <script type="module" src="../assets/js/components/navbar/index.js"></script>
+  <script type="module" src="../assets/js/components/table/index.js"></script>
+
+  <script type="module" src="../assets/js/microfrontends/vehicles/index.js"></script>
+
+  <script>
+    document.addEventListener("sidebar:modechange", (e) => {
+      const slim = e.detail.slim;
+      document.body.classList.toggle("slim", slim);
+    });
+  </script>
+
+</body>
+</html>
