@@ -8,77 +8,38 @@ export const AppointmentsLogic = {
   },
 
   async fetchAppointments() {
-    const today = new Date();
+    try {
+      const [citasRaw, clientesRaw, autosRaw] = await Promise.all([
+        api.citas.obtenerTodos(),
+        api.clientes.obtenerTodos(),
+        api.automoviles.obtenerTodos()
+      ]);
 
-    const base = (h, m = 0) => {
-      const d = new Date(today);
-      d.setHours(h, m, 0, 0);
-      return d.toISOString();
-    };
+      const clientesMap = new Map(clientesRaw.map(c => [c.id, c]));
+      const autosMap = new Map(autosRaw.map(a => [a.id, a]));
 
-    return [
-      {
-        id: 1,
-        date: base(9, 0),
-        displayTime: "09:00 AM",
-        client: "Juan García",
-        clientExtra: "",
-        vehicle: "Honda Civic",
-        plate: "ABC-1234",
-        service: "Cambio de Aceite",
-        status: "pending",
-      },
-      {
-        id: 2,
-        date: base(10, 30),
-        displayTime: "10:30 AM",
-        client: "María López",
-        vehicle: "Ford F-150",
-        plate: "XYZ-5678",
-        service: "Frenos",
-        status: "in-process",
-      },
-      {
-        id: 3,
-        date: (() => {
-          const d = new Date(today);
-          d.setDate(d.getDate() - 1);
-          d.setHours(11, 0, 0, 0);
-          return d.toISOString();
-        })(),
-        displayTime: "11:00 AM",
-        client: "Carlos Méndez",
-        vehicle: "Toyota Corolla",
-        plate: "MNO-9012",
-        service: "Eléctrico",
-        status: "completed",
-      },
-      {
-        id: 4,
-        date: base(14, 15),
-        displayTime: "02:15 PM",
-        client: "Ana Rodríguez",
-        vehicle: "Nissan Sentra",
-        plate: "PQR-3456",
-        service: "Transmisión",
-        status: "pending",
-      },
-      {
-        id: 5,
-        date: (() => {
-          const d = new Date(today);
-          d.setDate(d.getDate() + 2);
-          d.setHours(15, 45, 0, 0);
-          return d.toISOString();
-        })(),
-        displayTime: "03:45 PM",
-        client: "Roberto Silva",
-        vehicle: "Chevrolet Malibu",
-        plate: "STU-7890",
-        service: "Aire Acondicionado",
-        status: "in-process",
-      },
-    ].map(this.decorateStatus);
+      return citasRaw.map(cita => {
+        const cliente = clientesMap.get(cita.id_cliente);
+        const auto = autosMap.get(cita.id_auto);
+
+        return {
+          id: cita.id,
+          date: cita.inicio, 
+          displayTime: Utils.formatTime(cita.inicio),
+          client: cliente ? cliente.nombre : `Cliente #${cita.id_cliente}`,
+          clientExtra: cliente ? cliente.telefono : "",
+          vehicle: auto ? `${auto.marca} ${auto.modelo}` : "Auto desconocido",
+          plate: auto ? auto.placas : "--",
+          service: cita.motivo,
+          status: cita.estado ? cita.estado.toLowerCase() : "pending",
+          rawPrice: cita.total_estimado || 0 
+        };
+      }).map(this.decorateStatus);
+
+    } catch (error) {
+      console.error("Error cargando citas:", error);
+      return [];
+    }
   },
 
   decorateStatus(app) {

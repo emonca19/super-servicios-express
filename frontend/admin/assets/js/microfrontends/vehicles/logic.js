@@ -1,53 +1,27 @@
 export const VehiclesLogic = {
 
   async fetchVehicles() {
-    return [
-      {
-        id: 1,
-        marca: "Honda",
-        modelo: "Civic",
-        placas: "ABC-1234",
-        propietario: "Juan García",
-        color: "Gris Plata",
-        anio: "2020"
-      },
-      {
-        id: 2,
-        marca: "Ford",
-        modelo: "F-150",
-        placas: "XYZ-5678",
-        propietario: "María López",
-        color: "Rojo",
-        anio: "2022"
-      },
-      {
-        id: 3,
-        marca: "Toyota",
-        modelo: "Corolla",
-        placas: "MNO-9012",
-        propietario: "Carlos Méndez",
-        color: "Blanco",
-        anio: "2021"
-      },
-      {
-        id: 4,
-        marca: "Nissan",
-        modelo: "Sentra",
-        placas: "DEF-3456",
-        propietario: "Ana Rodríguez",
-        color: "Azul",
-        anio: "2023"
-      },
-      {
-        id: 5,
-        marca: "Chevrolet",
-        modelo: "Cruze",
-        placas: "GHI-7890",
-        propietario: "Roberto Silva",
-        color: "Negro",
-        anio: "2019"
-      }
-    ];
+    try {
+      const [autos, clientes] = await Promise.all([
+        api.automoviles.obtenerTodos(),
+        api.clientes.obtenerTodos()
+      ]);
+
+      const clientesMap = new Map(clientes.map(c => [c.id, c.nombre]));
+
+      return autos.map(a => ({
+        id: a.id,
+        marca: a.marca,
+        modelo: a.modelo,
+        placas: a.placas,
+        propietario: clientesMap.get(a.id_cliente) || `ID: ${a.id_cliente}`,
+        color: a.color,
+        anio: a.anio
+      }));
+    } catch (error) {
+      console.error("Error vehiculos:", error);
+      return [];
+    }
   },
 
   filter(list, text) {
