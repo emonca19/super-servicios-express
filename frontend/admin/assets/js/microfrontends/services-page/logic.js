@@ -1,60 +1,39 @@
+import { api } from "../../../services/api.js";
+
 // Logica para manejar servicios en la pagina
 export const ServicesLogic = {
 
   // Funcion que obtiene la lista de servicios
   // Aqui se usa una lista fija simulando datos reales
   async fetchServices() {
-    return [
-      {
-        id: 1,
-        nombre: "Cambio de Aceite",
-        descripcion: "Cambio completo de aceite y filtros",
-        duracion: "45 min",
-        precio: "$45.00",
-        disponible: true
-      },
-      {
-        id: 2,
-        nombre: "Mantenimiento General",
-        descripcion: "Revision completa del vehiculo",
-        duracion: "2 hrs",
-        precio: "$120.00",
-        disponible: true
-      },
-      {
-        id: 3,
-        nombre: "Sistema Electrico",
-        descripcion: "Diagnostico y reparacion de sistema electrico",
-        duracion: "1–3 hrs",
-        precio: "$150.00",
-        disponible: true
-      },
-      {
-        id: 4,
-        nombre: "Frenos y Suspension",
-        descripcion: "Revision y cambio de pastillas y amortiguadores",
-        duracion: "1.5 hrs",
-        precio: "$95.00",
-        disponible: true
-      },
-      {
-        id: 5,
-        nombre: "Balanceo",
-        descripcion: "Balanceo de ruedas del vehiculo",
-        duracion: "30 min",
-        precio: "$35.00",
-        disponible: false
-      }
-    ];
+    try {
+      const rawServices = await api.servicios.obtenerTodos();
+
+      return rawServices.map(s => ({
+        id: s.id,
+        nombre: s.nombre,
+        descripcion: s.descripcion,
+        duracion: `${s.duracion_estimada} min`,
+        precio: new Intl.NumberFormat('es-MX', { 
+            style: 'currency', 
+            currency: 'MXN' 
+        }).format(s.precio_con_utilidad),
+        disponible: true 
+      }));
+
+    } catch (error) {
+      console.error("[ServicesLogic] Error al cargar servicios:", error);
+      return [];
+    }
   },
 
   // Funcion para filtrar servicios segun texto ingresado
+  // (Esta se mantiene igual porque filtra sobre los datos ya transformados)
   filter(services, text) {
     if (!text) return services;
 
     const q = text.toLowerCase().trim();
 
-    // Busca coincidencias en nombre, descripcion, duracion o precio
     return services.filter(s =>
       [
         s.nombre,
@@ -66,5 +45,4 @@ export const ServicesLogic = {
       .some(field => field.toLowerCase().includes(q))
     );
   }
-
 };
