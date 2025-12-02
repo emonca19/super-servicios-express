@@ -1,5 +1,4 @@
 import { AppointmentsLogic } from "../appointments/logic.js";
-import { api } from "../../../services/api.js";
 
 export const DashboardLogic = {
 
@@ -16,9 +15,9 @@ export const DashboardLogic = {
         return d >= startOfToday && d <= endOfToday;
       });
 
-      const ingresosHoy = citasHoy.reduce((acc, curr) => acc + (curr.rawPrice || 850), 0);
+      const ingresosHoy = citasHoy.reduce((acc, curr) => acc + (curr.rawPrice || 0), 0);
 
-      const capacidadDiaria = 20;
+      const capacidadDiaria = 15;
       const ocupacion = Math.min(Math.round((citasHoy.length / capacidadDiaria) * 100), 100);
 
       return {
@@ -27,7 +26,7 @@ export const DashboardLogic = {
           citasDelta: "",
           ingresos: ingresosHoy,
           ingresosDelta: "",
-          clientesNuevos: 3,
+          clientesNuevos: 0, 
           ocupacion: `${ocupacion}%`
         },
         citasRecientes: citasHoy.slice(0, 5) 
@@ -64,7 +63,6 @@ export const DashboardLogic = {
     }));
   },
 
-
   formatCurrency(amount) {
     return new Intl.NumberFormat("es-MX", {
       style: "currency",
@@ -78,6 +76,7 @@ export const DashboardLogic = {
       case 'completed': return 'success'; 
       case 'in-process': return 'info';  
       case 'pending': return 'warning';
+      case 'cancelled': return 'danger';
       default: return 'default';
     }
   }

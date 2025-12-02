@@ -1,16 +1,19 @@
 import { api } from "../../../services/api.js";
 
-// Logica para manejar servicios en la pagina
-export const ServicesLogic = {
+const extractArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.data)) return res.data;
+  return [];
+};
 
-  // Funcion que obtiene la lista de servicios
-  // Aqui se usa una lista fija simulando datos reales
+export const ServicesLogic = {
   async fetchServices() {
     try {
-      const rawServices = await api.servicios.obtenerTodos();
+      const res = await api.servicios.obtenerTodos();
+      const rawServices = extractArray(res);
 
       return rawServices.map(s => ({
-        id: s.id,
+        id: s.id_servicio || s.id,
         nombre: s.nombre,
         descripcion: s.descripcion,
         duracion: `${s.duracion_estimada} min`,
@@ -22,25 +25,16 @@ export const ServicesLogic = {
       }));
 
     } catch (error) {
-      console.error("[ServicesLogic] Error al cargar servicios:", error);
+      console.error("[ServicesLogic] Error:", error);
       return [];
     }
   },
 
-  // Funcion para filtrar servicios segun texto ingresado
-  // (Esta se mantiene igual porque filtra sobre los datos ya transformados)
   filter(services, text) {
     if (!text) return services;
-
     const q = text.toLowerCase().trim();
-
     return services.filter(s =>
-      [
-        s.nombre,
-        s.descripcion,
-        s.duracion,
-        s.precio
-      ]
+      [s.nombre, s.descripcion, s.duracion, s.precio]
       .filter(Boolean)
       .some(field => field.toLowerCase().includes(q))
     );
