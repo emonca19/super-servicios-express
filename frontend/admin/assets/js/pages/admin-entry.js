@@ -1,13 +1,11 @@
 // admin/assets/js/admin-entry.js
 
-// 1) Componentes globales del admin
 const globalModulesPromise = Promise.all([
   import("../components/sidebar/index.js"),
   import("../components/navbar/index.js"),
   import("../components/table/index.js"),
 ]);
 
-// 2) Mapa de loaders por página (data-page)
 const pageLoaders = {
   dashboard: () => import("../microfrontends/dashboard/index.js"),
   appointments: () => import("../microfrontends/appointments/index.js"),
@@ -49,7 +47,7 @@ function runPageTransition() {
       await pageLoaders[page]();
       console.log(`[admin] Microfront '${page}' cargado`);
 
-      // 🚀 disparar animación de entrada
+      // disparar animación de entrada
       runPageTransition();
     } else {
       console.warn("[admin] No loader definido para la página:", page);

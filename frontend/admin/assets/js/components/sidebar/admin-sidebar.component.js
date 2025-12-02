@@ -3,8 +3,6 @@ import { adminSidebarStyles } from "./admin-sidebar.styles.js";
 import { injectStyles } from "../../utils/shadow-style-loader.js";
 import { AdminSidebarLogic } from "./logic.js";
 
-const STORAGE_KEY = "admin:sidebar:slim";
-
 class AdminSidebar extends HTMLElement {
 
   constructor() {
@@ -13,12 +11,9 @@ class AdminSidebar extends HTMLElement {
 
     this.fullWidth = 260;   // modo extendido
     this.slimWidth = 60;    // iconos
-    this.threshold = 150;   // (ya no lo usamos directo, pero lo dejamos por si lo reusas)
+    this.threshold = 150;   // punto donde cambia a slim
 
     this.isSlim = false;
-
-    // por si luego quieres limpiar listeners, pero de momento no es crítico
-    this._dragging = false;
   }
 
   async connectedCallback() {
@@ -36,60 +31,37 @@ class AdminSidebar extends HTMLElement {
     this.sidebar = this.root.querySelector("#sidebar");
     this.handle = this.root.querySelector("#resize-handle");
 
+    this.restoreSlimState();
+
     this.enableDragging();
     AdminSidebarLogic.highlightCurrentPage(this.root);
-
-    this._restoreSlimMode();
   }
 
-  /**
-   * Lee localStorage y aplica el modo slim si estaba activado.
-   */
-  _restoreSlimMode() {
+  restoreSlimState() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const shouldBeSlim = saved === "1";
-      this._applySlimMode(shouldBeSlim, { emit: false });
+      const saved = localStorage.getItem("admin:sidebar:slim");
+
+      if (saved === "1") {
+        // modo slim
+        this.isSlim = true;
+        this.sidebar.classList.add("slim");
+        this.sidebar.style.width = this.slimWidth + "px";
+      } else {
+        // modo normal
+        this.isSlim = false;
+        this.sidebar.classList.remove("slim");
+        this.sidebar.style.width = this.fullWidth + "px";
+      }
     } catch (e) {
-      console.warn("[sidebar] no se pudo leer localStorage", e);
-    }
-  }
-
-  /**
-   * Aplica el modo slim/normal al sidebar, guarda en localStorage
-   * y emite el evento sidebar:modechange si corresponde.
-   */
-  _applySlimMode(isSlim, { emit = true } = {}) {
-    this.isSlim = isSlim;
-
-    if (!this.sidebar) return;
-
-    if (isSlim) {
-      this.sidebar.classList.add("slim");
-      this.sidebar.style.width = this.slimWidth + "px";
-    } else {
+      console.warn("[sidebar] no se pudo leer admin:sidebar:slim", e);
+      // fallback: modo normal
+      this.isSlim = false;
       this.sidebar.classList.remove("slim");
       this.sidebar.style.width = this.fullWidth + "px";
-    }
-
-    try {
-      localStorage.setItem(STORAGE_KEY, isSlim ? "1" : "0");
-    } catch (e) {
-      console.warn("[sidebar] no se pudo guardar localStorage", e);
-    }
-
-    if (emit) {
-      this.dispatchEvent(new CustomEvent("sidebar:modechange", {
-        detail: { slim: isSlim },
-        bubbles: true,
-        composed: true,   
-      }));
     }
   }
 
   enableDragging() {
-    if (!this.handle) return;
-
     let dragging = false;
 
     this.handle.addEventListener("mousedown", () => {
@@ -103,18 +75,37 @@ class AdminSidebar extends HTMLElement {
     });
 
     window.addEventListener("mousemove", (e) => {
-      if (!dragging || !this.sidebar) return;
+      if (!dragging) return;
 
       const cursorX = e.clientX;
-      const threshold = this.fullWidth - 40; 
+      const threshold = this.fullWidth - 40;
 
+      // Cambiar a SLIM
       if (cursorX < threshold && !this.isSlim) {
-        this._applySlimMode(true);
+        this.sidebar.classList.add("slim");
+        this.sidebar.style.width = this.slimWidth + "px";
+        this.isSlim = true;
+
+        localStorage.setItem("admin:sidebar:slim", "1");
+
+        this.dispatchEvent(new CustomEvent("sidebar:modechange", {
+          detail: { slim: true },
+          bubbles: true
+        }));
         return;
       }
-
+      // Cambiar a nromal
       if (cursorX >= threshold && this.isSlim) {
-        this._applySlimMode(false);
+        this.sidebar.classList.remove("slim");
+        this.sidebar.style.width = this.fullWidth + "px";
+        this.isSlim = false;
+
+        localStorage.setItem("admin:sidebar:slim", "0");
+
+        this.dispatchEvent(new CustomEvent("sidebar:modechange", {
+          detail: { slim: false },
+          bubbles: true
+        }));
         return;
       }
     });
