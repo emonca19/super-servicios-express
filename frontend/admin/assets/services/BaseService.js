@@ -1,8 +1,10 @@
+import { HttpAdapter } from "./HttpAdapter.js";
+
 /**
  * Clase Genérica CRUD api espero funcione por q si no la verdad me queme el coco
  * en arqui creo me avente una asi espero en js sirva igual
  */
-class BaseService extends HttpAdapter {
+export class BaseService extends HttpAdapter {
     constructor(resourceEndpoint) {
         super();
         this.resource = resourceEndpoint;

@@ -1,106 +1,83 @@
+import { AppointmentsLogic } from "../appointments/logic.js";
+
 export const DashboardLogic = {
 
-     adaptDashboardResponse(api) {
+  async getDashboardData() {
+    try {
+      const allAppointments = await AppointmentsLogic.fetchAppointments();
+      
+      const now = new Date();
+      const startOfToday = new Date(now.setHours(0,0,0,0));
+      const endOfToday = new Date(now.setHours(23,59,59,999));
+
+      const citasHoy = allAppointments.filter(a => {
+        const d = new Date(a.date); 
+        return d >= startOfToday && d <= endOfToday;
+      });
+
+      const ingresosHoy = citasHoy.reduce((acc, curr) => acc + (curr.rawPrice || 0), 0);
+
+      const capacidadDiaria = 15;
+      const ocupacion = Math.min(Math.round((citasHoy.length / capacidadDiaria) * 100), 100);
+
+      return {
+        stats: {
+          citasHoy: citasHoy.length,
+          citasDelta: "",
+          ingresos: ingresosHoy,
+          ingresosDelta: "",
+          clientesNuevos: 0, 
+          ocupacion: `${ocupacion}%`
+        },
+        citasRecientes: citasHoy.slice(0, 5) 
+      };
+
+    } catch (error) {
+      console.error("[DashboardLogic] Error calculando datos:", error);
+      throw error;
+    }
+  },
+
+  adaptDashboardResponse(stats) {
     return {
-      citasHoy: api.citasHoy ?? 0,
-      citasDelta: api.citasDelta ?? 0,
-      ingresos: api.ingresos ?? 0,
-      ingresosDelta: api.ingresosDelta ?? 0,
-      clientesNuevos: api.clientesNuevos ?? 0,
-      ocupacion: api.ocupacion ?? 0,
+      citasHoy: stats.citasHoy,
+      citasDelta: stats.citasDelta,
+      ingresos: this.formatCurrency(stats.ingresos),
+      ingresosDelta: stats.ingresosDelta,
+      clientesNuevos: stats.clientesNuevos,
+      ocupacion: stats.ocupacion,
     };
   },
 
-  adaptCitasResponse(apiList) {
-    return apiList.map(item => ({
-      hora: item.hora,
-      cliente: item.cliente,
-      vehiculo: item.vehiculo,
-      servicio: item.servicio,
-      estado: item.estado,
-      acciones: null
+  adaptCitasResponse(citasProcesadas) {
+    return citasProcesadas.map(c => ({
+      hora: c.displayTime,     
+      cliente: c.client,       
+      vehiculo: `${c.vehicle} (${c.plate})`, 
+      servicio: c.service,
+      estado: {                
+        label: c.statusLabel, 
+        variant: this.getVariantByStatus(c.statusClass)
+      }, 
+      acciones: true
     }));
   },
 
- 
-  formatHour(dateString) {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleTimeString("es-MX", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    } catch (error) {
-      console.warn("[DashboardLogic] Error formateando hora:", error);
-      return "—";
-    }
-  },
-
-  
   formatCurrency(amount) {
-    try {
-      return amount.toLocaleString("es-MX", {
-        style: "currency",
-        currency: "MXN",
-        minimumFractionDigits: 0
-      });
-    } catch (error) {
-      console.warn("[DashboardLogic] Error formateando moneda:", error);
-      return "$0";
-    }
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+      minimumFractionDigits: 0
+    }).format(amount || 0);
   },
 
-  normalizeEstado(estado) {
-    const map = {
-      completada: "Completada",
-      "en-proceso": "En Proceso",
-      pendiente: "Pendiente"
-    };
-
-    return map[estado?.toLowerCase()] ?? "Pendiente";
-  },
-
-
-  getEstadoClass(estado) {
-    const safe = estado?.toLowerCase() ?? "";
-
-    if (safe.includes("complet")) return "completada";
-    if (safe.includes("proceso")) return "en-proceso";
-    return "pendiente";
-  },
-
-
-
-  adaptDashboardResponse(apiResponse) {
-    try {
-      return {
-        citasHoy: apiResponse.citasHoy,
-        citasDelta: apiResponse.citasDelta,
-        ingresos: apiResponse.ingresos,
-        ingresosDelta: apiResponse.ingresosDelta,
-        clientesNuevos: apiResponse.clientesNuevos,
-        ocupacion: apiResponse.ocupacion
-      };
-    } catch (error) {
-      console.error("[DashboardLogic] Error adaptando stats:", error);
-      return {};
-    }
-  },
-
-
-  adaptCitasResponse(apiCitas) {
-    try {
-      return apiCitas.map(c => ({
-        hora: c.hora,
-        cliente: c.cliente,
-        vehiculo: `${c.modelo} - ${c.placas}`,
-        servicio: c.servicio,
-        estado: DashboardLogic.normalizeEstado(c.estado)
-      }));
-    } catch (error) {
-      console.error("[DashboardLogic] Error adaptando citas:", error);
-      return [];
+  getVariantByStatus(statusClass) {
+    switch (statusClass) {
+      case 'completed': return 'success'; 
+      case 'in-process': return 'info';  
+      case 'pending': return 'warning';
+      case 'cancelled': return 'danger';
+      default: return 'default';
     }
   }
-
 };
