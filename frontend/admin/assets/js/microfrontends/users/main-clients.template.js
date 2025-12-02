@@ -1,12 +1,9 @@
+// assets/js/microfrontends/users/main-clients.template.js
 export const clientsTemplate = () => `
   <div class="clients">
-    <!-- Título principal -->
     <h1 class="title">Gestionar Clientes</h1>
-
-    <!-- Subtítulo descriptivo -->
     <p class="subtitle">Lista de todos los clientes registrados</p>
 
-    <!-- Barra superior con buscador y botón para crear cliente -->
     <div class="top-bar">
       <admin-search
         placeholder="Buscar por nombre, correo o teléfono..."
@@ -18,63 +15,230 @@ export const clientsTemplate = () => `
       </button>
     </div>
 
-    <!-- Tabla donde se mostrarán los clientes -->
     <admin-table id="clientsTable"></admin-table>
   </div>
 
-  <!-- Modal de edición de cliente -->
-  <div id="editModal"
-    class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg transform scale-100 transition-transform">
-        
-      <div class="flex justify-between items-center p-6 border-b border-gray-100">
-        <h3 class="text-xl font-bold text-gray-800">Editar Cliente</h3>
-        <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <!-- Modal para NUEVO / EDITAR cliente -->
+  <div id="clientModal" class="modal-backdrop">
+    <div class="modal-card">
+
+      <!-- Header del modal -->
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">
+          Nuevo Cliente
+        </h3>
+        <button
+          id="closeModalBtn"
+          class="modal-close"
+          type="button"
+        >
+          <svg class="modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <form id="editClientForm" class="p-6 space-y-4">
-        <input type="hidden" id="editId" name="id">
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-          <input type="text" name="nombre" id="editNombre" required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+      <!-- Formulario CREATE / EDIT -->
+      <form id="clientForm" class="modal-body">
+        <input type="hidden" id="clientId" name="id">
+
+        <div class="field">
+          <label class="field-label">
+            Nombre completo
+          </label>
+          <input
+            type="text"
+            name="nombre"
+            id="clientNombre"
+            required
+            class="field-input"
+          />
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-          <input type="email" name="email" id="editEmail" required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+        <div class="field">
+          <label class="field-label">
+            Correo electrónico
+          </label>
+          <input
+            type="email"
+            name="email"
+            id="clientEmail"
+            required
+            class="field-input"
+          />
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-          <input type="tel" name="telefono" id="editTelefono"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+        <div class="field">
+          <label class="field-label">
+            Teléfono
+          </label>
+          <input
+            type="tel"
+            name="telefono"
+            id="clientTelefono"
+            class="field-input"
+          />
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-          <textarea name="direccion" id="editDireccion" rows="2"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"></textarea>
+        <div class="field">
+          <label class="field-label">
+            Dirección
+          </label>
+          <textarea
+            name="direccion"
+            id="clientDireccion"
+            rows="2"
+            class="field-input field-textarea"
+          ></textarea>
         </div>
 
-        <div class="flex justify-end gap-3 pt-4">
-          <button type="button" id="cancelBtn"
-            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+        <div class="modal-footer">
+          <button
+            type="button"
+            id="cancelBtn"
+            class="btn-secondary"
+          >
             Cancelar
           </button>
-          <button type="submit" id="saveBtn"
-            class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-colors flex items-center gap-2">
-            <span>Guardar Cambios</span>
+          <button
+            type="submit"
+            id="saveBtn"
+            class="btn-primary"
+          >
+            <span id="saveBtnText">Guardar cliente</span>
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal VER DETALLES (solo lectura) -->
+  <div id="viewModal" class="modal-backdrop">
+    <div class="modal-card modal-card--small">
+      <div class="modal-header">
+        <h3 class="modal-title">Detalles del cliente</h3>
+        <button
+          id="closeViewBtn"
+          class="modal-close"
+          type="button"
+        >
+          <svg class="modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label">Nombre completo</label>
+          <input
+            id="viewNombre"
+            type="text"
+            class="field-input"
+            readonly
+          />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Correo electrónico</label>
+          <input
+            id="viewEmail"
+            type="email"
+            class="field-input"
+            readonly
+          />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Teléfono</label>
+          <input
+            id="viewTelefono"
+            type="tel"
+            class="field-input"
+            readonly
+          />
+        </div>
+
+        <div class="field">
+          <label class="field-label">Dirección</label>
+          <textarea
+            id="viewDireccion"
+            rows="2"
+            class="field-input field-textarea"
+            readonly
+          ></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            id="okViewBtn"
+            class="btn-primary"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ELIMINAR (confirmación) -->
+  <div id="deleteModal" class="modal-backdrop modal-backdrop--danger">
+    <div class="modal-card modal-card--small modal-card--danger">
+      <div class="modal-header modal-header--danger">
+        <div class="modal-icon-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+            <path d="M12 7v7" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M12 16h.01" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-title modal-title--danger">Eliminar cliente</h3>
+          <p class="modal-subtitle">
+            Esta acción no se puede deshacer.
+          </p>
+        </div>
+        <button
+          id="closeDeleteBtn"
+          class="modal-close"
+          type="button"
+        >
+          <svg class="modal-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body modal-body--danger">
+        <p id="deleteMessage">
+          ¿Seguro que deseas eliminar este cliente?
+        </p>
+
+        <p id="deleteClientName" class="delete-client-name">
+          <!-- aquí se inyecta el nombre -->
+        </p>
+
+        <div class="modal-footer modal-footer--danger">
+          <button
+            type="button"
+            id="cancelDeleteBtn"
+            class="btn-delete-cancel"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            id="confirmDeleteBtn"
+            class="btn-delete-confirm"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 `;
