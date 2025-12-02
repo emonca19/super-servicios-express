@@ -50,8 +50,8 @@ export const adminSidebarTemplate = () => `
       <img src="../assets/images/icons/logout.svg" class="logout-icon" />
     </a>
     <div class="footer-content">
-      <p class="footer-text footer-name">Carlos Mendoza</p>
-      <p class="footer-text footer-email">admin@autoservices.com</p>
+      <p class="footer-text footer-name">Admin</p>
+      <p class="footer-text footer-email">admin@taller.com</p>
       <a href="login.html" class="footer-text footer-logout-text">Logout</a>
     </div>
   </div>

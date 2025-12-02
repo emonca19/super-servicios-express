@@ -5,6 +5,7 @@ export const clientsStyles = `
   height: 100%;
 }
 
+/* Contenedor general de la pagina */
 .clients {
   height: 100%;
   min-height: 100%;
@@ -12,20 +13,20 @@ export const clientsStyles = `
   overflow-y: auto;
 }
 
+/* Scrollbar */
 .clients::-webkit-scrollbar { 
   width: 8px; 
 }
-
 .clients::-webkit-scrollbar-thumb { 
   background: #c1c1c1; 
   border-radius: 20px; 
 }
-
 .clients::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 20px;
 }
 
+/* Título */
 .title {
   font-size: 28px;
   font-weight: 700;
@@ -33,12 +34,14 @@ export const clientsStyles = `
   color: #1f2937;
 }
 
+/* Subtítulo */
 .subtitle {
   font-size: 14px;
   color: #6b7280;
   margin-bottom: 1.5rem;
 }
 
+/* Barra superior */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -47,6 +50,7 @@ export const clientsStyles = `
   gap: 1rem;
 }
 
+/* Botón nuevo cliente */
 .new-client-btn {
   background: #ff8a00;
   color: white;

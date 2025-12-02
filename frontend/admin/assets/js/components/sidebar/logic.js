@@ -1,45 +1,53 @@
+// assets/js/components/sidebar/logic.js
 export class AdminSidebarLogic {
+
   static highlightCurrentPage(root) {
-    const currentPath = window.location.pathname;
-    const currentPage = currentPath.split('/').pop() || 'index.html';
-    
-    console.log('Current page:', currentPage); 
-    
-    const navItems = root.querySelectorAll('.nav-list .nav-item');
-    navItems.forEach(item => item.classList.remove('active'));
-    
-    let foundActive = false;
-    
-    navItems.forEach(item => {
-      const link = item.getAttribute('href');
-      console.log('Checking link:', link, 'against current:', currentPage); 
-      
-      if (link === currentPage) {
-        item.classList.add('active');
-        foundActive = true;
-        console.log('Active item found:', link);
+    let currentKey = "";
+
+    const main = document.querySelector("main[data-page]");
+    if (main && main.dataset.page) {
+      currentKey = main.dataset.page.toLowerCase(); 
+    } else {
+      try {
+        const path = window.location.pathname;            
+        const file = path.split("/").pop() || "";          
+        currentKey = file.replace(".html", "").toLowerCase();
+      } catch (e) {
+        console.warn("[sidebar] no se pudo leer window.location", e);
+      }
+    }
+
+    if (!currentKey) {
+      currentKey = "dashboard";
+    }
+
+    console.log("[sidebar] currentKey:", currentKey);
+
+    const navItems = root.querySelectorAll(".nav-list .nav-item");
+    navItems.forEach((item) => item.classList.remove("active"));
+
+    let found = false;
+
+    navItems.forEach((item) => {
+      const dataPage = (item.dataset.page || "").toLowerCase();  
+      const href = (item.getAttribute("href") || "").toLowerCase(); 
+      const keyFromHref = href.replace(".html", "");             
+
+      if (dataPage === currentKey || keyFromHref === currentKey) {
+        item.classList.add("active");
+        found = true;
+        console.log("[sidebar] activando item:", href || dataPage);
       }
     });
-    
-    if (!foundActive) {
-      console.log('No direct match found, trying alternative methods...');
-      
-      navItems.forEach(item => {
-        const link = item.getAttribute('href');
-        const linkName = link.replace('.html', '');
-        if (currentPage.includes(linkName)) {
-          item.classList.add('active');
-          foundActive = true;
-          console.log('Found partial match:', link);
-        }
-      });
-      
-      if (!foundActive) {
-        const dashboardItem = root.querySelector('a[href="dashboard.html"]');
-        if (dashboardItem) {
-          dashboardItem.classList.add('active');
-          console.log('Defaulting to dashboard');
-        }
+
+    if (!found) {
+      console.warn("[sidebar] ninguna opción coincidió, usando dashboard por defecto");
+      const dashboardItem =
+        root.querySelector('.nav-item[data-page="dashboard"]') ||
+        root.querySelector('.nav-item[href="dashboard.html"]');
+
+      if (dashboardItem) {
+        dashboardItem.classList.add("active");
       }
     }
   }
