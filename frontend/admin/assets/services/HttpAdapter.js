@@ -1,26 +1,26 @@
-const BASE_URL = 'http://localhost:8000/api'; // Asegúrate que sea el puerto correcto
+const BASE_URL = 'http://localhost:8000/api'; 
 
 export class HttpAdapter {
     async request(endpoint, method = 'GET', body = null) {
-        const url = `${BASE_URL}/${endpoint}`;
+        // Aseguramos que no haya doble slash
+        const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+        const url = `${BASE_URL}/${cleanEndpoint}`;
         
-        // 1. Preparamos los headers base
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
 
-        // 2. BUSCAMOS EL TOKEN (Ajusta la key 'access_token' si usas otro nombre)
-        const token = localStorage.getItem('access_token'); 
+        // USAMOS LA MISMA KEY QUE EL CLIENTE: 'token'
+        const token = localStorage.getItem('token'); 
 
-        // 3. Si existe el token, lo inyectamos en la cabecera Authorization
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
         const options = {
             method,
-            headers // Usamos los headers que acabamos de configurar
+            headers
         };
 
         if (body) {
@@ -29,39 +29,29 @@ export class HttpAdapter {
 
         try {
             const response = await fetch(url, options);
-
-            // 4. Manejo especial para error 401 (Token vencido o inválido)
-            if (response.status === 401 && !endpoint.includes('login')) {
-                console.warn("Sesión expirada. Redirigiendo...");
-                throw new Error("Sesión expirada.");
-            }
+            
+            // Intentamos parsear, si falla devolvemos null (igual que tu ApiClient)
+            let data = null;
+            try { data = await response.json(); } catch (e) {}
 
             if (!response.ok) {
-                // Leemos el cuerpo del error
-                const errorData = await response.json().catch(() => null);
-                
-                // 🔥 ESTO ES LO IMPORTANTE: Imprimimos el error real del backend
-                console.group("🔥 DEBUG ERROR BACKEND");
-                console.log("Status:", response.status);
-                console.log("Respuesta del servidor:", errorData);
-                console.groupEnd();
-
-                // Construimos un mensaje más útil
-                const errorMessage = errorData?.message || errorData?.error || "Error desconocido del servidor";
-                
-                // Si es 401 y estamos en login, lanzamos el error con el mensaje del backend
+                // Manejo de expiración igual que en tu cliente
                 if (response.status === 401) {
-                    throw new Error(errorMessage); 
+                    // Si NO es login, borramos token y redirigimos
+                    if (!url.includes('auth/login')) {
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                        return; // Detenemos ejecución
+                    }
                 }
                 
-                throw new Error(errorMessage);
+                const message = (data && (data.message || data.error)) || `Error ${response.status}`;
+                throw new Error(message);
             }
 
-            if (response.status === 204) return true;
-            return await response.json();
-
+            return data;
         } catch (error) {
-            console.error(`[API Error]`, error);
+            console.error(`[API] ${method} ${url}`, error);
             throw error;
         }
     }

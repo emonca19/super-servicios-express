@@ -2,40 +2,33 @@ import { BaseService } from "./BaseService.js";
 
 export class AuthService extends BaseService {
     constructor() {
+        // Esto hace que las peticiones vayan a BASE_URL + /auth
         super('auth'); 
     }
 
     async login(email, password) {
         try {
-            const body = { email, password };
-            const response = await this.request('login', 'POST', body);
-            const token = response.token || response.accessToken || response.access_token;
+            // Petición a: http://localhost:8000/api/auth/login
+            const response = await this.request('auth/login', 'POST', { email, password });
+
+            // Tu backend devuelve: { data: { token: '...' } } o directamente { token: '...' }
+            // El código del cliente maneja ambos casos, hagamos lo mismo aquí:
+            const token = response.token || (response.data && response.data.token);
 
             if (token) {
-                localStorage.setItem('access_token', token);
-                
-                if (response.user) {
-                    localStorage.setItem('user_data', JSON.stringify(response.user));
-                }
-                
-                return true; 
+                localStorage.setItem('token', token);
+                return true;
             }
             
             return false;
-
         } catch (error) {
-            console.error("[AuthService] Error en login:", error);
-            throw error; 
+            console.error("Login fallido:", error);
+            throw error;
         }
     }
 
     logout() {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user_data');
-        window.location.href = '/frontend/admin/pages/login.html'; 
-    }
-
-    isAuthenticated() {
-        return !!localStorage.getItem('access_token');
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
     }
 }
