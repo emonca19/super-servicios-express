@@ -4,7 +4,7 @@ async function _fetchTailwind() {
   if (_cachedTailwind !== null) return _cachedTailwind;
 
   try {
-    const res = await fetch('/frontend/admin/assets/css/tailwind.css');
+    const res = await fetch('../assets/css/tailwind.css');
     if (!res.ok) throw new Error();
     const css = await res.text();
     _cachedTailwind = css;

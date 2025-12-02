@@ -3,6 +3,8 @@ import { adminSidebarStyles } from "./admin-sidebar.styles.js";
 import { injectStyles } from "../../utils/shadow-style-loader.js";
 import { AdminSidebarLogic } from "./logic.js";
 
+const STORAGE_KEY = "admin:sidebar:slim";
+
 class AdminSidebar extends HTMLElement {
 
   constructor() {
@@ -11,9 +13,12 @@ class AdminSidebar extends HTMLElement {
 
     this.fullWidth = 260;   // modo extendido
     this.slimWidth = 60;    // iconos
-    this.threshold = 150;   // punto donde cambia a slim
+    this.threshold = 150;   // (ya no lo usamos directo, pero lo dejamos por si lo reusas)
 
     this.isSlim = false;
+
+    // por si luego quieres limpiar listeners, pero de momento no es crítico
+    this._dragging = false;
   }
 
   async connectedCallback() {
@@ -33,54 +38,87 @@ class AdminSidebar extends HTMLElement {
 
     this.enableDragging();
     AdminSidebarLogic.highlightCurrentPage(this.root);
+
+    this._restoreSlimMode();
   }
 
- 
-enableDragging() {
-  let dragging = false;
+  /**
+   * Lee localStorage y aplica el modo slim si estaba activado.
+   */
+  _restoreSlimMode() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const shouldBeSlim = saved === "1";
+      this._applySlimMode(shouldBeSlim, { emit: false });
+    } catch (e) {
+      console.warn("[sidebar] no se pudo leer localStorage", e);
+    }
+  }
 
-  this.handle.addEventListener("mousedown", () => {
-    dragging = true;
-    document.body.style.userSelect = "none";
-  });
+  /**
+   * Aplica el modo slim/normal al sidebar, guarda en localStorage
+   * y emite el evento sidebar:modechange si corresponde.
+   */
+  _applySlimMode(isSlim, { emit = true } = {}) {
+    this.isSlim = isSlim;
 
-  window.addEventListener("mouseup", () => {
-    dragging = false;
-    document.body.style.userSelect = "";
-  });
+    if (!this.sidebar) return;
 
-  window.addEventListener("mousemove", (e) => {
-    if (!dragging) return;
-
-    const cursorX = e.clientX;
-    const threshold = this.fullWidth - 40;
-
-    if (cursorX < threshold && !this.isSlim) {
+    if (isSlim) {
       this.sidebar.classList.add("slim");
       this.sidebar.style.width = this.slimWidth + "px";
-      this.isSlim = true;
-      
-      this.dispatchEvent(new CustomEvent('sidebar:modechange', {
-        detail: { slim: true },
-        bubbles: true
-      }));
-      return;
-    }
-
-    if (cursorX >= threshold && this.isSlim) {
+    } else {
       this.sidebar.classList.remove("slim");
       this.sidebar.style.width = this.fullWidth + "px";
-      this.isSlim = false;
-      
-      this.dispatchEvent(new CustomEvent('sidebar:modechange', {
-        detail: { slim: false },
-        bubbles: true
-      }));
-      return;
     }
-  });
-}
 
+    try {
+      localStorage.setItem(STORAGE_KEY, isSlim ? "1" : "0");
+    } catch (e) {
+      console.warn("[sidebar] no se pudo guardar localStorage", e);
+    }
+
+    if (emit) {
+      this.dispatchEvent(new CustomEvent("sidebar:modechange", {
+        detail: { slim: isSlim },
+        bubbles: true,
+        composed: true,   
+      }));
+    }
+  }
+
+  enableDragging() {
+    if (!this.handle) return;
+
+    let dragging = false;
+
+    this.handle.addEventListener("mousedown", () => {
+      dragging = true;
+      document.body.style.userSelect = "none";
+    });
+
+    window.addEventListener("mouseup", () => {
+      dragging = false;
+      document.body.style.userSelect = "";
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging || !this.sidebar) return;
+
+      const cursorX = e.clientX;
+      const threshold = this.fullWidth - 40; 
+
+      if (cursorX < threshold && !this.isSlim) {
+        this._applySlimMode(true);
+        return;
+      }
+
+      if (cursorX >= threshold && this.isSlim) {
+        this._applySlimMode(false);
+        return;
+      }
+    });
+  }
 }
 
 customElements.define("admin-sidebar", AdminSidebar);

@@ -4,6 +4,9 @@ import { servicesTemplate } from "./services.template.js";
 import { servicesStyles } from "./services.styles.js";
 import { ServicesLogic } from "./logic.js";
 
+import "../../components/search-bar/index.js";
+
+
 // Define el componente de pagina de servicios
 class ServicesPage extends HTMLElement {
 
