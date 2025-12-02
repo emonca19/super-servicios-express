@@ -1,3 +1,19 @@
+import { api } from "../../../services/api.js";
+
+const Utils = {
+  formatTime: (dateString) => {
+    if (!dateString) return "--:--";
+    return new Date(dateString).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+  }
+};
+
+const extractArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.data)) return res.data;
+  if (res && Array.isArray(res.result)) return res.result;
+  return [];
+};
+
 export const AppointmentsLogic = {
 
   FILTERS: {
@@ -8,89 +24,61 @@ export const AppointmentsLogic = {
   },
 
   async fetchAppointments() {
-    const today = new Date();
+    try {
+      const [citasRes, clientesRes, autosRes] = await Promise.all([
+        api.citas.obtenerTodos(),
+        api.clientes.obtenerTodos(),
+        api.automoviles.obtenerTodos()
+      ]);
 
-    const base = (h, m = 0) => {
-      const d = new Date(today);
-      d.setHours(h, m, 0, 0);
-      return d.toISOString();
-    };
+      const citasRaw = extractArray(citasRes);
+      const clientesRaw = extractArray(clientesRes);
+      const autosRaw = extractArray(autosRes);
 
-    return [
-      {
-        id: 1,
-        date: base(9, 0),
-        displayTime: "09:00 AM",
-        client: "Juan García",
-        clientExtra: "",
-        vehicle: "Honda Civic",
-        plate: "ABC-1234",
-        service: "Cambio de Aceite",
-        status: "pending",
-      },
-      {
-        id: 2,
-        date: base(10, 30),
-        displayTime: "10:30 AM",
-        client: "María López",
-        vehicle: "Ford F-150",
-        plate: "XYZ-5678",
-        service: "Frenos",
-        status: "in-process",
-      },
-      {
-        id: 3,
-        date: (() => {
-          const d = new Date(today);
-          d.setDate(d.getDate() - 1);
-          d.setHours(11, 0, 0, 0);
-          return d.toISOString();
-        })(),
-        displayTime: "11:00 AM",
-        client: "Carlos Méndez",
-        vehicle: "Toyota Corolla",
-        plate: "MNO-9012",
-        service: "Eléctrico",
-        status: "completed",
-      },
-      {
-        id: 4,
-        date: base(14, 15),
-        displayTime: "02:15 PM",
-        client: "Ana Rodríguez",
-        vehicle: "Nissan Sentra",
-        plate: "PQR-3456",
-        service: "Transmisión",
-        status: "pending",
-      },
-      {
-        id: 5,
-        date: (() => {
-          const d = new Date(today);
-          d.setDate(d.getDate() + 2);
-          d.setHours(15, 45, 0, 0);
-          return d.toISOString();
-        })(),
-        displayTime: "03:45 PM",
-        client: "Roberto Silva",
-        vehicle: "Chevrolet Malibu",
-        plate: "STU-7890",
-        service: "Aire Acondicionado",
-        status: "in-process",
-      },
-    ].map(this.decorateStatus);
+      const clientesMap = new Map(clientesRaw.map(c => [c.id_cliente || c.id, c]));
+      const autosMap = new Map(autosRaw.map(a => [a.id_auto || a.id, a]));
+
+      return citasRaw.map(cita => {
+        const idCliente = cita.id_cliente || cita.idCliente;
+        const idAuto = cita.id_auto || cita.idAuto;
+
+        const cliente = clientesMap.get(idCliente);
+        const auto = autosMap.get(idAuto);
+
+        return {
+          id: cita.id_cita || cita.id,
+          date: cita.inicio, 
+          displayTime: Utils.formatTime(cita.inicio),
+          client: cliente ? cliente.nombre : `Cliente #${idCliente}`,
+          clientExtra: cliente ? cliente.telefono : "",
+          vehicle: auto ? `${auto.marca} ${auto.modelo}` : "Auto desconocido",
+          plate: auto ? auto.placas : "--",
+          service: cita.motivo || "Servicio General",
+          status: cita.estado ? cita.estado.toLowerCase() : "pending",
+          rawPrice: Number(cita.total_estimado || 0)
+        };
+      }).map(this.decorateStatus);
+
+    } catch (error) {
+      console.error("Error cargando citas:", error);
+      return [];
+    }
   },
 
   decorateStatus(app) {
     let statusLabel = "Pendiente";
     let statusClass = "pending";
+    const st = app.status ? app.status.toLowerCase() : "";
 
-    if (app.status === "in-process") {
+    if (st.includes("proceso") || st.includes("confirmada")) {
       statusLabel = "En Proceso";
       statusClass = "in-process";
-    } else if (app.status === "completed") {
+    } else if (st.includes("completada") || st.includes("finalizada")) {
       statusLabel = "Completada";
       statusClass = "completed";
+    } else if (st.includes("cancelada")) {
+      statusLabel = "Cancelada";
+      statusClass = "cancelled"; 
     }
 
     return { ...app, statusLabel, statusClass };
@@ -98,13 +86,14 @@ export const AppointmentsLogic = {
 
   filterAppointments(appointments, filterKey) {
     const filter = filterKey || this.FILTERS.ALL;
-    const today = new Date();
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+    const now = new Date();
+    const startOfToday = new Date(now.setHours(0,0,0,0));
+    const endOfToday = new Date(now.setHours(23,59,59,999));
 
     const startOfWeek = new Date(startOfToday);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-
+    const day = startOfWeek.getDay() || 7; 
+    if (day !== 1) startOfWeek.setHours(-24 * (day - 1));
+    
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(endOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
@@ -115,13 +104,10 @@ export const AppointmentsLogic = {
       switch (filter) {
         case this.FILTERS.TODAY:
           return d >= startOfToday && d <= endOfToday;
-
         case this.FILTERS.WEEK:
           return d >= startOfWeek && d <= endOfWeek;
-
         case this.FILTERS.OVERDUE:
-          return d < startOfToday;
-
+          return d < startOfToday && a.statusClass !== "completed";
         case this.FILTERS.ALL:
         default:
           return true;

@@ -3,7 +3,6 @@ import { dashboardTemplate } from "./main-dashboard.template.js";
 import { dashboardStyles } from "./main-dashboard.styles.js";
 import { DashboardLogic } from "./logic.js";
 
-
 class DashboardPage extends HTMLElement {
 
   constructor() {
@@ -13,7 +12,6 @@ class DashboardPage extends HTMLElement {
 
   async connectedCallback() {
     const css = await injectStyles(dashboardStyles);
-
     const style = document.createElement("style");
     style.textContent = css;
 
@@ -23,31 +21,19 @@ class DashboardPage extends HTMLElement {
     this.root.appendChild(style);
     this.root.appendChild(wrapper);
 
+    // Esperamos a que la tabla esté definida antes de cargar datos
+    await customElements.whenDefined("admin-table");
     this.loadData();
   }
 
   async loadData() {
     try {
-      const apiStats = {
-        citasHoy: 12,
-        citasDelta: 2,
-        ingresos: 2450,
-        ingresosDelta: 15,
-        clientesNuevos: 8,
-        ocupacion: 85
-      };
+      // 1. Obtenemos datos REALES calculados en la lógica
+      const data = await DashboardLogic.getDashboardData();
 
-      const apiCitas = [
-        { hora: "09:00 AM", cliente: "Juan García", vehiculo: "Honda Civic - ABC1234", servicio: "Cambio de aceite", estado: "Completada" },
-        { hora: "10:30 AM", cliente: "María López", vehiculo: "Toyota Corolla - XYZ5678", servicio: "Revisión general", estado: "En Proceso" },
-        { hora: "12:00 PM", cliente: "Pedro Ramírez", vehiculo: "Ford Focus - DEF9012", servicio: "Cambio de frenos", estado: "Pendiente" },
-        { hora: "02:30 PM", cliente: "Ana Martínez", vehiculo: "Chevrolet Spark - GHI3456", servicio: "Alineación y balanceo", estado: "Pendiente" }
-      ];
-
-      const stats = DashboardLogic.adaptDashboardResponse(apiStats);
-      const citas = DashboardLogic.adaptCitasResponse(apiCitas);
-
-      await customElements.whenDefined("admin-table");
+      // 2. Adaptamos los datos para la vista (formateo de moneda, etiquetas, etc)
+      const stats = DashboardLogic.adaptDashboardResponse(data.stats);
+      const citas = DashboardLogic.adaptCitasResponse(data.citasRecientes);
 
       this.render(stats, citas);
 
@@ -58,20 +44,20 @@ class DashboardPage extends HTMLElement {
   }
 
   render(stats, citas) {
+    // Renderizado de KPIs
     this.root.querySelector("#kpi-citas").textContent = stats.citasHoy;
-    this.root.querySelector("#kpi-citas-delta").textContent = `+${stats.citasDelta} desde ayer`;
+    // Ejemplo: Si quisieras calcular la diferencia real, necesitarías datos de ayer
+    this.root.querySelector("#kpi-citas-delta").textContent = stats.citasDelta; 
 
-    this.root.querySelector("#kpi-ingresos").textContent = `$${stats.ingresos}`;
-    this.root.querySelector("#kpi-ingresos-delta").textContent = `+${stats.ingresosDelta}% vs ayer`;
+    this.root.querySelector("#kpi-ingresos").textContent = stats.ingresos;
+    this.root.querySelector("#kpi-ingresos-delta").textContent = stats.ingresosDelta;
 
     this.root.querySelector("#kpi-clientes").textContent = stats.clientesNuevos;
-    this.root.querySelector("#kpi-ocupacion").textContent = `${stats.ocupacion}%`;
+    this.root.querySelector("#kpi-ocupacion").textContent = stats.ocupacion;
 
+    // Renderizado de Tabla
     const table = this.root.querySelector("#tabla-citas");
-    if (!table) {
-      console.warn("[DashboardPage] <admin-table id='tabla-citas'> no encontrado");
-      return;
-    }
+    if (!table) return;
 
     table.columns = [
       { key: "hora", label: "Hora", type: "text" },
@@ -88,16 +74,9 @@ class DashboardPage extends HTMLElement {
   renderError() {
     const container = this.root.querySelector(".dashboard") || this.root;
     container.innerHTML = `
-      <div style="
-        padding: 2rem;
-        background: #ffe6e6;
-        border: 1px solid #ffb3b3;
-        border-radius: 12px;
-        font-size: 16px;
-        color: #b30000;
-      ">
-        Error al cargar el dashboard.<br>
-        Verifica tu conexión o intenta nuevamente.
+      <div style="padding: 2rem; background: #ffe6e6; border: 1px solid #ffb3b3; border-radius: 12px; color: #b30000; text-align: center;">
+        <h3>Error de conexión</h3>
+        <p>No se pudieron cargar los datos del dashboard.</p>
       </div>
     `;
   }
