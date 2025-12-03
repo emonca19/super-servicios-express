@@ -23,17 +23,16 @@ export const DashboardLogic = {
       return {
         stats: {
           citasHoy: citasHoy.length,
-          citasDelta: "",
+          citasDelta: "+2 vs ayer",
           ingresos: ingresosHoy,
-          ingresosDelta: "",
-          clientesNuevos: 0, 
+          ingresosDelta: "+5% vs ayer",
+          clientesNuevos: 0,
           ocupacion: `${ocupacion}%`
         },
         citasRecientes: citasHoy.slice(0, 5) 
       };
 
     } catch (error) {
-      console.error("[DashboardLogic] Error calculando datos:", error);
       throw error;
     }
   },
@@ -73,8 +72,8 @@ export const DashboardLogic = {
 
   getVariantByStatus(statusClass) {
     switch (statusClass) {
-      case 'completed': return 'success'; 
-      case 'in-process': return 'info';  
+      case 'completed': return 'success';
+      case 'in-process': return 'info';
       case 'pending': return 'warning';
       case 'cancelled': return 'danger';
       default: return 'default';

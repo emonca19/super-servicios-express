@@ -11,9 +11,11 @@ class DashboardPage extends HTMLElement {
   }
 
   async connectedCallback() {
-    const css = await injectStyles(dashboardStyles);
     const style = document.createElement("style");
-    style.textContent = css;
+    try {
+        const css = await injectStyles(dashboardStyles);
+        style.textContent = css || dashboardStyles;
+    } catch(e) { style.textContent = dashboardStyles; }
 
     const wrapper = document.createElement("div");
     wrapper.innerHTML = dashboardTemplate();
@@ -21,64 +23,62 @@ class DashboardPage extends HTMLElement {
     this.root.appendChild(style);
     this.root.appendChild(wrapper);
 
-    // Esperamos a que la tabla esté definida antes de cargar datos
     await customElements.whenDefined("admin-table");
+    
     this.loadData();
   }
 
   async loadData() {
     try {
-      // 1. Obtenemos datos REALES calculados en la lógica
       const data = await DashboardLogic.getDashboardData();
 
-      // 2. Adaptamos los datos para la vista (formateo de moneda, etiquetas, etc)
       const stats = DashboardLogic.adaptDashboardResponse(data.stats);
       const citas = DashboardLogic.adaptCitasResponse(data.citasRecientes);
 
       this.render(stats, citas);
 
     } catch (error) {
-      console.error("[DashboardPage] Error:", error);
       this.renderError();
     }
   }
 
   render(stats, citas) {
-    // Renderizado de KPIs
-    this.root.querySelector("#kpi-citas").textContent = stats.citasHoy;
-    // Ejemplo: Si quisieras calcular la diferencia real, necesitarías datos de ayer
-    this.root.querySelector("#kpi-citas-delta").textContent = stats.citasDelta; 
+    const safeText = (id, val) => {
+        const el = this.root.querySelector(id);
+        if(el) el.textContent = val;
+    };
 
-    this.root.querySelector("#kpi-ingresos").textContent = stats.ingresos;
-    this.root.querySelector("#kpi-ingresos-delta").textContent = stats.ingresosDelta;
+    safeText("#kpi-citas", stats.citasHoy);
+    safeText("#kpi-citas-delta", stats.citasDelta);
+    safeText("#kpi-ingresos", stats.ingresos);
+    safeText("#kpi-ingresos-delta", stats.ingresosDelta);
+    safeText("#kpi-clientes", stats.clientesNuevos);
+    safeText("#kpi-ocupacion", stats.ocupacion);
 
-    this.root.querySelector("#kpi-clientes").textContent = stats.clientesNuevos;
-    this.root.querySelector("#kpi-ocupacion").textContent = stats.ocupacion;
-
-    // Renderizado de Tabla
     const table = this.root.querySelector("#tabla-citas");
-    if (!table) return;
-
-    table.columns = [
-      { key: "hora", label: "Hora", type: "text" },
-      { key: "cliente", label: "Cliente", type: "text" },
-      { key: "vehiculo", label: "Vehículo", type: "text" },
-      { key: "servicio", label: "Servicio", type: "text" },
-      { key: "estado", label: "Estado", type: "badge" },
-      { key: "acciones", label: "Acciones", type: "actions" }
-    ];
-
-    table.data = citas;
+    if (table) {
+        table.columns = [
+            { key: "hora", label: "Hora", type: "text" },
+            { key: "cliente", label: "Cliente", type: "text" },
+            { key: "vehiculo", label: "Vehículo", type: "text" },
+            { key: "servicio", label: "Servicio", type: "text" },
+            { key: "estado", label: "Estado", type: "badge" }
+        ];
+        table.data = citas;
+    }
   }
 
   renderError() {
-    const container = this.root.querySelector(".dashboard") || this.root;
-    container.innerHTML = `
-      <div style="padding: 2rem; background: #ffe6e6; border: 1px solid #ffb3b3; border-radius: 12px; color: #b30000; text-align: center;">
-        <h3>Error de conexión</h3>
-        <p>No se pudieron cargar los datos del dashboard.</p>
-      </div>
-    `;
+    const container = this.root.querySelector(".dashboard");
+    if(container) {
+        container.innerHTML = `
+            <div style="padding: 2rem; background: #fee2e2; border: 1px solid #ef4444; border-radius: 12px; color: #b91c1c; text-align: center; margin-top: 2rem;">
+                <h3 style="font-weight: 700; font-size: 1.2rem;">Error de Conexión</h3>
+                <p>No se pudieron cargar los datos del taller.</p>
+                <button onclick="window.location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #b91c1c; color: white; border: none; border-radius: 6px; cursor: pointer;">Reintentar</button>
+            </div>
+        `;
+    }
   }
 }
 

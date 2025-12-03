@@ -1,5 +1,3 @@
-// assets/js/microfrontends/appointments/appointments.template.js
-
 export const appointmentsTemplate = (activeFilter = "all") => `
   <div class="appointments">
     <div style="display:flex; justify-content:space-between; align-items:flex-start;">

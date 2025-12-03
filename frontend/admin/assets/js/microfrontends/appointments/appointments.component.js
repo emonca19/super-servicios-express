@@ -10,9 +10,7 @@ class AppointmentsPage extends HTMLElement {
     this.root = this.attachShadow({ mode: "open" });
     this.allAppointments = [];
     this.currentFilter = AppointmentsLogic.FILTERS.ALL;
-    
     this.options = { clients: [], vehicles: [], services: [] };
-    
     this.currentMode = "create";
     this.deleteId = null;
   }
@@ -33,11 +31,9 @@ class AppointmentsPage extends HTMLElement {
 
     this.table = this.root.querySelector("#tabla-appointments");
     this.filterBar = this.root.querySelector(".filters");
-    
     this.modal = this.root.querySelector("#appModal");
     this.viewModal = this.root.querySelector("#viewModal");
     this.deleteModal = this.root.querySelector("#deleteModal");
-    
     this.form = this.root.querySelector("#appForm");
     this.inpId = this.root.querySelector("#appId");
     this.inpFecha = this.root.querySelector("#appFecha");
@@ -51,7 +47,7 @@ class AppointmentsPage extends HTMLElement {
     this.modalTitle = this.root.querySelector("#modalTitle");
     this.saveBtn = this.root.querySelector("#saveBtn");
 
-    this.loadOptions(); 
+    this.loadOptions();
     this.loadData();
     this.setupListeners();
   }
@@ -131,7 +127,7 @@ class AppointmentsPage extends HTMLElement {
 
   render() {
     const filtered = AppointmentsLogic.filterAppointments(this.allAppointments, this.currentFilter);
-
+    
     this.filterBar.querySelectorAll(".filter-pill").forEach(btn => {
       btn.classList.toggle("active", btn.dataset.filter === this.currentFilter);
     });
@@ -173,7 +169,6 @@ class AppointmentsPage extends HTMLElement {
         this.inpHora.value = d.toTimeString().slice(0,5);
 
         this.selCliente.value = cita.id_cliente;
-        
         this.filterAutosByClient(cita.id_cliente);
         this.selAuto.value = cita.id_auto;
 
@@ -192,11 +187,10 @@ class AppointmentsPage extends HTMLElement {
   async openView(id) {
     try {
         const cita = await AppointmentsLogic.getAppointmentById(id);
-        
         const d = new Date(cita.inicio);
         const fecha = d.toLocaleDateString();
         const hora = d.toLocaleTimeString();
-
+        
         const cliente = this.options.clients.find(c => c.id_cliente == cita.id_cliente);
         const auto = this.options.vehicles.find(a => a.id_auto == cita.id_auto);
 
@@ -227,7 +221,6 @@ class AppointmentsPage extends HTMLElement {
         estado: this.selEstado.value,
         motivo: this.inpMotivo.value,
         observaciones: this.inpObs.value,
-        // Precio: Buscar precio del servicio seleccionado
         precio: this.options.services.find(s => s.id_servicio == this.selServicio.value)?.precio_con_utilidad
     };
 
