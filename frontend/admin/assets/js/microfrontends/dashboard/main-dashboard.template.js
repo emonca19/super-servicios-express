@@ -18,9 +18,9 @@ export const dashboardTemplate = () => `
       </div>
 
       <div class="kpi-card blue">
-        <div class="kpi-label">Clientes Nuevos</div>
+        <div class="kpi-label">Clientes registrados</div>
         <div class="kpi-value" id="kpi-clientes">--</div>
-        <div class="kpi-sub">Esta semana</div>
+        <div class="kpi-sub"></div>
       </div>
 
       <div class="kpi-card yellow">

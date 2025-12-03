@@ -1,11 +1,24 @@
 import { AppointmentsLogic } from "../appointments/logic.js";
+import { api } from "../../../services/api.js";
+
+const extractArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.data)) return res.data;
+  return [];
+};
 
 export const DashboardLogic = {
 
   async getDashboardData() {
     try {
-      const allAppointments = await AppointmentsLogic.fetchAppointments();
+      const [allAppointments, clientsRes] = await Promise.all([
+        AppointmentsLogic.fetchAppointments(),
+        api.clientes.obtenerTodos()
+      ]);
       
+      const allClients = extractArray(clientsRes);
+      const totalClientes = allClients.length;
+
       const now = new Date();
       const startOfToday = new Date(now.setHours(0,0,0,0));
       const endOfToday = new Date(now.setHours(23,59,59,999));
@@ -23,10 +36,10 @@ export const DashboardLogic = {
       return {
         stats: {
           citasHoy: citasHoy.length,
-          citasDelta: "+2 vs ayer",
+          citasDelta: "",
           ingresos: ingresosHoy,
-          ingresosDelta: "+5% vs ayer",
-          clientesNuevos: 0,
+          ingresosDelta: "",
+          clientesNuevos: totalClientes,
           ocupacion: `${ocupacion}%`
         },
         citasRecientes: citasHoy.slice(0, 5) 
