@@ -91,7 +91,14 @@ class ServiciosController {
   async eliminarServicio(req, res, next) {
     try {
       const id = parseInt(req.params.id, 10);
-      await this.prisma.servicio.delete({ where: { id_servicio: id } });
+      await this.prisma.$transaction([
+        this.prisma.detalleCita.deleteMany({
+          where: { id_servicio: id },
+        }),
+        this.prisma.servicio.delete({
+          where: { id_servicio: id },
+        }),
+      ]);
       res.status(204).send();
     } catch (e) {
       if (e.code === 'P2025') return res.status(404).json({ ok: false, message: 'Servicio no encontrado' });

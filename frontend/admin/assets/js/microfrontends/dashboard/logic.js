@@ -1,11 +1,24 @@
 import { AppointmentsLogic } from "../appointments/logic.js";
+import { api } from "../../../services/api.js";
+
+const extractArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.data)) return res.data;
+  return [];
+};
 
 export const DashboardLogic = {
 
   async getDashboardData() {
     try {
-      const allAppointments = await AppointmentsLogic.fetchAppointments();
+      const [allAppointments, clientsRes] = await Promise.all([
+        AppointmentsLogic.fetchAppointments(),
+        api.clientes.obtenerTodos()
+      ]);
       
+      const allClients = extractArray(clientsRes);
+      const totalClientes = allClients.length;
+
       const now = new Date();
       const startOfToday = new Date(now.setHours(0,0,0,0));
       const endOfToday = new Date(now.setHours(23,59,59,999));
@@ -26,14 +39,13 @@ export const DashboardLogic = {
           citasDelta: "",
           ingresos: ingresosHoy,
           ingresosDelta: "",
-          clientesNuevos: 0, 
+          clientesNuevos: totalClientes,
           ocupacion: `${ocupacion}%`
         },
         citasRecientes: citasHoy.slice(0, 5) 
       };
 
     } catch (error) {
-      console.error("[DashboardLogic] Error calculando datos:", error);
       throw error;
     }
   },
@@ -73,8 +85,8 @@ export const DashboardLogic = {
 
   getVariantByStatus(statusClass) {
     switch (statusClass) {
-      case 'completed': return 'success'; 
-      case 'in-process': return 'info';  
+      case 'completed': return 'success';
+      case 'in-process': return 'info';
       case 'pending': return 'warning';
       case 'cancelled': return 'danger';
       default: return 'default';

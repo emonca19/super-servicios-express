@@ -1,4 +1,3 @@
-// assets/js/services/clients.service.js
 import { apiFetch } from "./api-client.js";
 
 export const ClientsService = {
