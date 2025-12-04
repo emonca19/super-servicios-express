@@ -35,11 +35,11 @@ class AppointmentsService {
       if (!autoId) {
         const automovilPayload = {
           id_cliente: Number(clienteId),
-          placas: (appointmentData.placas || '').toUpperCase() || `TEMP-${Date.now()}-${Math.floor(Math.random()*10000)}`,
+          placas: (appointmentData.placas || '').toUpperCase() || `TEMP-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
           marca: appointmentData.marca || '',
           modelo: appointmentData.modelo || '',
           anio: appointmentData.ano ? Number(appointmentData.ano) : undefined,
-          numero_serie: appointmentData.numero_serie || appointmentData.vin || `SN-${Date.now()}-${Math.floor(Math.random()*10000)}`,
+          numero_serie: appointmentData.numero_serie || appointmentData.vin || `SN-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
           color: appointmentData.color || undefined
         };
 
@@ -86,9 +86,9 @@ class AppointmentsService {
         detalles,
       };
 
-      console.log('[AppointmentsService] Creating cita payload:', citaPayload);
+
       const response = await this.apiClient.post('/citas', citaPayload);
-      console.log('[AppointmentsService] Appointment created successfully:', response);
+
       return response;
     } catch (error) {
       console.error('[AppointmentsService] Error creating appointment:', error);
@@ -104,8 +104,8 @@ class AppointmentsService {
    */
   async getAvailableSlots(date, serviceId) {
     try {
-      console.log('[AppointmentsService] Getting slots for:', { date, serviceId });
-      
+
+
       const slots = await this.apiClient.get('/citas/available-slots', {
         date,
         serviceId,
@@ -117,7 +117,7 @@ class AppointmentsService {
         const parts = (date || '').split('-').map(Number);
         if (parts.length === 3) {
           const d = new Date(parts[0], parts[1] - 1, parts[2]);
-          const dow = d.getDay(); 
+          const dow = d.getDay();
           if (dow === 0) {
             return [];
           }
@@ -138,11 +138,11 @@ class AppointmentsService {
       return result;
     } catch (error) {
       console.error('[AppointmentsService] Error getting available slots:', error);
-      
+
       if (error.status === 404) {
         return this.getDefaultSlots();
       }
-      
+
       throw new Error('No se pudieron cargar los horarios disponibles');
     }
   }
@@ -162,7 +162,7 @@ class AppointmentsService {
    */
   async getById(id) {
     try {
-  const appointment = await this.apiClient.get(`/citas/${id}`);
+      const appointment = await this.apiClient.get(`/citas/${id}`);
       return appointment;
     } catch (error) {
       console.error(`[AppointmentsService] Error getting appointment ${id}:`, error);
@@ -211,7 +211,7 @@ class AppointmentsService {
             errors.push('Los sábados las citas sólo pueden programarse entre las 08:00 y las 14:00');
           }
         }
-      } catch (e) {}
+      } catch (e) { }
 
       try {
         const resp = await this.apiClient.get('/citas/mine');

@@ -7,7 +7,7 @@ class ServicesService {
     this.cache = new Map();
     this.cacheDuration = 5 * 60 * 1000; // 5 minutos
 
-    console.log('✅ ServicesService inicializado (clean)');
+
   }
 
   async getAll(filters = {}) {
