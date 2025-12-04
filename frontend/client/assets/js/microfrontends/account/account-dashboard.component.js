@@ -341,6 +341,39 @@ class AccountDashboard extends HTMLElement {
       // Implement edit profile logic here (e.g., open another modal)
       alert('Funcionalidad de editar perfil en desarrollo');
     });
+
+    // Auto Edit/Delete Events
+    this.root.addEventListener('edit-auto', (e) => {
+      console.log('Edit auto requested:', e.detail);
+      alert('Funcionalidad de editar auto en desarrollo');
+    });
+
+    this.root.addEventListener('delete-auto', async (e) => {
+      const { id } = e.detail;
+      try {
+        await this.getClient().delete(`/automoviles/${id}`);
+        alert('Auto eliminado correctamente');
+        await this.loadAutos();
+      } catch (error) {
+        console.error('Error deleting auto:', error);
+        alert('Error al eliminar el auto');
+      }
+    });
+
+    // Appointment Cancel Event
+    this.root.addEventListener('cancel-appointment', async (e) => {
+      const { id } = e.detail;
+      try {
+        await this.getClient().put(`/citas/${id}`, { estado: 'CANCELADA' });
+        alert('Cita cancelada correctamente');
+        // Recargar citas y actualizar stats
+        await this.loadCitas();
+        this.updateStats();
+      } catch (error) {
+        console.error('Error canceling appointment:', error);
+        alert('Error al cancelar la cita');
+      }
+    });
   }
 
   showTab(tabName) {
@@ -437,9 +470,13 @@ class AccountDashboard extends HTMLElement {
       if (this.citasGeneral) this.citasGeneral.setAttribute('appointments-data', json);
       if (this.citasFull) this.citasFull.setAttribute('appointments-data', json);
 
-      // Update badge
+      // Update badge - solo contar citas activas (no canceladas)
+      const activeCitas = this._appointmentsData.filter(c => {
+        const status = (c.estado || 'PENDIENTE').toUpperCase();
+        return status !== 'CANCELADA' && status !== 'CANCELLED';
+      });
       const badge = this.root.querySelector('#tab-citas-count');
-      if (badge) badge.textContent = this._appointmentsData.length;
+      if (badge) badge.textContent = activeCitas.length;
     } catch (e) {
       console.warn('Error loading citas', e);
     }
@@ -447,17 +484,31 @@ class AccountDashboard extends HTMLElement {
 
   updateStats() {
     if (this.statAutosValue) this.statAutosValue.textContent = this._autosData.length;
-    if (this.statCitasValue) this.statCitasValue.textContent = this._appointmentsData.length;
+    
+    // Contar solo citas activas (no canceladas)
+    const activeCitas = this._appointmentsData.filter(c => {
+      const status = (c.estado || 'PENDIENTE').toUpperCase();
+      return status !== 'CANCELADA' && status !== 'CANCELLED';
+    });
+    if (this.statCitasValue) this.statCitasValue.textContent = activeCitas.length;
 
-    // Next appointment logic
+    // Next appointment logic - usar 'inicio' en lugar de 'fecha'
     const pending = this._appointmentsData
       .filter(c => ['PENDIENTE', 'CONFIRMADA'].includes((c.estado || '').toUpperCase()))
-      .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+      .filter(c => c.inicio) // Filtrar solo citas con fecha
+      .sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
 
     if (pending.length > 0 && this.statNextValue) {
       const next = pending[0];
-      this.statNextValue.textContent = new Date(next.fecha).toLocaleDateString();
-      if (this.statNextSub) this.statNextSub.textContent = next.hora || 'Por definir';
+      const fecha = new Date(next.inicio);
+      this.statNextValue.textContent = fecha.toLocaleDateString('es-PE', { month: 'short', day: 'numeric' });
+      if (this.statNextSub) {
+        this.statNextSub.textContent = fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+      }
+    } else {
+      // Si no hay citas pendientes
+      if (this.statNextValue) this.statNextValue.textContent = '--';
+      if (this.statNextSub) this.statNextSub.textContent = 'Aún sin programar';
     }
   }
 

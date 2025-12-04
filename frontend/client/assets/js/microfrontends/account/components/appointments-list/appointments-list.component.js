@@ -44,6 +44,24 @@ class AppointmentsList extends HTMLElement {
         const container = document.createElement('div');
         container.innerHTML = appointmentsListTemplate(this._appointments);
         this.root.appendChild(container);
+
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        const cancelBtns = this.root.querySelectorAll('[data-action="cancel"]');
+        cancelBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.dataset.id;
+                if (confirm('¿Deseas cancelar esta cita?')) {
+                    this.dispatchEvent(new CustomEvent('cancel-appointment', {
+                        detail: { id },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            });
+        });
     }
 }
 

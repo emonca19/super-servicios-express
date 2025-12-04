@@ -118,8 +118,32 @@ class AutosList extends HTMLElement {
             });
         }
 
-        // Add Auto Button (if present in this component, or we can leave it to parent)
-        // The parent usually has the "Add New" button in the header, but we might have one in empty state.
+        // Edit and Delete buttons
+        const editBtns = this.root.querySelectorAll('[data-action="edit"]');
+        editBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.dataset.id;
+                this.dispatchEvent(new CustomEvent('edit-auto', {
+                    detail: { id },
+                    bubbles: true,
+                    composed: true
+                }));
+            });
+        });
+
+        const deleteBtns = this.root.querySelectorAll('[data-action="delete"]');
+        deleteBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.dataset.id;
+                if (confirm('¿Estás seguro de eliminar este vehículo?')) {
+                    this.dispatchEvent(new CustomEvent('delete-auto', {
+                        detail: { id },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            });
+        });
     }
 }
 

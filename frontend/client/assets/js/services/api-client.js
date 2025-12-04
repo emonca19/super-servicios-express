@@ -73,6 +73,8 @@ class ApiClient {
       } catch (e) {}
       throw err;
     }
+
+    console.log('[api-client] GET', endpoint, params, payload);
     return payload;
   }
 

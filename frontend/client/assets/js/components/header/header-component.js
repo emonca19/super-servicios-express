@@ -2,7 +2,7 @@ import { headerTemplate } from './header-component.template.js';
 import { injectStyles } from '../../utils/shadow-style-loader.js';
 import apiClient from '../../services/api-client.js';
 
-// Import Auth Microfrontend
+
 import '../../microfrontends/auth/index.js';
 
 const templateCache = document.createElement('template');
@@ -155,28 +155,6 @@ class HeaderComponent extends HTMLElement {
 
         await this.render();
 
-        this._globalOpenAuthClick = (ev) => {
-            const path = ev.composedPath ? ev.composedPath() : (ev.path || []);
-            if (path && path.indexOf && (path.indexOf(this) !== -1 || path.indexOf(this.root) !== -1)) return;
-            let el = null;
-            if (path && path.length) {
-                for (let i = 0; i < path.length; i++) {
-                    const p = path[i];
-                    if (!p || !p.tagName) continue;
-                    const tag = String(p.tagName).toLowerCase();
-                    if (tag === 'a' || tag === 'button') { el = p; break; }
-                }
-            }
-            if (!el) return;
-            const txt = (el.textContent || '').trim();
-            if (/reg[ií]strate/i.test(txt)) {
-                try { ev.preventDefault(); } catch (e) { }
-                window.dispatchEvent(new CustomEvent('open-auth', { detail: 'register' }));
-            }
-        };
-        document.addEventListener('click', this._globalOpenAuthClick, true);
-
-        // Append Auth Modal to body if not present
         if (!document.querySelector('auth-modal')) {
             const modal = document.createElement('auth-modal');
             document.body.appendChild(modal);
@@ -186,7 +164,6 @@ class HeaderComponent extends HTMLElement {
     disconnectedCallback() {
         try { if (this._userLoggedInHandler) window.removeEventListener('user-logged-in', this._userLoggedInHandler); } catch (e) { }
         try { if (this._authExpiredHandler) window.removeEventListener('auth-expired', this._authExpiredHandler); } catch (e) { }
-        try { if (this._globalOpenAuthClick) document.removeEventListener('click', this._globalOpenAuthClick, true); } catch (e) { }
     }
 
 
@@ -200,7 +177,7 @@ class HeaderComponent extends HTMLElement {
 
     async render() {
         this.root.innerHTML = '';
-        await injectStyles(this.root, ''); // No custom styles needed for now
+        await injectStyles(this.root, '');
         this.root.appendChild(templateCache.content.cloneNode(true));
 
         try {
@@ -213,9 +190,6 @@ class HeaderComponent extends HTMLElement {
         } catch (e) { }
 
         try {
-            // Elementos clave del header: área de autenticación y botón
-            // para agendar cita. Obtenemos además el cliente HTTP y el
-            // token actual (si existe).
             const authArea = this.root.querySelector('#header-auth');
             const btnAgendar = this.root.querySelector('#btn-agendar');
             const client = this.getClient();
@@ -328,13 +302,6 @@ class HeaderComponent extends HTMLElement {
                         ev.preventDefault();
                         window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
                     }
-                });
-            }
-            const headerLogin = this.root.querySelector('#header-login');
-            if (headerLogin) {
-                headerLogin.addEventListener('click', (ev) => {
-                    ev.preventDefault();
-                    window.dispatchEvent(new CustomEvent('open-auth', { detail: 'login' }));
                 });
             }
         } catch (e) {

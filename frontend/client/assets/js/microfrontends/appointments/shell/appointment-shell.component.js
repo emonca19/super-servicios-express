@@ -58,7 +58,6 @@ class AppointmentShell extends HTMLElement {
         });
       }
 
-      // Listen for successful login to re-render
       const loginHandler = () => {
         this.render();
         window.removeEventListener('user-logged-in', loginHandler);

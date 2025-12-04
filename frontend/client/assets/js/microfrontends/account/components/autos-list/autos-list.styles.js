@@ -15,6 +15,7 @@ export const autosListStyles = `
     .auto-card:hover { background:#fff; border-color:#cbd5e1; box-shadow:0 6px 16px rgba(0,0,0,0.06); transform:translateY(-2px); }
     .auto-header { display:flex; gap:0.75rem; justify-content:space-between; flex-wrap:wrap; align-items:center; }
     .auto-main { display:flex; gap:0.65rem; align-items:center; flex:1; }
+    .auto-actions { display:flex; gap:0.5rem; }
     .car-chip { width:36px; height:36px; border-radius:6px; display:grid; place-items:center; background:#f1f5f9; color:#475569; flex-shrink:0; }
     .car-icon { width:20px; height:20px; }
     .auto-name { font-size:0.9375rem; font-weight:600; color:#0f172a; margin:0; }
@@ -24,4 +25,8 @@ export const autosListStyles = `
     .field-tile { border:1px solid #e2e8f0; border-radius:6px; padding:0.5rem 0.625rem; background:#fafafa; }
     .field-label { color:#94a3b8; font-weight:600; font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:0.15rem; }
     .field-value { color:#0f172a; font-weight:600; font-size:0.875rem; }
+    .btn-icon { background:transparent; border:1px solid #e2e8f0; border-radius:6px; padding:0.4rem; cursor:pointer; transition:all 150ms ease; display:inline-flex; align-items:center; justify-content:center; }
+    .btn-icon:hover { background:#dbeafe; border-color:#93c5fd; color:#1e40af; }
+    .btn-icon-danger:hover { background:#fee2e2; border-color:#fca5a5; color:#dc2626; }
+    .btn-icon svg { width:16px; height:16px; }
 `;

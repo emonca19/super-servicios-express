@@ -104,10 +104,6 @@ export class RegisterForm extends HTMLElement {
             statusEl.textContent = 'Creando cuenta...';
             statusEl.className = 'status loading';
 
-            const res = await apiClient.post('/clientes', data);
-            const cliente = res?.data || res;
-
-            // Auto-login
             if (data.email && data.password) {
                 try {
                     const loginRes = await apiClient.post('/auth/login', { email: data.email, password: data.password });

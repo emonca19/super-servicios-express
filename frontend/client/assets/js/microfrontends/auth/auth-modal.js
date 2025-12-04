@@ -29,11 +29,9 @@ export class AuthModal extends HTMLElement {
         this._closeAuthHandler = () => this.close();
         window.addEventListener('close-auth', this._closeAuthHandler);
 
-        // Listen for success events from children to close modal
         this.shadowRoot.addEventListener('login-success', () => this.close());
         this.shadowRoot.addEventListener('register-success', () => this.close());
 
-        // Switch modes
         this.shadowRoot.addEventListener('switch-to-register', () => {
             this.mode = 'register';
             this.renderContent();
@@ -54,7 +52,6 @@ export class AuthModal extends HTMLElement {
         this.style.display = 'block';
         this.renderContent();
 
-        // Animation frame to allow transition
         requestAnimationFrame(() => {
             const overlay = this.shadowRoot.querySelector('.overlay');
             const card = this.shadowRoot.querySelector('.modal-card');
@@ -73,7 +70,7 @@ export class AuthModal extends HTMLElement {
 
         setTimeout(() => {
             if (!this.isOpen) this.style.display = 'none';
-        }, 300); // Wait for transition
+        }, 300); 
     }
 
     render() {

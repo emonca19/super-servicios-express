@@ -104,7 +104,6 @@ export class LoginForm extends HTMLElement {
 
             localStorage.setItem('token', token);
             
-            // Fetch profile
             let profile = null;
             try {
                 const p = await apiClient.get('/clientes/me');

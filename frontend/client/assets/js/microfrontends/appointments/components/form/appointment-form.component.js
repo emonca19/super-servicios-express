@@ -15,7 +15,6 @@ class AppointmentForm extends HTMLElement {
     this.servicesService = new ServicesService();
     this.root = this.attachShadow({ mode: 'open' });
 
-    // Managers
     this.vehicleManager = new VehicleManager(this.root, apiClient);
     this.slotManager = new SlotManager(this.root, this.appointmentsService, apiClient);
   }
@@ -25,7 +24,6 @@ class AppointmentForm extends HTMLElement {
     this.populateYearOptions();
     this.loadServiceOptions();
     this.registerEvents();
-    this.prefillFromPending();
 
     try {
       const token = apiClient.getToken();
@@ -53,7 +51,7 @@ class AppointmentForm extends HTMLElement {
       } catch (e) { }
     });
 
-    window.addEventListener('auto-saved', async (ev) => {
+    window.addEventListener('auto-saved', async () => {
       try { await this.vehicleManager.loadSavedVehicles(true); } catch (e) { }
     });
   }
@@ -155,18 +153,6 @@ class AppointmentForm extends HTMLElement {
 
     if (dateInput) dateInput.addEventListener('change', updateSlots);
     if (serviceSelect) serviceSelect.addEventListener('change', updateSlots);
-  }
-
-  prefillFromPending() {
-    try {
-      const pending = sessionStorage.getItem('pendingCliente');
-      if (pending) {
-        const cliente = JSON.parse(pending);
-        const token = apiClient.getToken();
-        if (token) this.fillAndLockClient(cliente);
-      }
-      sessionStorage.removeItem('pendingCliente');
-    } catch (e) { }
   }
 
   async prefillClientData() {
