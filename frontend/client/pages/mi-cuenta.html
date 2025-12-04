@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,6 +10,7 @@
   <link rel="stylesheet" href="../assets/css/tailwind.css">
   <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
 </head>
+
 <body class="bg-gray-50">
   <header-component></header-component>
 
@@ -20,17 +22,7 @@
 
   <footer-component></footer-component>
 
-  <script type="module">
-    try {
-      await Promise.all([
-        import('../assets/js/components/header/header-component.js'),
-        import('../assets/js/components/footer-component/footer-component.js'),
-        import('../assets/js/microfrontends/account/index.js')
-      ]);
-      console.log('[account] Microfrontend cargado');
-    } catch (err) {
-      console.error('[account] Error cargando microfrontend', err);
-    }
-  </script>
+  <script type="module" src="../assets/js/pages/account-entry.js"></script>
 </body>
+
 </html>

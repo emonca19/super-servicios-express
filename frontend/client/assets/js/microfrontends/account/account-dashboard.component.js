@@ -6,6 +6,7 @@ import './components/profile-card/index.js';
 import './components/autos-list/index.js';
 import './components/appointments-list/index.js';
 import './components/auto-form-modal/index.js';
+import './components/profile-form-modal/index.js';
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -252,6 +253,7 @@ template.innerHTML = `
   </section>
 
   <auto-form-modal></auto-form-modal>
+  <profile-form-modal></profile-form-modal>
 `;
 
 class AccountDashboard extends HTMLElement {
@@ -280,6 +282,7 @@ class AccountDashboard extends HTMLElement {
   setupReferences() {
     this.tabButtons = Array.from(this.root.querySelectorAll('.tab'));
     this.modal = this.root.querySelector('auto-form-modal');
+    this.profileModal = this.root.querySelector('profile-form-modal');
 
     // Profile Cards
     this.profileGeneral = this.root.querySelector('#general-profile');
@@ -323,7 +326,10 @@ class AccountDashboard extends HTMLElement {
     const addAutoBtns = this.root.querySelectorAll('#btn-add-auto, #btn-add-auto-top, #btn-add-auto-general');
     addAutoBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        if (this.modal) this.modal.open = true;
+        if (this.modal) {
+          this.modal.data = {}; // Clear data for new auto
+          this.modal.open = true;
+        }
       });
     });
 
@@ -335,17 +341,29 @@ class AccountDashboard extends HTMLElement {
       });
     }
 
+    if (this.profileModal) {
+      this.profileModal.addEventListener('save-profile', (e) => this.handleSaveProfile(e.detail));
+      this.profileModal.addEventListener('close-modal', () => {
+        this.profileModal.open = false;
+      });
+    }
+
     // Profile Edit Events (bubbled from profile-card)
     this.root.addEventListener('edit-profile', (e) => {
-      console.log('Edit profile requested:', e.detail);
-      // Implement edit profile logic here (e.g., open another modal)
-      alert('Funcionalidad de editar perfil en desarrollo');
+      if (this.profileModal) {
+        this.profileModal.data = this._profileData || {};
+        this.profileModal.open = true;
+      }
     });
 
     // Auto Edit/Delete Events
     this.root.addEventListener('edit-auto', (e) => {
-      console.log('Edit auto requested:', e.detail);
-      alert('Funcionalidad de editar auto en desarrollo');
+      const { id } = e.detail;
+      const auto = this._autosData.find(a => a.id_auto == id);
+      if (auto && this.modal) {
+        this.modal.data = auto;
+        this.modal.open = true;
+      }
     });
 
     this.root.addEventListener('delete-auto', async (e) => {
@@ -484,7 +502,7 @@ class AccountDashboard extends HTMLElement {
 
   updateStats() {
     if (this.statAutosValue) this.statAutosValue.textContent = this._autosData.length;
-    
+
     // Contar solo citas activas (no canceladas)
     const activeCitas = this._appointmentsData.filter(c => {
       const status = (c.estado || 'PENDIENTE').toUpperCase();
@@ -520,7 +538,15 @@ class AccountDashboard extends HTMLElement {
         return;
       }
 
-      await this.getClient().post('/automoviles', data);
+      if (data.id_auto) {
+        // Update
+        await this.getClient().put(`/automoviles/${data.id_auto}`, data);
+        alert('Automóvil actualizado correctamente');
+      } else {
+        // Create
+        await this.getClient().post('/automoviles', data);
+        alert('Automóvil guardado correctamente');
+      }
 
       // Refresh data
       await this.loadAutos();
@@ -528,11 +554,26 @@ class AccountDashboard extends HTMLElement {
       // Close modal
       if (this.modal) this.modal.open = false;
 
-      // Show success (simple alert for now, could be a toast)
-      alert('Automóvil guardado correctamente');
     } catch (e) {
       console.error('Error saving auto', e);
       alert('Error al guardar el automóvil. Intenta de nuevo.');
+    }
+  }
+
+  async handleSaveProfile(data) {
+    try {
+      if (!this._profileData || !this._profileData.id_cliente) {
+        throw new Error('No profile loaded');
+      }
+      const id = this._profileData.id_cliente;
+      await this.getClient().put(`/clientes/${id}`, data);
+      alert('Perfil actualizado correctamente');
+
+      await this.loadProfile();
+      if (this.profileModal) this.profileModal.open = false;
+    } catch (e) {
+      console.error('Error saving profile', e);
+      alert('Error al actualizar el perfil');
     }
   }
 

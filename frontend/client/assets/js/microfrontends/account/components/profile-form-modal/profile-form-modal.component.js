@@ -1,16 +1,17 @@
 import { injectStyles } from '../../../../utils/shadow-style-loader.js';
-import { autoFormModalTemplate } from './auto-form-modal.template.js';
-import { autoFormModalStyles } from './auto-form-modal.styles.js';
+import { profileFormModalTemplate } from './profile-form-modal.template.js';
+import { profileFormModalStyles } from './profile-form-modal.styles.js';
 
-class AutoFormModal extends HTMLElement {
+class ProfileFormModal extends HTMLElement {
     constructor() {
         super();
         this.root = this.attachShadow({ mode: 'open' });
+        this._isOpen = false;
         this._data = {};
     }
 
     static get observedAttributes() {
-        return ['open', 'auto-data'];
+        return ['open', 'profile-data'];
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -18,12 +19,12 @@ class AutoFormModal extends HTMLElement {
             this._isOpen = newValue !== null && newValue !== 'false';
             this.render();
         }
-        if (name === 'auto-data' && oldValue !== newValue) {
+        if (name === 'profile-data' && oldValue !== newValue) {
             try {
                 this._data = JSON.parse(newValue) || {};
                 this.render();
             } catch (e) {
-                console.warn('[auto-form-modal] Invalid data', e);
+                console.warn('[profile-form-modal] Invalid data', e);
             }
         }
     }
@@ -39,7 +40,7 @@ class AutoFormModal extends HTMLElement {
 
     set data(val) {
         this._data = val || {};
-        this.setAttribute('auto-data', JSON.stringify(this._data));
+        this.setAttribute('profile-data', JSON.stringify(this._data));
     }
 
     async connectedCallback() {
@@ -48,10 +49,10 @@ class AutoFormModal extends HTMLElement {
 
     async render() {
         this.root.innerHTML = '';
-        await injectStyles(this.root, autoFormModalStyles);
+        await injectStyles(this.root, profileFormModalStyles);
 
         const container = document.createElement('div');
-        container.innerHTML = autoFormModalTemplate(this._isOpen, this._data);
+        container.innerHTML = profileFormModalTemplate(this._isOpen, this._data);
         this.root.appendChild(container);
 
         if (this._isOpen) {
@@ -60,9 +61,9 @@ class AutoFormModal extends HTMLElement {
     }
 
     setupEventListeners() {
-        const form = this.root.querySelector('#auto-form');
+        const form = this.root.querySelector('#profile-form');
         const cancelBtns = this.root.querySelectorAll('[data-action="cancel"]');
-        const modalOverlay = this.root.querySelector('#auto-modal');
+        const modalOverlay = this.root.querySelector('#profile-modal');
 
         if (form) {
             form.addEventListener('submit', (e) => {
@@ -70,7 +71,7 @@ class AutoFormModal extends HTMLElement {
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
 
-                this.dispatchEvent(new CustomEvent('save-auto', {
+                this.dispatchEvent(new CustomEvent('save-profile', {
                     detail: data,
                     bubbles: true,
                     composed: true
@@ -98,5 +99,5 @@ class AutoFormModal extends HTMLElement {
     }
 }
 
-customElements.define('auto-form-modal', AutoFormModal);
-export { AutoFormModal };
+customElements.define('profile-form-modal', ProfileFormModal);
+export { ProfileFormModal };

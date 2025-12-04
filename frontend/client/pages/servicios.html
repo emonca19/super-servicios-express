@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="../assets/css/tailwind.css">
   <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
 </head>
+
 <body class="bg-gray-50">
   <header-component></header-component>
   <main class="py-8 min-h-screen">
@@ -19,14 +21,7 @@
   </main>
   <footer-component></footer-component>
 
-  <script type="module">
-    try {
-      await Promise.all([
-        import('../assets/js/components/header/header-component.js'),
-        import('../assets/js/components/footer-component/footer-component.js'),
-        import('../assets/js/microfrontends/home/popular-services/index.js')
-      ]);
-    } catch (e) { console.error(e); }
-  </script>
+  <script type="module" src="../assets/js/pages/services-entry.js"></script>
 </body>
+
 </html>
