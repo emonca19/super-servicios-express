@@ -59,7 +59,7 @@ class ApiClient {
       headers: this.buildHeaders(),
     });
     let payload = null;
-    try { payload = await response.json(); } catch (e) {}
+    try { payload = await response.json(); } catch (e) { }
     if (!response.ok) {
       const message = (payload && (payload.message || payload.error)) || response.statusText || `HTTP error ${response.status}`;
       const err = new Error(message);
@@ -67,12 +67,14 @@ class ApiClient {
       err.body = payload;
       try {
         if (response.status === 401) {
-          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) {}
-          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) {}
+          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) { }
+          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) { }
         }
-      } catch (e) {}
+      } catch (e) { }
       throw err;
     }
+
+
     return payload;
   }
 
@@ -83,7 +85,7 @@ class ApiClient {
       body: JSON.stringify(data),
     });
     let payload = null;
-    try { payload = await response.json(); } catch (e) {  }
+    try { payload = await response.json(); } catch (e) { }
     if (!response.ok) {
       let message = response.statusText || `HTTP error ${response.status}`;
       if (payload) {
@@ -100,10 +102,10 @@ class ApiClient {
       err.body = payload;
       try {
         if (response.status === 401) {
-          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) {}
-          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) {}
+          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) { }
+          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) { }
         }
-      } catch (e) {}
+      } catch (e) { }
       console.error('[api-client] HTTP error', response.status, message, payload);
       throw err;
     }
@@ -125,10 +127,10 @@ class ApiClient {
       err.body = payload;
       try {
         if (response.status === 401) {
-          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) {}
-          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) {}
+          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) { }
+          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) { }
         }
-      } catch (e) {}
+      } catch (e) { }
       throw err;
     }
     return payload;
@@ -140,7 +142,7 @@ class ApiClient {
       headers: this.buildHeaders(),
     });
     let payload = null;
-    try { payload = await response.json(); } catch (e) {}
+    try { payload = await response.json(); } catch (e) { }
     if (!response.ok) {
       const message = (payload && (payload.message || payload.error)) || response.statusText || `HTTP error ${response.status}`;
       const err = new Error(message);
@@ -148,10 +150,10 @@ class ApiClient {
       err.body = payload;
       try {
         if (response.status === 401) {
-          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) {}
-          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) {}
+          try { localStorage.removeItem('token'); sessionStorage.removeItem('token'); } catch (e) { }
+          try { if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth-expired')); } catch (e) { }
         }
-      } catch (e) {}
+      } catch (e) { }
       throw err;
     }
     return payload;
@@ -159,12 +161,6 @@ class ApiClient {
 }
 
 const apiClient = new ApiClient();
-
-try {
-  console.debug('[api-client] loaded, instance:', apiClient);
-  console.debug('[api-client] has get:', typeof apiClient.get === 'function');
-} catch (e) {
-}
 
 export { ApiClient };
 export default apiClient;

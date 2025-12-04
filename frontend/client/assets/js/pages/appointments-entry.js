@@ -1,5 +1,5 @@
 // Page entry for agendar-cita
-(async function() {
+(async function () {
   try {
     // Ensure apiClient is available globally for pages that expect it
     try {
@@ -16,7 +16,7 @@
     await Promise.all([
       import('../components/header/header-component.js'),
       import('../components/footer-component/footer-component.js'),
-      import('../../js/microfrontends/appointments/index.js')
+      import('../microfrontends/appointments/index.js')
     ]);
     console.log('[appointments] Microfrontends cargados');
   } catch (error) {
