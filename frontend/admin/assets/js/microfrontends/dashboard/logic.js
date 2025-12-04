@@ -1,0 +1,95 @@
+import { AppointmentsLogic } from "../appointments/logic.js";
+import { api } from "../../../services/api.js";
+
+const extractArray = (res) => {
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.data)) return res.data;
+  return [];
+};
+
+export const DashboardLogic = {
+
+  async getDashboardData() {
+    try {
+      const [allAppointments, clientsRes] = await Promise.all([
+        AppointmentsLogic.fetchAppointments(),
+        api.clientes.obtenerTodos()
+      ]);
+      
+      const allClients = extractArray(clientsRes);
+      const totalClientes = allClients.length;
+
+      const now = new Date();
+      const startOfToday = new Date(now.setHours(0,0,0,0));
+      const endOfToday = new Date(now.setHours(23,59,59,999));
+
+      const citasHoy = allAppointments.filter(a => {
+        const d = new Date(a.date); 
+        return d >= startOfToday && d <= endOfToday;
+      });
+
+      const ingresosHoy = citasHoy.reduce((acc, curr) => acc + (curr.rawPrice || 0), 0);
+
+      const capacidadDiaria = 15;
+      const ocupacion = Math.min(Math.round((citasHoy.length / capacidadDiaria) * 100), 100);
+
+      return {
+        stats: {
+          citasHoy: citasHoy.length,
+          citasDelta: "",
+          ingresos: ingresosHoy,
+          ingresosDelta: "",
+          clientesNuevos: totalClientes,
+          ocupacion: `${ocupacion}%`
+        },
+        citasRecientes: citasHoy.slice(0, 5) 
+      };
+
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  adaptDashboardResponse(stats) {
+    return {
+      citasHoy: stats.citasHoy,
+      citasDelta: stats.citasDelta,
+      ingresos: this.formatCurrency(stats.ingresos),
+      ingresosDelta: stats.ingresosDelta,
+      clientesNuevos: stats.clientesNuevos,
+      ocupacion: stats.ocupacion,
+    };
+  },
+
+  adaptCitasResponse(citasProcesadas) {
+    return citasProcesadas.map(c => ({
+      hora: c.displayTime,     
+      cliente: c.client,       
+      vehiculo: `${c.vehicle} (${c.plate})`, 
+      servicio: c.service,
+      estado: {                
+        label: c.statusLabel, 
+        variant: this.getVariantByStatus(c.statusClass)
+      }, 
+      acciones: true
+    }));
+  },
+
+  formatCurrency(amount) {
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+      minimumFractionDigits: 0
+    }).format(amount || 0);
+  },
+
+  getVariantByStatus(statusClass) {
+    switch (statusClass) {
+      case 'completed': return 'success';
+      case 'in-process': return 'info';
+      case 'pending': return 'warning';
+      case 'cancelled': return 'danger';
+      default: return 'default';
+    }
+  }
+};
