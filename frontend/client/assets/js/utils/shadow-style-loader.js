@@ -2,15 +2,14 @@ let _cachedTailwind = null;
 
 async function _fetchTailwind() {
   if (_cachedTailwind !== null) return _cachedTailwind;
-
   try {
     const res = await fetch('/assets/css/tailwind.css');
-    if (!res.ok) throw new Error();
-    const css = await res.text(); 
+    if (!res.ok) throw new Error('tailwind.css not found');
+    const css = await res.text();
     _cachedTailwind = css;
     return css;
   } catch (e) {
-    console.warn('[shadow-style-loader] Admin could not load tailwind.css');
+    console.warn('[shadow-style-loader] Could not load tailwind.css:', e);
     _cachedTailwind = '';
     return '';
   }
